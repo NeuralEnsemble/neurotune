@@ -26,8 +26,11 @@ targets={'average_minimum': -38.839498793604541, 'spike_frequency_adaptation': 0
 #may be quite hard
 
 #remember, under my new design ideas evaluator is decoupled from the implementation as this is a job for controller
-my_controller=controllers.NrnProject('/home/mike/dev/diego/nrnproject',
-                '/home/mike/dev/diego/nrnproject/sims/output.sqlite')
+import os
+project_directory = os.path.pardir
+database_directory = os.path.join(os.path.pardir,'sims/output.sqlite')
+
+my_controller=controllers.NrnProject(project_directory,database_directory)
 
 my_evaluator=evaluators.IClampEvaluator(controller=my_controller,
                                         analysis_start_time=1,

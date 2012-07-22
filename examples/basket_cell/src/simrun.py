@@ -16,7 +16,7 @@ def run(sim_var):
     """
 
     from neuron import h
-    from nrndev import nrntools
+    import nrntools
 
     #make compartments and connect them
     soma=h.Section()

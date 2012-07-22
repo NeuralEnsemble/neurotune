@@ -1,1 +1,11 @@
 This package provides Optimal Neuron, for optimizing electical models of excitable cells.
+
+####################
+#   Dependencies   #
+####################
+
+There are two main dependencies which can both python libraries which
+can be installed using pip:
+
+1.numpy
+2.inspyred

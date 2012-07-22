@@ -1,0 +1,35 @@
+// simrun.hoc
+//
+// This example makes a single-compartment, passive cell with an alpha-
+// synapse attached to it. The synapse is activated at some delay. Results
+// are stored in v_vec and t_vec.
+
+objref v_vec
+objref t_vec
+create soma
+
+proc simrun() { localobj asyn
+    // $1 is the value of tstop. init() resets tstop so it needs to be reset
+    // after init is called.
+    
+    // Insert a passive mechanism
+    soma {
+        insert pas
+    }
+    
+    // Insert an alpha synapse
+    soma asyn = new AlphaSynapse(0.5)
+
+    asyn.onset = asyn_onset // global parameter
+    asyn.gmax = asyn_gmax // global parameter
+
+    v_vec = new Vector()      // Membrane potential vector
+    t_vec = new Vector()        // Time stamp vector
+    v_vec.record(&soma.v(0.5))
+    t_vec.record(&t)
+    
+    load_file("stdrun.hoc")
+    init()
+    tstop = $1
+    run()
+}

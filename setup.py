@@ -5,7 +5,7 @@ from distutils.core import setup
 setup(
     name = "optimal-neuron",
     version = '0.1.1dev',
-    packages = ['optimal-neuron'],
+    packages = ['optimalneuron'],
     author = "Michael Vella",
     author_email = "mv333@cam.ac.uk",
     description = "A Python library for working with NeuroML descriptions of neuronal models",

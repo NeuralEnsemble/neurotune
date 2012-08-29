@@ -380,6 +380,10 @@ def db_connect(dbpath):
                 
     :param dbpath: path to the database
     """
+    dbdir=dbpath[:dbpath.rfind('/')]
+    if not os.path.exists(dbdir):
+        os.makedirs(dbdir)
+
     conn=sqlite3.connect(dbpath)
     return conn
 

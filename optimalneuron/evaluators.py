@@ -175,8 +175,6 @@ class IClampEvaluator(__Evaluator):
             print('Obtained targets are:')
             print(self.targets)
         
-        else self.targets = None
-
     def evaluate(self,candidates,args):
         import traceanalysis
         

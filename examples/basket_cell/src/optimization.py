@@ -8,11 +8,12 @@ from optimalneuron import controllers
 
 #first off we need to make an evaluator,
 
+
 parameters = ['axon_gbar_na','axon_gbar_kv','axon_gbar_kv3','soma_gbar_na','soma_gbar_kv','soma_gbar_kv3']
 
 #manual_vals=[50,50,2000,70,70,5,0.1,28.0,49.0,-73.0,23.0] # EXAMPLE - how to set a seed
 min_constraints = [0,0,0,0,0,0]
-max_constraints = [500,500,5000,50,50,50]
+max_constraints = [10000,30,1,300,20,2]
 
 analysis_var={'peak_delta':0,'baseline':0,'dvdt_threshold':2}
 

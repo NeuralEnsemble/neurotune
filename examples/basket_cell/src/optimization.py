@@ -43,9 +43,9 @@ my_evaluator=evaluators.IClampEvaluator(controller=my_controller,
                                         automatic=True)
 
 my_optimizer=optimizers.CustomOptimizerA(max_constraints,min_constraints,my_evaluator,
-                                  population_size=1000,
-                                  max_evaluations=10000,
-                                  num_selected=20,
+                                  population_size=10,
+                                  max_evaluations=100,
+                                  num_selected=2,
                                   num_offspring=100,
                                   num_elites=1,
                                   seeds=None)

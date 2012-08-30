@@ -179,18 +179,24 @@ class IClampEvaluator(__Evaluator):
         import traceanalysis
         
         exp_data_array = self.controller.run(candidates,self.parameters)
-        
+
         fitness = []
         
         for exp_data in exp_data_array:
+    
+            print 'setting up analysis'
 
             analysis=traceanalysis.IClampAnalysis(exp_data.samples,
                                                 exp_data.t,self.analysis_var,
                                                 self.analysis_start_time,
                                                 self.analysis_end_time,
 						target_data_path=self.target_data_path)
+            
+            print 'staritng analysis'
 
             analysis.analyse()
+            
+            print 'obtaining fitness'
             
             exp_fitness=analysis.evaluate_fitness(self.targets,
                                                   self.weights,cost_function=

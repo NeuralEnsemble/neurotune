@@ -8,11 +8,12 @@ from optimalneuron import controllers
 
 #first off we need to make an evaluator,
 
+
 parameters = ['axon_gbar_na','axon_gbar_kv','axon_gbar_kv3','soma_gbar_na','soma_gbar_kv','soma_gbar_kv3']
 
 #manual_vals=[50,50,2000,70,70,5,0.1,28.0,49.0,-73.0,23.0] # EXAMPLE - how to set a seed
 min_constraints = [0,0,0,0,0,0]
-max_constraints = [0,0,0,0,0,0]
+max_constraints = [10000,30,1,300,20,2]
 
 analysis_var={'peak_delta':0,'baseline':0,'dvdt_threshold':2}
 
@@ -44,9 +45,15 @@ my_evaluator=evaluators.IClampEvaluator(controller=my_controller,
 
 my_optimizer=optimizers.CustomOptimizerA(max_constraints,min_constraints,my_evaluator,
                                   population_size=10,
+<<<<<<< HEAD
                                   max_evaluations=100,
                                   num_selected=20,
                                   num_offspring=100,
+=======
+                                  max_evaluations=10000,
+                                  num_selected=5,
+                                  num_offspring=5,
+>>>>>>> 9baa6087fa52e6a8f9dcad6a7cd855006d73cb04
                                   num_elites=1,
                                   seeds=None)
 my_optimizer.optimize()

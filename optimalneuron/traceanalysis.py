@@ -861,11 +861,17 @@ class IClampAnalysis(TraceAnalysis):
 #            analysis_results['trough_decay_exponent']=exp_fit(max_min_dictionary['maxima_times'],max_min_dictionary['minima_values'])
 #            analysis_results['peak_decay_exponent']=exp_fit(max_min_dictionary['maxima_times'],max_min_dictionary['maxima_values'])
 
+
+            #this line here is because PPTD needs to be compared directly with experimental data:
             if self.target_data_path!=None:
                 t_experimental,v_experimental=load_csv_data(self.target_data_path)
-                analysis_results['pptd_error']=pptd_error(self.t,self.v,
-                                          t_experimental,v_experimental,
-                                          dvdt_threshold=self.dvdt_threshold)
+                try:
+                    analysis_results['pptd_error']=pptd_error(self.t,self.v,
+                                              t_experimental,v_experimental,
+                                              dvdt_threshold=self.dvdt_threshold)
+                except:
+                    print 'WARNING PPTD failure'
+                    analysis_results['pptd_error'] = 1
 
             self.analysis_results=analysis_results
 

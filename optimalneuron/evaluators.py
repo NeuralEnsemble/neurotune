@@ -174,21 +174,30 @@ class IClampEvaluator(__Evaluator):
             self.targets=analysis.analysis_results
             print('Obtained targets are:')
             print(self.targets)
-
+        
     def evaluate(self,candidates,args):
         import traceanalysis
         
         exp_data_array = self.controller.run(candidates,self.parameters)
+
+        fitness = []
         
         for exp_data in exp_data_array:
+    
+            print 'setting up analysis'
 
             analysis=traceanalysis.IClampAnalysis(exp_data.samples,
                                                 exp_data.t,self.analysis_var,
                                                 self.analysis_start_time,
                                                 self.analysis_end_time,
 						target_data_path=self.target_data_path)
+            
+            print 'staritng analysis'
 
             analysis.analyse()
+            
+            print 'obtaining fitness'
+            
             exp_fitness=analysis.evaluate_fitness(self.targets,
                                                   self.weights,cost_function=
                                                   traceanalysis.normalised_cost_function)

@@ -50,7 +50,7 @@ class CLIController(__Controller):
     This is still at a debug stage, documentation to follow
     """
 
-    def __init__(cli_argument):
+    def __init__(self,cli_argument):
         self.cli_argument = cli_argument
         
     def run(self,candidates,parameters):

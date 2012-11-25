@@ -1,4 +1,3 @@
-import sqldbutils #should be all in controllers
 import os
 
 class __CandidateData(object):
@@ -153,7 +152,7 @@ class DumbEvaluator(__Evaluator):
     def evaluate(self,candidates,args):
         controller.run(candidates,args)
         fitness = [i for i in open(fitness_filename).readlines()]
-    return fitness
+        return fitness
     
 class IClampEvaluator(__Evaluator):
     """

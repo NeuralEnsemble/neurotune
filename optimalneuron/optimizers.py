@@ -32,7 +32,7 @@ class __Optimizer(object):
             chromosome.append(random.uniform(lo, hi))
         return chromosome
     
-    def print_report(final_pop,do_plot):
+    def print_report(self,final_pop,do_plot,stat_file_name):
         print(max(final_pop))
         #Sort and print the fitest individual, which will be at index 0.
         final_pop.sort(reverse=True)
@@ -40,7 +40,7 @@ class __Optimizer(object):
         print(final_pop[0])
     
         if do_plot:
-            from inspyred import analysis
+            from inspyred.ec import analysis
             analysis.generation_plot(stat_file_name, errorbars=False)
 
 
@@ -108,4 +108,4 @@ class CustomOptimizerA(__Optimizer):
         stat_file.close()
         ind_file.close()
 
-        self.print_report(final_pop,do_plot)
+        self.print_report(final_pop,do_plot,stat_file_name)

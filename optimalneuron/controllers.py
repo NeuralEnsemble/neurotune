@@ -46,7 +46,20 @@ class __Controller():
         raise NotImplementedError("Valid controller requires run method!")
 
 class CLIController(__Controller):
-    pass
+    """
+    This is still at a debug stage, documentation to follow
+    """
+
+    def __init__(cli_argument):
+        self.cli_argument = cli_argument
+        
+    def run(self,candidates,parameters):
+            
+        for chromosome in candidates:
+            self.chromosome=chromosome
+            self.parameters=parameters
+            cla = cli_argument+chromosome
+            os.system(cla)        
 
 class NrnProject(__Controller):
     """
@@ -58,7 +71,10 @@ class NrnProject(__Controller):
     calls to self
     """
 
-    def __init__(self,nrnproject_path,db_path,exp_id=None):
+    def __init__(self,nrnproject_path,
+                 db_path,
+                 exp_id=None):
+        
         self.sim_main_path=os.path.join(nrnproject_path,
                                         'src/simrunner.py')
         self.nrnproject_path=nrnproject_path

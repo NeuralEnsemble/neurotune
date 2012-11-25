@@ -140,6 +140,21 @@ class __CondorContext(object):
             remotepath=os.path.join(remotedir,file)
             ssh_utils.put_file(host,localpath,remotepath)
 
+
+class DumbEvaluator(__Evaluator):
+    """
+    The simulations themselves report their fitness. The evaluator
+    just reads them from a file. Requires the appropriate controller.
+    """
+
+    def __init__(controller,fitness_filename):
+        self.controller = controller
+
+    def evaluate(self,candidates,args):
+        controller.run(candidates,args)
+        fitness = [i for i in open(fitness_filename).readlines()]
+    return fitness
+    
 class IClampEvaluator(__Evaluator):
     """
     Locally-evaluates (not using cluster or grid computing) a model.

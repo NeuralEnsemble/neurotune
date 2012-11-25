@@ -146,7 +146,7 @@ class DumbEvaluator(__Evaluator):
     just reads them from a file. Requires the appropriate controller.
     """
 
-    def __init__(controller,fitness_filename):
+    def __init__(self,controller,fitness_filename):
         self.controller = controller
 
     def evaluate(self,candidates,args):

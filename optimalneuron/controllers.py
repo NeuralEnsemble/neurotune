@@ -58,7 +58,10 @@ class CLIController(__Controller):
         for chromosome in candidates:
             self.chromosome=chromosome
             self.parameters=parameters
-            cla = cli_argument+chromosome
+            cla = self.cli_argument+chromosome
+            #debuging:
+            print 'command:'
+            print cla
             os.system(cla)        
 
 class NrnProject(__Controller):

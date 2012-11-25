@@ -400,6 +400,8 @@ def exp_ids(dbpath):
     query='SELECT id FROM simulations;'
     cursor=execute_query(conn,query)
 
+    print "test - is this stage long or always brief?"
+
     try:
         exp_ids_tuples=cursor.fetchall()
         exp_ids=[]
@@ -408,6 +410,9 @@ def exp_ids(dbpath):
             exp_ids.append(exp_id)
     except:
         exp_ids=[0]
+    
+    print exp_ids_tuples
+    print "test ended"
     
     return exp_ids
    

@@ -380,6 +380,10 @@ def db_connect(dbpath):
                 
     :param dbpath: path to the database
     """
+    dbdir=dbpath[:dbpath.rfind('/')]
+    if not os.path.exists(dbdir):
+        os.makedirs(dbdir)
+
     conn=sqlite3.connect(dbpath)
     return conn
 
@@ -396,6 +400,8 @@ def exp_ids(dbpath):
     query='SELECT id FROM simulations;'
     cursor=execute_query(conn,query)
 
+    print "test - is this stage long or always brief?"
+
     try:
         exp_ids_tuples=cursor.fetchall()
         exp_ids=[]
@@ -404,6 +410,12 @@ def exp_ids(dbpath):
             exp_ids.append(exp_id)
     except:
         exp_ids=[0]
+
+    try:
+        print exp_ids_tuples
+    except:
+        print 'first exp_id_tuples'
+    print "test ended"
     
     return exp_ids
    

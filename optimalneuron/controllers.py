@@ -57,11 +57,11 @@ class CLIController(__Controller):
             
         for chromosome in candidates:
             self.chromosome=chromosome
-            self.parameters=parameters
-            cla = self.cli_argument+chromosome
-            #debuging:
-            print 'command:'
-            print cla
+            self.parameters=parameters #actually unneeded
+            #this manipulation is slightly messy, done for conversion of chromosome
+            #into something that can be executed on the shell
+            str1 = ''.join(str(e)+' ' for e in chromosome)
+            cla = self.cli_argument+' '+str1
             os.system(cla)        
 
 class NrnProject(__Controller):

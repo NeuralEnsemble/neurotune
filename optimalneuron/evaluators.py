@@ -148,10 +148,11 @@ class DumbEvaluator(__Evaluator):
 
     def __init__(self,controller,fitness_filename):
         self.controller = controller
-
+        self.fitness_filename = fitness_filename
+        
     def evaluate(self,candidates,args):
         self.controller.run(candidates,args)
-        fitness = [i for i in open(fitness_filename).readlines()]
+        fitness = [i for i in open(self.fitness_filename).readlines()]
         return fitness
     
 class IClampEvaluator(__Evaluator):

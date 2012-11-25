@@ -150,7 +150,7 @@ class DumbEvaluator(__Evaluator):
         self.controller = controller
 
     def evaluate(self,candidates,args):
-        controller.run(candidates,args)
+        self.controller.run(candidates,args)
         fitness = [i for i in open(fitness_filename).readlines()]
         return fitness
     

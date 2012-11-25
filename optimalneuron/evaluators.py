@@ -151,8 +151,16 @@ class DumbEvaluator(__Evaluator):
         self.fitness_filename = fitness_filename
         
     def evaluate(self,candidates,args):
+        #if fitness file exists need to destroy it:
+        if os.path.exists(self.fitness_filename):
+            os.remove(self.fitness_filename)
+
+        #run all the candidates:
         self.controller.run(candidates,args)
+
+        #get their fitness from the file
         fitness = [float(i) for i in open(self.fitness_filename).readlines()]
+
         return fitness
     
 class IClampEvaluator(__Evaluator):

@@ -161,6 +161,8 @@ class DumbEvaluator(__Evaluator):
         #get their fitness from the file
         fitness = [float(i) for i in open(self.fitness_filename).readlines()]
 
+        os.remove(self.fitness_filename)
+        
         return fitness
     
 class IClampEvaluator(__Evaluator):

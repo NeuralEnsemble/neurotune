@@ -202,7 +202,7 @@ def max_min(a,t,delta=0,peak_threshold=0):
         
         interspike_slice=a[maximum_0_location:maximum_1_location]
         minimum_value=min(interspike_slice)
-        minimum_location=interspike_slice.index(minimum_value)+maximum_0_location
+        minimum_location=list(interspike_slice).index(minimum_value)+maximum_0_location
         minimum_time=t[minimum_location]
         
         minima_info.append((minimum_value,minimum_location,minimum_time))

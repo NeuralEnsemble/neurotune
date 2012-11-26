@@ -811,9 +811,8 @@ class IClampAnalysis(TraceAnalysis):
 
 
         #call the parent constructor to prepare the v,t vectors:
-	print len(v)
         super(IClampAnalysis,self).__init__(v,t,start_analysis,end_analysis)
-	print len(self.v)
+
         if smooth_data == True:
                 self.v=smooth(self.v,window_len=smoothing_window_len)
 

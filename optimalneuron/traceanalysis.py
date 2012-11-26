@@ -848,22 +848,23 @@ class IClampAnalysis(TraceAnalysis):
             max_min_dictionary=self.max_min_dictionary
             analysis_results={}
 
-            analysis_results['average_minimum']=np.average(max_min_dictionary['minima_values'])
-            analysis_results['average_maximum']=np.average(max_min_dictionary['maxima_values'])
-            analysis_results['min_peak_no']=max_min_dictionary['minima_number']
-            analysis_results['max_peak_no']=max_min_dictionary['maxima_number']
-            analysis_results['mean_spike_frequency']=mean_spike_frequency(max_min_dictionary['maxima_times'])
-            analysis_results['interspike_time_covar']=spike_covar(max_min_dictionary['maxima_times'])
-            analysis_results['first_spike_time']=max_min_dictionary['maxima_times'][0]
-            trough_phases=minima_phases(self.t,self.v,delta=self.delta)
-            analysis_results['trough_phase_adaptation']=exp_fit(trough_phases[0],trough_phases[1])
+            analysis_results['average_minimum'] = np.average(max_min_dictionary['minima_values'])
+            analysis_results['average_maximum'] = np.average(max_min_dictionary['maxima_values'])
+            analysis_results['min_peak_no'] = max_min_dictionary['minima_number']
+            analysis_results['max_peak_no'] = max_min_dictionary['maxima_number']
+            analysis_results['mean_spike_frequency'] = mean_spike_frequency(max_min_dictionary['maxima_times'])
+            analysis_results['interspike_time_covar'] = spike_covar(max_min_dictionary['maxima_times'])
+            analysis_results['first_spike_time'] = max_min_dictionary['maxima_times'][0]
+            trough_phases=minima_phases(self.t,self.v,delta = self.delta)
+            analysis_results['trough_phase_adaptation'] = exp_fit(trough_phases[0],trough_phases[1])
             spike_width_list=spike_widths(self.v,self.t,self.baseline,self.delta)
-            analysis_results['spike_width_adaptation']=exp_fit(spike_width_list[0],spike_width_list[1])
-            spike_frequency_list=spike_frequencies(max_min_dictionary['maxima_times'])
-            analysis_results['peak_decay_exponent']=three_spike_adaptation(max_min_dictionary['maxima_times'],max_min_dictionary['maxima_values'])
-            analysis_results['trough_decay_exponent']=three_spike_adaptation(max_min_dictionary['minima_times'],max_min_dictionary['minima_values'])
-            analysis_results['spike_frequency_adaptation']=exp_fit(spike_frequency_list[0],spike_frequency_list[1])
-            analysis_results['spike_broadening']=spike_broadening(spike_width_list[1])
+            analysis_results['spike_width_adaptation'] = exp_fit(spike_width_list[0],spike_width_list[1])
+            spike_frequency_list = spike_frequencies(max_min_dictionary['maxima_times'])
+            analysis_results['peak_decay_exponent'] = three_spike_adaptation(max_min_dictionary['maxima_times'],max_min_dictionary['maxima_values'])
+            analysis_results['trough_decay_exponent'] = three_spike_adaptation(max_min_dictionary['minima_times'],max_min_dictionary['minima_values'])
+            analysis_results['spike_frequency_adaptation'] = exp_fit(spike_frequency_list[0],spike_frequency_list[1])
+            analysis_results['spike_broadening'] = spike_broadening(spike_width_list[1])
+	    analysis_results['peak_linear_gradient'] = peak_linear_gradient(max_min_dictionary["maxima_times"],max_min_dictionary["maxima_values"])
 
 #            haven't decided whether or not to keep these targets
 #            analysis_results['trough_decay_exponent']=exp_fit(max_min_dictionary['maxima_times'],max_min_dictionary['minima_values'])

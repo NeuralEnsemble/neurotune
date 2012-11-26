@@ -136,15 +136,11 @@ def max_min(a,t,delta=0,peak_threshold=0):
     :param a: time-dependent variable (usually voltage)
     :param t: time-vector
     :param delta: the value by which a peak or trough has to exceed its
-        neighbours to be considered "outside of the noise"
+        neighbours to be considered outside of the noise
     :param peak_threshold: peaks below this value are discarded
         
     :return: turning_points, dictionary containing number of max, min and 
         their locations
-        
-    :to_do: Smoothing routine for noise-elimination (not necessary till noise
-        is included in the simulation) and feature to deal with points of 
-        inflection.
         
     :to_change: I think picking the minimum value between two peaks is a better
         way of getting the minima since this guarantees an answer.
@@ -160,7 +156,7 @@ def max_min(a,t,delta=0,peak_threshold=0):
     
     for i in gradients[:-1]:
         count+=1
-    
+
         if ((cmp(i,0)>0) & (cmp(gradients[count],0)<0) & (i != gradients[count])):
             #found a maximum
             maximum_value=a[count]
@@ -168,11 +164,12 @@ def max_min(a,t,delta=0,peak_threshold=0):
             maximum_time=t[count]
             preceding_point_value=a[maximum_location-1]
             succeeding_point_value=a[maximum_location+1]
+
             #filter:
             maximum_valid=False #logically consistent but not very pythonic..
             if ((maximum_value-preceding_point_value)>delta)*((maximum_value-succeeding_point_value)>delta):
                 maximum_valid=True
-            if maximum_value<0:
+            if maximum_value<peak_threshold:
                 maximum_valid=False
             if maximum_valid:
                 maxima_info.append((maximum_value,maximum_location,maximum_time))
@@ -732,8 +729,8 @@ class TraceAnalysis(object):
         
         :param v: time-dependent variable (usually voltage)
         :param t: time-vector
-        :param start_analysis: index in v,t where analysis is to start
-        :param end_analysis: index in v,t where analysis is to end
+        :param start_analysis: time in v,t where analysis is to start
+        :param end_analysis: time in v,t where analysis is to end
         
         """
         #would be done better with times:
@@ -807,31 +804,36 @@ class IClampAnalysis(TraceAnalysis):
         :param t: time-vector
         :param analysis_var: dictionary containing parameters to be used
             in analysis such as delta for peak detection
-        :param start_analysis: index in v,t where analysis is to start
-        :param end_analysis: index in v,t where analysis is to end
+        :param start_analysis: time t where analysis is to start
+        :param end_analysis: time in t where analysis is to end
         
         """
 
-	v=np.array(v)
-	t=np.array(t)
 
+        #call the parent constructor to prepare the v,t vectors:
+	print len(v)
+        super(IClampAnalysis,self).__init__(v,t,start_analysis,end_analysis)
+	print len(self.v)
         if smooth_data == True:
-                v=smooth(v,window_len=smoothing_window_len)
+                self.v=smooth(self.v,window_len=smoothing_window_len)
 
 	if show_smoothed_data == True:
 	    from matplotlib import pyplot
-	    pyplot.plot(t,v)
+	    pyplot.plot(self.t,self.v)
 	    pyplot.show()
-        #call the parent constructor to prepare the v,t vectors:
-        super(IClampAnalysis,self).__init__(v,t,start_analysis,end_analysis)
-        
+
         self.delta=analysis_var['peak_delta']
         self.baseline=analysis_var['baseline']
         self.dvdt_threshold=analysis_var['dvdt_threshold']
 
         self.target_data_path=target_data_path
 
-        self.max_min_dictionary=max_min(self.v,self.t,self.delta)
+	try:
+	    peak_threshold = analysis_var["peak_threshold"]
+	except:
+	    peak_threshold = None
+        self.max_min_dictionary=max_min(self.v,self.t,self.delta,
+					peak_threshold = peak_threshold)
         
         max_peak_no=self.max_min_dictionary['maxima_number']
         

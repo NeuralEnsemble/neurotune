@@ -41,8 +41,6 @@ def smooth(x,window_len=11,window='hanning'):
     numpy.hanning, numpy.hamming, numpy.bartlett, numpy.blackman, numpy.convolve
     scipy.signal.lfilter
  
-    TODO: Make this an optional part of the analysis
-    SOURCE: The Scipy cookbook
     """
 
     if x.ndim != 1:
@@ -799,7 +797,9 @@ class IClampAnalysis(TraceAnalysis):
     """Analysis class for current clamps, inherits from TraceAnalysis"""   
         
     def __init__(self,v,t,analysis_var,start_analysis=0,end_analysis=None,
-		target_data_path=None,smooth=False):
+		 target_data_path=None,smooth_data=False,
+		 show_smoothed_data=False,
+		 smoothing_window_len=11):
         """
         Constructor for IClampAnalysis class
         
@@ -812,9 +812,16 @@ class IClampAnalysis(TraceAnalysis):
         
         """
 
-        if smooth==True:
-                v=smooth(v)
-        
+	v=np.array(v)
+	t=np.array(t)
+
+        if smooth_data == True:
+                v=smooth(v,window_len=smoothing_window_len)
+
+	if show_smoothed_data == True:
+	    from matplotlib import pyplot
+	    pyplot.plot(t,v)
+	    pyplot.show()
         #call the parent constructor to prepare the v,t vectors:
         super(IClampAnalysis,self).__init__(v,t,start_analysis,end_analysis)
         

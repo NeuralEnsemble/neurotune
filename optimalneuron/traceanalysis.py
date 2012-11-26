@@ -74,7 +74,7 @@ def linear_fit(t, y):
     """
     Fits data to a line
         
-    Returns M for a formula of the type y=C+M*x
+    Returns M (gradient) for a formula of the type y=C+M*x
         
     :param t: time vector
     :param y: variable which varies with time (such as voltage)
@@ -864,11 +864,7 @@ class IClampAnalysis(TraceAnalysis):
             analysis_results['trough_decay_exponent'] = three_spike_adaptation(max_min_dictionary['minima_times'],max_min_dictionary['minima_values'])
             analysis_results['spike_frequency_adaptation'] = exp_fit(spike_frequency_list[0],spike_frequency_list[1])
             analysis_results['spike_broadening'] = spike_broadening(spike_width_list[1])
-	    analysis_results['peak_linear_gradient'] = peak_linear_gradient(max_min_dictionary["maxima_times"],max_min_dictionary["maxima_values"])
-
-#            haven't decided whether or not to keep these targets
-#            analysis_results['trough_decay_exponent']=exp_fit(max_min_dictionary['maxima_times'],max_min_dictionary['minima_values'])
-#            analysis_results['peak_decay_exponent']=exp_fit(max_min_dictionary['maxima_times'],max_min_dictionary['maxima_values'])
+	    analysis_results['peak_linear_gradient'] = linear_fit(max_min_dictionary["maxima_times"],max_min_dictionary["maxima_values"])
 
 
             #this line here is because PPTD needs to be compared directly with experimental data:

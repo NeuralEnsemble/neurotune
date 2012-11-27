@@ -444,6 +444,9 @@ def alpha_normalised_cost_function(value,target,base=10):
     :return: fitness value from 0 to 1
     
     """
+    value = float(value)
+    target = float(target)
+    
     x=((value-target)/(target+0.01))**2 #the 0.01 thing is a bit of a hack at the moment.
     fitness=base**(-x)
     return fitness    
@@ -470,6 +473,9 @@ def normalised_cost_function(value,target,Q=None):
     
     """
 
+    value = float(value)
+    target = float(target)
+    
     if Q==None:
         Q=7/(300*(target**2))
                

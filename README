@@ -9,7 +9,10 @@ See examples for testing.
 There the following (python libraries) which
 can be installed using pip or easy_install:
 
+Hard dependencies:
 1.numpy
 2.inspyred
 3.SciPy
-4.neuronpy
+
+Soft dependencies:
+1.neuronpy

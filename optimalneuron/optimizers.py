@@ -17,7 +17,7 @@ class __Optimizer(object):
 
     def __init__(self,max_constraints,min_constraints,evaluator,
                 mutation_rate,maximize,seeds,population_size):
-        
+
         self.max_constraints=max_constraints
         self.min_constraints=min_constraints
         self.evaluator=evaluator
@@ -31,14 +31,14 @@ class __Optimizer(object):
         for lo, hi in zip(self.max_constraints, self.min_constraints):
             chromosome.append(random.uniform(lo, hi))
         return chromosome
-    
+
     def print_report(self,final_pop,do_plot,stat_file_name):
         print(max(final_pop))
         #Sort and print the fitest individual, which will be at index 0.
         final_pop.sort(reverse=True)
         print '\nfitest individual:'
         print(final_pop[0])
-    
+
         if do_plot:
             from inspyred.ec import analysis
             analysis.generation_plot(stat_file_name, errorbars=False)
@@ -51,7 +51,7 @@ class CustomOptimizerA(__Optimizer):
                 population_size=10,num_selected=None,tourn_size=2,
                 num_elites=1,maximize=False,num_offspring=None,
                 seeds=[]):
-        
+
         super(CustomOptimizerA, self).__init__(max_constraints,min_constraints,
                                                  evaluator,mutation_rate,
                                                  maximize,seeds,population_size)
@@ -74,11 +74,14 @@ class CustomOptimizerA(__Optimizer):
 
         rand = Random()
         rand.seed(int(time()))
-        
+
         cwd=os.getcwd()
-        projdir=os.path.dirname(cwd)
-        stat_file_name=projdir+'/data/ga_statistics.csv'
-        ind_file_name=projdir+'/data/ga_individuals.csv'
+        datadir=os.path.dirname(cwd)+'/data/'
+        if not os.path.exists(datadir):
+            os.mkdir(datadir)
+
+        stat_file_name=datadir+'/ga_statistics.csv'
+        ind_file_name=datadir+'/ga_individuals.csv'
         stat_file = open(stat_file_name, 'w')
         ind_file = open(ind_file_name, 'w')
 
@@ -88,7 +91,7 @@ class CustomOptimizerA(__Optimizer):
         algorithm.selector = selectors.tournament_selection
         algorithm.replacer = replacers.generational_replacement
         algorithm.variator = [variators.blend_crossover, variators.gaussian_mutation]
-        
+
         final_pop = algorithm.evolve(generator=self.uniform_random_chromosome,
                  evaluator=self.evaluator.evaluate,
                  pop_size=self.population_size,

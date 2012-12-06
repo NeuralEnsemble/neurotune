@@ -1,5 +1,5 @@
-Installing pyramidal
-=====================
+Installing Optimal Neuron
+========================
 
 Dependencies
 ------------

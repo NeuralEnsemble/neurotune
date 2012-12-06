@@ -15,7 +15,7 @@ Contents:
 	
    optimalneuron
    install
-
+   architecture
 
 Indices and tables
 ==================

@@ -5,13 +5,16 @@
 
 Welcome to Optimal Neuron's documentation!
 =========================================
+A tool for automated parameter tuning of neuronal models
+-------------------------------------------------------
 
 Contents:
 
 .. toctree::
    :maxdepth: 4
-
+	
    optimalneuron
+   install
 
 
 Indices and tables
@@ -33,3 +36,17 @@ And the following soft dependencies:
     * neuronpy
     * NEURON
     * MOOSE
+
+Source documentation
+==================
+
+.. toctree::
+   :maxdepth: 3
+   
+   modules
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

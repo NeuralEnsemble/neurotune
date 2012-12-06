@@ -13,29 +13,10 @@ Contents:
 .. toctree::
    :maxdepth: 4
 	
-   optimalneuron
-   install
+   installation
    architecture
+   optimalneuron
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
-Installation
-============
-
-Optimal Neuron has the following hard dependencies:
-    * Inspyred
-    * Numpy
-
-And the following soft dependencies:
-    * Scipy
-    * neuronpy
-    * NEURON
-    * MOOSE
 
 Source documentation
 ==================

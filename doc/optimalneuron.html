@@ -1,0 +1,647 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>optimalneuron Package &mdash; optimalneuron  documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="optimalneuron  documentation" href="index.html" />
+    <link rel="prev" title="Welcome to optimalneuron’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to optimalneuron’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">optimalneuron  documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="optimalneuron-package">
+<h1>optimalneuron Package<a class="headerlink" href="#optimalneuron-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-optimalneuron.controllers">
+<span id="controllers-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">controllers</span></tt> Module<a class="headerlink" href="#module-optimalneuron.controllers" title="Permalink to this headline">¶</a></h2>
+<p>Still not implemented but will take controllers out of
+evaluators as it&#8217;s the wrong place for them</p>
+<dl class="class">
+<dt id="optimalneuron.controllers.CLIController">
+<em class="property">class </em><tt class="descclassname">optimalneuron.controllers.</tt><tt class="descname">CLIController</tt><big>(</big><em>cli_argument</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/controllers.html#CLIController"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.controllers.CLIController" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">optimalneuron.controllers.__Controller</span></tt></p>
+<p>This is still at a debug stage, documentation to follow</p>
+<dl class="method">
+<dt id="optimalneuron.controllers.CLIController.run">
+<tt class="descname">run</tt><big>(</big><em>candidates</em>, <em>parameters</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/controllers.html#CLIController.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.controllers.CLIController.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="optimalneuron.controllers.NrnProject">
+<em class="property">class </em><tt class="descclassname">optimalneuron.controllers.</tt><tt class="descname">NrnProject</tt><big>(</big><em>nrnproject_path</em>, <em>db_path</em>, <em>exp_id=None</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/controllers.html#NrnProject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.controllers.NrnProject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">optimalneuron.controllers.__Controller</span></tt></p>
+<p>Run an nrnproject simulation based on optimizer parameters
+should we implement a singleton pattern?
+I&#8217;m starting to question the sanity of this class, it
+seems to me that it would make more sense to use a singleton
+pattern here and do away with all those unecessary
+calls to self</p>
+<dl class="method">
+<dt id="optimalneuron.controllers.NrnProject.run">
+<tt class="descname">run</tt><big>(</big><em>candidates</em>, <em>parameters</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/controllers.html#NrnProject.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.controllers.NrnProject.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="optimalneuron.controllers.NrnProjectCondor">
+<em class="property">class </em><tt class="descclassname">optimalneuron.controllers.</tt><tt class="descname">NrnProjectCondor</tt><big>(</big><em>host</em>, <em>username</em>, <em>password</em>, <em>port=80</em>, <em>local_analysis=False</em>, <em>candidates_per_job=100</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/controllers.html#NrnProjectCondor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.controllers.NrnProjectCondor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#optimalneuron.controllers.NrnProject" title="optimalneuron.controllers.NrnProject"><tt class="xref py py-class docutils literal"><span class="pre">optimalneuron.controllers.NrnProject</span></tt></a></p>
+<p>Run NrnProject-based simulations on a Condor-managed
+federated system</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-optimalneuron.evaluators">
+<span id="evaluators-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">evaluators</span></tt> Module<a class="headerlink" href="#module-optimalneuron.evaluators" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="optimalneuron.evaluators.DumbEvaluator">
+<em class="property">class </em><tt class="descclassname">optimalneuron.evaluators.</tt><tt class="descname">DumbEvaluator</tt><big>(</big><em>controller</em>, <em>fitness_filename</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/evaluators.html#DumbEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.evaluators.DumbEvaluator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">optimalneuron.evaluators.__Evaluator</span></tt></p>
+<p>The simulations themselves report their fitness. The evaluator
+just reads them from a file. Requires the appropriate controller.</p>
+<dl class="method">
+<dt id="optimalneuron.evaluators.DumbEvaluator.evaluate">
+<tt class="descname">evaluate</tt><big>(</big><em>candidates</em>, <em>args</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/evaluators.html#DumbEvaluator.evaluate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.evaluators.DumbEvaluator.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="optimalneuron.evaluators.IClampCondorEvaluator">
+<em class="property">class </em><tt class="descclassname">optimalneuron.evaluators.</tt><tt class="descname">IClampCondorEvaluator</tt><big>(</big><em>local_analysis=False</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/evaluators.html#IClampCondorEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.evaluators.IClampCondorEvaluator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#optimalneuron.evaluators.IClampEvaluator" title="optimalneuron.evaluators.IClampEvaluator"><tt class="xref py py-class docutils literal"><span class="pre">optimalneuron.evaluators.IClampEvaluator</span></tt></a></p>
+<p>Evaluate simulations and return their fitness on a condor grid.</p>
+<blockquote>
+<div>Tested and known to work on CamGrid 
+(<a class="reference external" href="http://www.escience.cam.ac.uk/projects/camgrid/">http://www.escience.cam.ac.uk/projects/camgrid/</a>)</div></blockquote>
+<p>Dont inherit from condor evaluator - it&#8217;s just a condor context</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="optimalneuron.evaluators.IClampEvaluator">
+<em class="property">class </em><tt class="descclassname">optimalneuron.evaluators.</tt><tt class="descname">IClampEvaluator</tt><big>(</big><em>analysis_start_time</em>, <em>controller</em>, <em>analysis_end_time</em>, <em>target_data_path</em>, <em>parameters</em>, <em>analysis_var</em>, <em>weights</em>, <em>targets=None</em>, <em>automatic=False</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/evaluators.html#IClampEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.evaluators.IClampEvaluator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">optimalneuron.evaluators.__Evaluator</span></tt></p>
+<p>Locally-evaluates (not using cluster or grid computing) a model.</p>
+<p>The evaluate routine runs the model and returns its fitness value</p>
+<dl class="method">
+<dt id="optimalneuron.evaluators.IClampEvaluator.evaluate">
+<tt class="descname">evaluate</tt><big>(</big><em>candidates</em>, <em>args</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/evaluators.html#IClampEvaluator.evaluate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.evaluators.IClampEvaluator.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-optimalneuron.optimizers">
+<span id="optimizers-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">optimizers</span></tt> Module<a class="headerlink" href="#module-optimalneuron.optimizers" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="optimalneuron.optimizers.CustomOptimizerA">
+<em class="property">class </em><tt class="descclassname">optimalneuron.optimizers.</tt><tt class="descname">CustomOptimizerA</tt><big>(</big><em>max_constraints</em>, <em>min_constraints</em>, <em>evaluator</em>, <em>mutation_rate=0.2</em>, <em>max_evaluations=100</em>, <em>population_size=10</em>, <em>num_selected=None</em>, <em>tourn_size=2</em>, <em>num_elites=1</em>, <em>maximize=False</em>, <em>num_offspring=None</em>, <em>seeds=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="reference internal" href="_modules/optimalneuron/optimizers.html#CustomOptimizerA"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.optimizers.CustomOptimizerA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">optimalneuron.optimizers.__Optimizer</span></tt></p>
+<dl class="method">
+<dt id="optimalneuron.optimizers.CustomOptimizerA.optimize">
+<tt class="descname">optimize</tt><big>(</big><em>do_plot=True</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/optimizers.html#CustomOptimizerA.optimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.optimizers.CustomOptimizerA.optimize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-optimalneuron.traceanalysis">
+<span id="traceanalysis-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">traceanalysis</span></tt> Module<a class="headerlink" href="#module-optimalneuron.traceanalysis" title="Permalink to this headline">¶</a></h2>
+<p>Module for mathematical analysis of voltage traces from electrophysiology.</p>
+<p>AUTHORS:</p>
+<ul class="simple">
+<li>Mike Vella (2011-04-08): initial version</li>
+</ul>
+<dl class="class">
+<dt id="optimalneuron.traceanalysis.IClampAnalysis">
+<em class="property">class </em><tt class="descclassname">optimalneuron.traceanalysis.</tt><tt class="descname">IClampAnalysis</tt><big>(</big><em>v</em>, <em>t</em>, <em>analysis_var</em>, <em>start_analysis=0</em>, <em>end_analysis=None</em>, <em>target_data_path=None</em>, <em>smooth_data=False</em>, <em>show_smoothed_data=False</em>, <em>smoothing_window_len=11</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#IClampAnalysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.IClampAnalysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#optimalneuron.traceanalysis.TraceAnalysis" title="optimalneuron.traceanalysis.TraceAnalysis"><tt class="xref py py-class docutils literal"><span class="pre">optimalneuron.traceanalysis.TraceAnalysis</span></tt></a></p>
+<p>Analysis class for current clamps, inherits from TraceAnalysis</p>
+<dl class="method">
+<dt id="optimalneuron.traceanalysis.IClampAnalysis.analyse">
+<tt class="descname">analyse</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#IClampAnalysis.analyse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.IClampAnalysis.analyse" title="Permalink to this definition">¶</a></dt>
+<dd><p>If data is analysable analyses and puts all results into a dict</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="optimalneuron.traceanalysis.TraceAnalysis">
+<em class="property">class </em><tt class="descclassname">optimalneuron.traceanalysis.</tt><tt class="descname">TraceAnalysis</tt><big>(</big><em>v</em>, <em>t</em>, <em>start_analysis=0</em>, <em>end_analysis=None</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#TraceAnalysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.TraceAnalysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Base class for analysis of electrophysiology data</p>
+<dl class="method">
+<dt id="optimalneuron.traceanalysis.TraceAnalysis.evaluate_fitness">
+<tt class="descname">evaluate_fitness</tt><big>(</big><em>target_dict</em>, <em>target_weights=None</em>, <em>cost_function=&lt;function normalised_cost_function at 0x3588500&gt;</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#TraceAnalysis.evaluate_fitness"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.TraceAnalysis.evaluate_fitness" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="optimalneuron.traceanalysis.TraceAnalysis.plot_trace">
+<tt class="descname">plot_trace</tt><big>(</big><em>save_fig=False</em>, <em>trace_name='voltage_trace.png'</em>, <em>show_plot=True</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#TraceAnalysis.plot_trace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.TraceAnalysis.plot_trace" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="optimalneuron.traceanalysis.alpha_normalised_cost_function">
+<tt class="descclassname">optimalneuron.traceanalysis.</tt><tt class="descname">alpha_normalised_cost_function</tt><big>(</big><em>value</em>, <em>target</em>, <em>base=10</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#alpha_normalised_cost_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.alpha_normalised_cost_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns fitness of a value-target pair from 0 to 1</p>
+<blockquote>
+<div>For any value/target pair will give a normalised value for
+agreement 1 is complete value-target match and 0 is 0 match.
+A mirrored exponential function is used.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>value</strong> &#8211; value measured</li>
+<li><strong>t</strong> &#8211; target</li>
+<li><strong>base</strong> &#8211; the base in the expression  fitness=base**(-x) where
+x=x=((value-target)/(target+0.01))**2</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">fitness value from 0 to 1</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimalneuron.traceanalysis.burst_analyser">
+<tt class="descclassname">optimalneuron.traceanalysis.</tt><tt class="descname">burst_analyser</tt><big>(</big><em>t</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#burst_analyser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.burst_analyser" title="Permalink to this definition">¶</a></dt>
+<dd><p>pearson&#8217;s correlation coefficient of interspike times</p>
+<blockquote>
+<div>Calculates the pearson&#8217;s correlation coefficient of interspike times</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>t</strong> &#8211; Rank-1 array containing spike times</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">pearson&#8217;s correlation coefficient of interspike times</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimalneuron.traceanalysis.elburg_bursting">
+<tt class="descclassname">optimalneuron.traceanalysis.</tt><tt class="descname">elburg_bursting</tt><big>(</big><em>spike_times</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#elburg_bursting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.elburg_bursting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the bursting measure B as described by 
+Elburg &amp; Ooyen 2004.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimalneuron.traceanalysis.exp_fit">
+<tt class="descclassname">optimalneuron.traceanalysis.</tt><tt class="descname">exp_fit</tt><big>(</big><em>t</em>, <em>y</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#exp_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.exp_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fits data to an exponential.</p>
+<p>Returns K for a formula of the type y=A*exp(K*x)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>t</strong> &#8211; time vector</li>
+<li><strong>y</strong> &#8211; variable which varies with time (such as voltage)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimalneuron.traceanalysis.filter">
+<tt class="descclassname">optimalneuron.traceanalysis.</tt><tt class="descname">filter</tt><big>(</big><em>t</em>, <em>v</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.filter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="optimalneuron.traceanalysis.linear_fit">
+<tt class="descclassname">optimalneuron.traceanalysis.</tt><tt class="descname">linear_fit</tt><big>(</big><em>t</em>, <em>y</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#linear_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.linear_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fits data to a line</p>
+<p>Returns M (gradient) for a formula of the type y=C+M*x</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>t</strong> &#8211; time vector</li>
+<li><strong>y</strong> &#8211; variable which varies with time (such as voltage)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimalneuron.traceanalysis.load_csv_data">
+<tt class="descclassname">optimalneuron.traceanalysis.</tt><tt class="descname">load_csv_data</tt><big>(</big><em>file_path</em>, <em>plot=False</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#load_csv_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.load_csv_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return time and voltage data from a csv file</p>
+<p>Data must be in a csv and in two columns, first time and second 
+voltage. Units should be SI (Volts and Seconds).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_path</strong> &#8211; full file path to file e.g /home/mike/test.csv</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">two lists - time and voltage</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimalneuron.traceanalysis.max_min">
+<tt class="descclassname">optimalneuron.traceanalysis.</tt><tt class="descname">max_min</tt><big>(</big><em>a</em>, <em>t</em>, <em>delta=0</em>, <em>peak_threshold=0</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#max_min"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.max_min" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the maxima and minima of a voltage trace.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>a</strong> &#8211; time-dependent variable (usually voltage)</li>
+<li><strong>t</strong> &#8211; time-vector</li>
+<li><strong>delta</strong> &#8211; the value by which a peak or trough has to exceed its
+neighbours to be considered outside of the noise</li>
+<li><strong>peak_threshold</strong> &#8211; peaks below this value are discarded</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">turning_points, dictionary containing number of max, min and 
+their locations</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">To_change :</th><td class="field-body"><p class="first last">I think picking the minimum value between two peaks is a better
+way of getting the minima since this guarantees an answer.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimalneuron.traceanalysis.mean_spike_frequency">
+<tt class="descclassname">optimalneuron.traceanalysis.</tt><tt class="descname">mean_spike_frequency</tt><big>(</big><em>t</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#mean_spike_frequency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.mean_spike_frequency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the average frequency of spikes</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>t</strong> &#8211; a list of spike times in ms</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">mean spike frequency in Hz, calculated from mean interspike time</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimalneuron.traceanalysis.minima_phases">
+<tt class="descclassname">optimalneuron.traceanalysis.</tt><tt class="descname">minima_phases</tt><big>(</big><em>t</em>, <em>y</em>, <em>delta=0</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#minima_phases"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.minima_phases" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the phases of minima.</p>
+<p>Minima are found by finding the minimum value between sets of two peaks.
+The phase of the minimum relative to the two peaks is then returned.
+i.e the fraction of time elapsed between the two peaks when the minimum
+occurs is returned.</p>
+<p>It is very important to make sure the correct delta is specified for
+peak discrimination, otherwise unexpected results may be returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>y</strong> &#8211; time-dependent variable (usually voltage)</li>
+<li><strong>t</strong> &#8211; time-vector</li>
+<li><strong>delta</strong> &#8211; the value by which a peak or trough has to exceed its
+neighbours to be considered &#8220;outside of the noise&#8221;</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">phase of minimum relative to peaks.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimalneuron.traceanalysis.normalised_cost_function">
+<tt class="descclassname">optimalneuron.traceanalysis.</tt><tt class="descname">normalised_cost_function</tt><big>(</big><em>value</em>, <em>target</em>, <em>Q=None</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#normalised_cost_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.normalised_cost_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns fitness of a value-target pair from 0 to 1</p>
+<blockquote>
+<div><p>For any value/target pair will give a normalised value for
+agreement 0 is complete value-target match and 1 is &#8220;no&#8221; match.</p>
+<p>If no Q is assigned, it is set such that it satisfies the condition
+fitness=0.7 when (target-valu)e=10*target. This is essentially 
+empirical and seems to work. Mathematical derivation is on Mike Vella&#8217;s 
+Lab Book 1 p.42 (page dated 15/12/11).</p>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>value</strong> &#8211; value measured</li>
+<li><strong>t</strong> &#8211; target</li>
+<li><strong>Q</strong> &#8211; This is the sharpness of the cost function, higher values correspond
+to a sharper cost function. A high Q-Value may lead an optimizer to a solution
+quickly once it nears the solution.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">fitness value from 0 to 1</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimalneuron.traceanalysis.phase_plane">
+<tt class="descclassname">optimalneuron.traceanalysis.</tt><tt class="descname">phase_plane</tt><big>(</big><em>t</em>, <em>y</em>, <em>plot=False</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#phase_plane"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.phase_plane" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a tuple with two vectors corresponding to the phase plane of
+the tracetarget</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimalneuron.traceanalysis.pptd">
+<tt class="descclassname">optimalneuron.traceanalysis.</tt><tt class="descname">pptd</tt><big>(</big><em>t</em>, <em>y</em>, <em>bins=10</em>, <em>xyrange=None</em>, <em>dvdt_threshold=None</em>, <em>plot=False</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#pptd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.pptd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a 2D map of x vs y data and the xedges and yedges. 
+in the form of a vector (H,xedges,yedges) Useful for the 
+PPTD method described by Van Geit 2007.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimalneuron.traceanalysis.pptd_error">
+<tt class="descclassname">optimalneuron.traceanalysis.</tt><tt class="descname">pptd_error</tt><big>(</big><em>t_model</em>, <em>v_model</em>, <em>t_target</em>, <em>v_target</em>, <em>dvdt_threshold=None</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#pptd_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.pptd_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns error function value from comparison of two phase
+pptd maps as described by Van Geit 2007.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimalneuron.traceanalysis.single_spike_width">
+<tt class="descclassname">optimalneuron.traceanalysis.</tt><tt class="descname">single_spike_width</tt><big>(</big><em>y</em>, <em>t</em>, <em>baseline</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#single_spike_width"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.single_spike_width" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the width of a spike at a fixed height</p>
+<p>Returns the width of the spike at height baseline. If the spike shape
+does not intersect the height at both sides of the peak the method
+will return value 0. If the peak is below the baseline 0 will also 
+be returned.</p>
+<p>The input must be a single spike or nonsense may be returned.
+Multiple-spike data can be handled by the interspike_widths method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>y</strong> &#8211; voltage trace (array) corresponding to the spike</li>
+<li><strong>t</strong> &#8211; time value array corresponding to y</li>
+<li><strong>baseline</strong> &#8211; the height (voltage) where the width is to be measured.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">width of spike at height defined by baseline</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>:think about - set default baseline to none and calculate half-width</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimalneuron.traceanalysis.smooth">
+<tt class="descclassname">optimalneuron.traceanalysis.</tt><tt class="descname">smooth</tt><big>(</big><em>x</em>, <em>window_len=11</em>, <em>window='hanning'</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#smooth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.smooth" title="Permalink to this definition">¶</a></dt>
+<dd><p>smooth the data using a window with requested size.</p>
+<p>This is very useful for dealing with real data.
+This method is based on the convolution of a scaled window with the signal.
+The signal is prepared by introducing reflected copies of the signal 
+(with the window size) in both ends so that transient parts are minimized
+in the begining and end part of the output signal.
+Params work very well with a tested whole-cell 20KHz signal.</p>
+<dl class="docutils">
+<dt>input:</dt>
+<dd><p class="first">x: the input signal 
+window_len: the dimension of the smoothing window; should be an odd integer
+window: the type of window from &#8216;flat&#8217;, &#8216;hanning&#8217;, &#8216;hamming&#8217;, &#8216;bartlett&#8217;, &#8216;blackman&#8217;</p>
+<blockquote class="last">
+<div>flat window will produce a moving average smoothing.</div></blockquote>
+</dd>
+<dt>output:</dt>
+<dd>the smoothed signal</dd>
+</dl>
+<p>example:</p>
+<p>t=linspace(-2,2,0.1)
+x=sin(t)+randn(len(t))*0.1
+y=smooth(x)</p>
+<p>see also:</p>
+<p>numpy.hanning, numpy.hamming, numpy.bartlett, numpy.blackman, numpy.convolve
+scipy.signal.lfilter</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimalneuron.traceanalysis.spike_broadening">
+<tt class="descclassname">optimalneuron.traceanalysis.</tt><tt class="descname">spike_broadening</tt><big>(</big><em>spike_width_list</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#spike_broadening"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.spike_broadening" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the value of the width of the first AP over
+the mean value of the following APs.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimalneuron.traceanalysis.spike_covar">
+<tt class="descclassname">optimalneuron.traceanalysis.</tt><tt class="descname">spike_covar</tt><big>(</big><em>t</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#spike_covar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.spike_covar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the coefficient of variation of interspike times</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>t</strong> &#8211; Rank-1 array containing spike times</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">coefficient of variation of interspike times</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimalneuron.traceanalysis.spike_frequencies">
+<tt class="descclassname">optimalneuron.traceanalysis.</tt><tt class="descname">spike_frequencies</tt><big>(</big><em>t</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#spike_frequencies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.spike_frequencies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate frequencies associated with interspike times</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>t</strong> &#8211; a list of spike times in ms</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of frequencies in Hz associated with interspike times and
+times associated with the frequency (time of first spike in pair)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimalneuron.traceanalysis.spike_widths">
+<tt class="descclassname">optimalneuron.traceanalysis.</tt><tt class="descname">spike_widths</tt><big>(</big><em>y</em>, <em>t</em>, <em>baseline=0</em>, <em>delta=0</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#spike_widths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.spike_widths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the widths of each spike at a fixed height in a train of spikes.</p>
+<p>Returns the width of the spike of each spike in a spike train at height 
+baseline. If the spike shapes do not intersect the height at both sides
+of the peak the method will return value 0 for that spike.
+If the peak is below the baseline 0 will also be returned for that spike.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>y</strong> &#8211; voltage trace (array) corresponding to the spike train</li>
+<li><strong>t</strong> &#8211; time value array corresponding to y</li>
+<li><strong>baseline</strong> &#8211; the height (voltage) where the width is to be measured.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">width of spike at height defined by baseline</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimalneuron.traceanalysis.three_spike_adaptation">
+<tt class="descclassname">optimalneuron.traceanalysis.</tt><tt class="descname">three_spike_adaptation</tt><big>(</big><em>t</em>, <em>y</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#three_spike_adaptation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.three_spike_adaptation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lnear fit of amplitude vs time of first three AP spikes</p>
+<p>Logic behind this is that exp_fit doesn&#8217;t seem to
+work particularly well and the first three spikes in
+a trace often tell the whole picture.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>t</strong> &#8211; time vector (AP times)</li>
+<li><strong>y</strong> &#8211; corresponding AP amplitude</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="optimalneuron.traceanalysis.y_from_x">
+<tt class="descclassname">optimalneuron.traceanalysis.</tt><tt class="descname">y_from_x</tt><big>(</big><em>y</em>, <em>x</em>, <em>y_to_find</em><big>)</big><a class="reference internal" href="_modules/optimalneuron/traceanalysis.html#y_from_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#optimalneuron.traceanalysis.y_from_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns list of x values corresponding to a y after a doing a 
+univariate spline interpolation</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">optimalneuron Package</a><ul>
+<li><a class="reference internal" href="#module-optimalneuron.controllers"><tt class="docutils literal"><span class="pre">controllers</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-optimalneuron.evaluators"><tt class="docutils literal"><span class="pre">evaluators</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-optimalneuron.optimizers"><tt class="docutils literal"><span class="pre">optimizers</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-optimalneuron.traceanalysis"><tt class="docutils literal"><span class="pre">traceanalysis</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to optimalneuron&#8217;s documentation!</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/optimalneuron.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to optimalneuron’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">optimalneuron  documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Author.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

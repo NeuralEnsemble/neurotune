@@ -1,0 +1,984 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>optimalneuron.traceanalysis &mdash; optimalneuron  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="optimalneuron  documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">optimalneuron  documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for optimalneuron.traceanalysis</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module for mathematical analysis of voltage traces from electrophysiology.</span>
+
+<span class="sd">AUTHORS:</span>
+
+<span class="sd">- Mike Vella (2011-04-08): initial version</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">scipy.stats</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<div class="viewcode-block" id="smooth"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.smooth">[docs]</a><span class="k">def</span> <span class="nf">smooth</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">window_len</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span><span class="n">window</span><span class="o">=</span><span class="s">&#39;hanning&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;smooth the data using a window with requested size.</span>
+<span class="sd">    </span>
+<span class="sd">    This is very useful for dealing with real data.</span>
+<span class="sd">    This method is based on the convolution of a scaled window with the signal.</span>
+<span class="sd">    The signal is prepared by introducing reflected copies of the signal </span>
+<span class="sd">    (with the window size) in both ends so that transient parts are minimized</span>
+<span class="sd">    in the begining and end part of the output signal.</span>
+<span class="sd">    Params work very well with a tested whole-cell 20KHz signal.</span>
+<span class="sd">    </span>
+<span class="sd">    input:</span>
+<span class="sd">        x: the input signal </span>
+<span class="sd">        window_len: the dimension of the smoothing window; should be an odd integer</span>
+<span class="sd">        window: the type of window from &#39;flat&#39;, &#39;hanning&#39;, &#39;hamming&#39;, &#39;bartlett&#39;, &#39;blackman&#39;</span>
+<span class="sd">            flat window will produce a moving average smoothing.</span>
+
+<span class="sd">    output:</span>
+<span class="sd">        the smoothed signal</span>
+<span class="sd">        </span>
+<span class="sd">    example:</span>
+
+<span class="sd">    t=linspace(-2,2,0.1)</span>
+<span class="sd">    x=sin(t)+randn(len(t))*0.1</span>
+<span class="sd">    y=smooth(x)</span>
+<span class="sd">    </span>
+<span class="sd">    see also: </span>
+<span class="sd">    </span>
+<span class="sd">    numpy.hanning, numpy.hamming, numpy.bartlett, numpy.blackman, numpy.convolve</span>
+<span class="sd">    scipy.signal.lfilter</span>
+<span class="sd"> </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="s">&quot;smooth only accepts 1 dimension arrays.&quot;</span>
+
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="n">window_len</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="s">&quot;Input vector needs to be bigger than window size.&quot;</span>
+
+
+    <span class="k">if</span> <span class="n">window_len</span><span class="o">&lt;</span><span class="mi">3</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">window</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;flat&#39;</span><span class="p">,</span> <span class="s">&#39;hanning&#39;</span><span class="p">,</span> <span class="s">&#39;hamming&#39;</span><span class="p">,</span> <span class="s">&#39;bartlett&#39;</span><span class="p">,</span> <span class="s">&#39;blackman&#39;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="s">&quot;Window is on of &#39;flat&#39;, &#39;hanning&#39;, &#39;hamming&#39;, &#39;bartlett&#39;, &#39;blackman&#39;&quot;</span>
+
+
+    <span class="n">s</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="n">window_len</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="n">window_len</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="c">#print(len(s))</span>
+    <span class="k">if</span> <span class="n">window</span> <span class="o">==</span> <span class="s">&#39;flat&#39;</span><span class="p">:</span> <span class="c">#moving average</span>
+        <span class="n">w</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">window_len</span><span class="p">,</span><span class="s">&#39;d&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">w</span><span class="o">=</span><span class="nb">eval</span><span class="p">(</span><span class="s">&#39;np.&#39;</span><span class="o">+</span><span class="n">window</span><span class="o">+</span><span class="s">&#39;(window_len)&#39;</span><span class="p">)</span>
+
+    <span class="n">y</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">w</span><span class="o">/</span><span class="n">w</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span><span class="n">s</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="s">&#39;valid&#39;</span><span class="p">)</span>
+
+    <span class="n">edge</span><span class="o">=</span><span class="n">window_len</span><span class="o">/</span><span class="mi">2</span>
+    <span class="k">return</span> <span class="n">y</span><span class="p">[</span><span class="n">edge</span><span class="p">:</span><span class="o">-</span><span class="n">edge</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="linear_fit"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.linear_fit">[docs]</a><span class="k">def</span> <span class="nf">linear_fit</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fits data to a line</span>
+<span class="sd">        </span>
+<span class="sd">    Returns M (gradient) for a formula of the type y=C+M*x</span>
+<span class="sd">        </span>
+<span class="sd">    :param t: time vector</span>
+<span class="sd">    :param y: variable which varies with time (such as voltage)</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">vals</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">m</span><span class="p">,</span><span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">vals</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">m</span>
+
+</div>
+<div class="viewcode-block" id="three_spike_adaptation"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.three_spike_adaptation">[docs]</a><span class="k">def</span> <span class="nf">three_spike_adaptation</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">y</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Lnear fit of amplitude vs time of first three AP spikes</span>
+<span class="sd">    </span>
+<span class="sd">    Logic behind this is that exp_fit doesn&#39;t seem to</span>
+<span class="sd">    work particularly well and the first three spikes in</span>
+<span class="sd">    a trace often tell the whole picture.</span>
+
+<span class="sd">    :param t: time vector (AP times)</span>
+<span class="sd">    :param y: corresponding AP amplitude</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">t</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+    
+    <span class="n">m</span><span class="o">=</span><span class="n">linear_fit</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">m</span>
+    
+</div>
+<div class="viewcode-block" id="exp_fit"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.exp_fit">[docs]</a><span class="k">def</span> <span class="nf">exp_fit</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fits data to an exponential.</span>
+<span class="sd">        </span>
+<span class="sd">    Returns K for a formula of the type y=A*exp(K*x)</span>
+<span class="sd">        </span>
+<span class="sd">    :param t: time vector</span>
+<span class="sd">    :param y: variable which varies with time (such as voltage)</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">vals</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">C</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+    <span class="n">vals</span><span class="o">=</span><span class="n">vals</span><span class="o">-</span><span class="n">C</span><span class="o">+</span><span class="mf">1e-9</span> <span class="c">#make sure the data is all positive</span>
+    <span class="n">vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+    <span class="n">K</span><span class="p">,</span> <span class="n">A_log</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">vals</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">K</span>
+
+</div>
+<div class="viewcode-block" id="max_min"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.max_min">[docs]</a><span class="k">def</span> <span class="nf">max_min</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">delta</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">peak_threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the maxima and minima of a voltage trace.</span>
+<span class="sd">    </span>
+<span class="sd">    :param a: time-dependent variable (usually voltage)</span>
+<span class="sd">    :param t: time-vector</span>
+<span class="sd">    :param delta: the value by which a peak or trough has to exceed its</span>
+<span class="sd">        neighbours to be considered outside of the noise</span>
+<span class="sd">    :param peak_threshold: peaks below this value are discarded</span>
+<span class="sd">        </span>
+<span class="sd">    :return: turning_points, dictionary containing number of max, min and </span>
+<span class="sd">        their locations</span>
+<span class="sd">        </span>
+<span class="sd">    :to_change: I think picking the minimum value between two peaks is a better</span>
+<span class="sd">        way of getting the minima since this guarantees an answer.</span>
+<span class="sd">        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">gradients</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        
+    <span class="n">maxima_info</span><span class="o">=</span><span class="p">[]</span>
+    <span class="n">minima_info</span><span class="o">=</span><span class="p">[]</span>
+        
+    <span class="c">#initialise all the vectors:</span>
+    <span class="n">count</span><span class="o">=</span><span class="mi">0</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">gradients</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">count</span><span class="o">+=</span><span class="mi">1</span>
+
+        <span class="k">if</span> <span class="p">((</span><span class="nb">cmp</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="nb">cmp</span><span class="p">(</span><span class="n">gradients</span><span class="p">[</span><span class="n">count</span><span class="p">],</span><span class="mi">0</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">i</span> <span class="o">!=</span> <span class="n">gradients</span><span class="p">[</span><span class="n">count</span><span class="p">])):</span>
+            <span class="c">#found a maximum</span>
+            <span class="n">maximum_value</span><span class="o">=</span><span class="n">a</span><span class="p">[</span><span class="n">count</span><span class="p">]</span>
+            <span class="n">maximum_location</span><span class="o">=</span><span class="n">count</span>
+            <span class="n">maximum_time</span><span class="o">=</span><span class="n">t</span><span class="p">[</span><span class="n">count</span><span class="p">]</span>
+            <span class="n">preceding_point_value</span><span class="o">=</span><span class="n">a</span><span class="p">[</span><span class="n">maximum_location</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">succeeding_point_value</span><span class="o">=</span><span class="n">a</span><span class="p">[</span><span class="n">maximum_location</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="c">#filter:</span>
+            <span class="n">maximum_valid</span><span class="o">=</span><span class="bp">False</span> <span class="c">#logically consistent but not very pythonic..</span>
+            <span class="k">if</span> <span class="p">((</span><span class="n">maximum_value</span><span class="o">-</span><span class="n">preceding_point_value</span><span class="p">)</span><span class="o">&gt;</span><span class="n">delta</span><span class="p">)</span><span class="o">*</span><span class="p">((</span><span class="n">maximum_value</span><span class="o">-</span><span class="n">succeeding_point_value</span><span class="p">)</span><span class="o">&gt;</span><span class="n">delta</span><span class="p">):</span>
+                <span class="n">maximum_valid</span><span class="o">=</span><span class="bp">True</span>
+            <span class="k">if</span> <span class="n">maximum_value</span><span class="o">&lt;</span><span class="n">peak_threshold</span><span class="p">:</span>
+                <span class="n">maximum_valid</span><span class="o">=</span><span class="bp">False</span>
+            <span class="k">if</span> <span class="n">maximum_valid</span><span class="p">:</span>
+                <span class="n">maxima_info</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">maximum_value</span><span class="p">,</span><span class="n">maximum_location</span><span class="p">,</span><span class="n">maximum_time</span><span class="p">))</span>
+   
+    <span class="n">maxima_num</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">maxima_info</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">maxima_num</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+        <span class="n">minima_num</span><span class="o">=</span><span class="n">maxima_num</span><span class="o">-</span><span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">minima_num</span><span class="o">=</span><span class="mi">0</span>
+    
+    <span class="kn">import</span> <span class="nn">operator</span>
+    
+    <span class="n">values_getter</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">location_getter</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">time_getter</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    
+    <span class="n">maxima_locations</span><span class="o">=</span><span class="nb">map</span><span class="p">(</span><span class="n">location_getter</span><span class="p">,</span><span class="n">maxima_info</span><span class="p">)</span>
+    <span class="n">maxima_times</span><span class="o">=</span><span class="nb">map</span><span class="p">(</span><span class="n">time_getter</span><span class="p">,</span><span class="n">maxima_info</span><span class="p">)</span>
+    <span class="n">maxima_values</span><span class="o">=</span><span class="nb">map</span><span class="p">(</span><span class="n">values_getter</span><span class="p">,</span><span class="n">maxima_info</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">maxima_num</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">maximum_0_location</span><span class="o">=</span><span class="n">maxima_locations</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">maximum_1_location</span><span class="o">=</span><span class="n">maxima_locations</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        
+        <span class="n">interspike_slice</span><span class="o">=</span><span class="n">a</span><span class="p">[</span><span class="n">maximum_0_location</span><span class="p">:</span><span class="n">maximum_1_location</span><span class="p">]</span>
+        <span class="n">minimum_value</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="n">interspike_slice</span><span class="p">)</span>
+        <span class="n">minimum_location</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">interspike_slice</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">minimum_value</span><span class="p">)</span><span class="o">+</span><span class="n">maximum_0_location</span>
+        <span class="n">minimum_time</span><span class="o">=</span><span class="n">t</span><span class="p">[</span><span class="n">minimum_location</span><span class="p">]</span>
+        
+        <span class="n">minima_info</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">minimum_value</span><span class="p">,</span><span class="n">minimum_location</span><span class="p">,</span><span class="n">minimum_time</span><span class="p">))</span>
+   
+    <span class="n">minima_locations</span><span class="o">=</span><span class="nb">map</span><span class="p">(</span><span class="n">location_getter</span><span class="p">,</span><span class="n">minima_info</span><span class="p">)</span>
+    <span class="n">minima_times</span><span class="o">=</span><span class="nb">map</span><span class="p">(</span><span class="n">time_getter</span><span class="p">,</span><span class="n">minima_info</span><span class="p">)</span>
+    <span class="n">minima_values</span><span class="o">=</span><span class="nb">map</span><span class="p">(</span><span class="n">values_getter</span><span class="p">,</span><span class="n">minima_info</span><span class="p">)</span>
+
+    <span class="c">#need to construct the dictionary here:</span>
+    <span class="n">turning_points</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;maxima_locations&#39;</span><span class="p">:</span><span class="n">maxima_locations</span><span class="p">,</span><span class="s">&#39;minima_locations&#39;</span><span class="p">:</span><span class="n">minima_locations</span><span class="p">,</span><span class="s">&#39;maxima_number&#39;</span><span class="p">:</span><span class="n">maxima_num</span><span class="p">,</span><span class="s">&#39;minima_number&#39;</span><span class="p">:</span><span class="n">minima_num</span><span class="p">,</span><span class="s">&#39;maxima_times&#39;</span><span class="p">:</span><span class="n">maxima_times</span><span class="p">,</span><span class="s">&#39;minima_times&#39;</span><span class="p">:</span><span class="n">minima_times</span><span class="p">,</span> <span class="s">&#39;maxima_values&#39;</span><span class="p">:</span><span class="n">maxima_values</span><span class="p">,</span><span class="s">&#39;minima_values&#39;</span><span class="p">:</span><span class="n">minima_values</span><span class="p">}</span>
+    
+    <span class="k">return</span> <span class="n">turning_points</span>
+</div>
+<div class="viewcode-block" id="spike_frequencies"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.spike_frequencies">[docs]</a><span class="k">def</span> <span class="nf">spike_frequencies</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate frequencies associated with interspike times</span>
+<span class="sd">    </span>
+<span class="sd">    :param t: a list of spike times in ms</span>
+<span class="sd">        </span>
+<span class="sd">    :return: list of frequencies in Hz associated with interspike times and</span>
+<span class="sd">        times associated with the frequency (time of first spike in pair)</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">spike_times</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">interspike_times</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">spike_times</span><span class="p">)</span>
+    <span class="n">interspike_frequencies</span><span class="o">=</span><span class="mi">1000</span><span class="o">/</span><span class="n">interspike_times</span>
+    
+    <span class="k">return</span> <span class="p">[</span><span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">interspike_frequencies</span><span class="p">]</span>
+    
+    </div>
+<div class="viewcode-block" id="mean_spike_frequency"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.mean_spike_frequency">[docs]</a><span class="k">def</span> <span class="nf">mean_spike_frequency</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the average frequency of spikes</span>
+<span class="sd">    </span>
+<span class="sd">    :param t: a list of spike times in ms</span>
+<span class="sd">        </span>
+<span class="sd">    :return: mean spike frequency in Hz, calculated from mean interspike time</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">interspike_times</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">mean_interspike_time</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">interspike_times</span><span class="p">)</span>
+    <span class="n">mean_frequency</span><span class="o">=</span><span class="mf">1000.0</span><span class="o">/</span><span class="p">(</span><span class="n">mean_interspike_time</span><span class="p">)</span> <span class="c">#factor of 1000 to give frequency in Hz</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">mean_frequency</span><span class="p">)):</span>
+        <span class="n">mean_frequency</span><span class="o">=</span><span class="mi">0</span>
+    <span class="k">return</span> <span class="n">mean_frequency</span>
+
+</div>
+<div class="viewcode-block" id="y_from_x"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.y_from_x">[docs]</a><span class="k">def</span> <span class="nf">y_from_x</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y_to_find</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns list of x values corresponding to a y after a doing a </span>
+<span class="sd">    univariate spline interpolation</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">interpolate</span>
+
+    <span class="n">yreduced</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">-</span> <span class="n">y_to_find</span>
+    <span class="n">freduced</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">UnivariateSpline</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">yreduced</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">freduced</span><span class="o">.</span><span class="n">roots</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="single_spike_width"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.single_spike_width">[docs]</a><span class="k">def</span> <span class="nf">single_spike_width</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">baseline</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the width of a spike at a fixed height</span>
+<span class="sd">    </span>
+<span class="sd">    Returns the width of the spike at height baseline. If the spike shape</span>
+<span class="sd">    does not intersect the height at both sides of the peak the method</span>
+<span class="sd">    will return value 0. If the peak is below the baseline 0 will also </span>
+<span class="sd">    be returned.</span>
+<span class="sd">    </span>
+<span class="sd">    The input must be a single spike or nonsense may be returned.</span>
+<span class="sd">    Multiple-spike data can be handled by the interspike_widths method.</span>
+<span class="sd">    </span>
+<span class="sd">    :param y: voltage trace (array) corresponding to the spike</span>
+<span class="sd">    :param t: time value array corresponding to y</span>
+<span class="sd">    :param baseline: the height (voltage) where the width is to be measured.        </span>
+<span class="sd">    </span>
+<span class="sd">    :return: width of spike at height defined by baseline</span>
+
+<span class="sd">    :think about - set default baseline to none and calculate half-width</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">location</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        
+        <span class="c">#moving left:</span>
+        <span class="k">while</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="n">baseline</span><span class="p">:</span>
+            <span class="n">location</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">location</span><span class="p">]</span>
+            <span class="n">undershoot_value</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">location</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">overshoot_time</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="n">location</span><span class="p">]</span>
+            <span class="n">undershoot_time</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="n">location</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">interpolated_left_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">baseline</span><span class="p">,</span> <span class="p">[</span><span class="n">value</span><span class="p">,</span> <span class="n">undershoot_value</span><span class="p">],</span> <span class="p">[</span><span class="n">overshoot_time</span><span class="p">,</span> <span class="n">undershoot_time</span><span class="p">])</span>
+                            
+            <span class="k">if</span> <span class="n">location</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MathsError</span><span class="p">(</span><span class="s">&#39;Baseline does not intersect spike&#39;</span><span class="p">)</span>
+                
+        <span class="c">#now go right</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">location</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        
+        <span class="k">while</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="n">baseline</span> <span class="p">:</span>
+            <span class="n">location</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">location</span><span class="p">]</span>
+            <span class="n">undershoot_value</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">location</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">overshoot_time</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="n">location</span><span class="p">]</span>
+            <span class="n">undershoot_time</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="n">location</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">interpolated_right_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">baseline</span><span class="p">,</span> <span class="p">[</span><span class="n">value</span><span class="p">,</span> <span class="n">undershoot_value</span><span class="p">],</span> <span class="p">[</span><span class="n">overshoot_time</span><span class="p">,</span> <span class="n">undershoot_time</span><span class="p">])</span>
+            
+            <span class="k">if</span> <span class="n">location</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MathsError</span><span class="p">(</span><span class="s">&#39;Baseline does not intersect spike&#39;</span><span class="p">)</span>
+
+        <span class="n">width</span> <span class="o">=</span> <span class="n">interpolated_right_time</span> <span class="o">-</span> <span class="n">interpolated_left_time</span>
+    
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="k">return</span> <span class="n">width</span>
+
+</div>
+<div class="viewcode-block" id="spike_widths"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.spike_widths">[docs]</a><span class="k">def</span> <span class="nf">spike_widths</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">baseline</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">delta</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the widths of each spike at a fixed height in a train of spikes.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns the width of the spike of each spike in a spike train at height </span>
+<span class="sd">    baseline. If the spike shapes do not intersect the height at both sides</span>
+<span class="sd">    of the peak the method will return value 0 for that spike.</span>
+<span class="sd">    If the peak is below the baseline 0 will also be returned for that spike.</span>
+<span class="sd">    </span>
+<span class="sd">    :param y: voltage trace (array) corresponding to the spike train</span>
+<span class="sd">    :param t: time value array corresponding to y</span>
+<span class="sd">    :param baseline: the height (voltage) where the width is to be measured.</span>
+<span class="sd">        </span>
+<span class="sd">    :return: width of spike at height defined by baseline</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c">#first get the max and min data:</span>
+    <span class="n">max_min_dictionary</span><span class="o">=</span><span class="n">max_min</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">delta</span><span class="p">)</span>
+    
+    <span class="n">max_num</span><span class="o">=</span><span class="n">max_min_dictionary</span><span class="p">[</span><span class="s">&#39;maxima_number&#39;</span><span class="p">]</span>
+    <span class="n">maxima_locations</span><span class="o">=</span><span class="n">max_min_dictionary</span><span class="p">[</span><span class="s">&#39;maxima_locations&#39;</span><span class="p">]</span>
+    <span class="n">maxima_times</span><span class="o">=</span><span class="n">max_min_dictionary</span><span class="p">[</span><span class="s">&#39;maxima_times&#39;</span><span class="p">]</span>
+    <span class="n">minima_locations</span><span class="o">=</span><span class="n">max_min_dictionary</span><span class="p">[</span><span class="s">&#39;minima_locations&#39;</span><span class="p">]</span>
+    <span class="n">maxima_values</span><span class="o">=</span><span class="n">max_min_dictionary</span><span class="p">[</span><span class="s">&#39;maxima_values&#39;</span><span class="p">]</span>
+    
+    
+    <span class="n">spike_widths</span><span class="o">=</span><span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_num</span><span class="p">):</span>
+        <span class="c">#need to splice down the y:</span>
+        <span class="k">if</span> <span class="n">i</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">left_min_location</span><span class="o">=</span><span class="mi">0</span>
+            <span class="n">right_min_location</span><span class="o">=</span><span class="n">minima_locations</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">i</span><span class="o">==</span><span class="n">max_num</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">left_min_location</span><span class="o">=</span><span class="n">minima_locations</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">right_min_location</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">left_min_location</span><span class="o">=</span><span class="n">minima_locations</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">right_min_location</span><span class="o">=</span><span class="n">minima_locations</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span>
+        
+        <span class="n">spike_shape</span><span class="o">=</span><span class="n">y</span><span class="p">[</span><span class="n">left_min_location</span><span class="p">:</span><span class="n">right_min_location</span><span class="p">]</span>
+        <span class="n">spike_t</span><span class="o">=</span><span class="n">t</span><span class="p">[</span><span class="n">left_min_location</span><span class="p">:</span><span class="n">right_min_location</span><span class="p">]</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">width</span><span class="o">=</span><span class="n">single_spike_width</span><span class="p">(</span><span class="n">spike_shape</span><span class="p">,</span><span class="n">spike_t</span><span class="p">,</span><span class="n">baseline</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">width</span><span class="o">=</span><span class="mi">0</span>
+        
+        <span class="n">spike_widths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">width</span><span class="p">)</span>
+    
+    <span class="n">maxima_times_widths</span><span class="o">=</span><span class="p">[</span><span class="n">maxima_times</span><span class="p">,</span><span class="n">spike_widths</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">maxima_times_widths</span>
+</div>
+<div class="viewcode-block" id="burst_analyser"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.burst_analyser">[docs]</a><span class="k">def</span> <span class="nf">burst_analyser</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    pearson&#39;s correlation coefficient of interspike times</span>
+<span class="sd">        </span>
+<span class="sd">        Calculates the pearson&#39;s correlation coefficient of interspike times </span>
+<span class="sd">        </span>
+<span class="sd">    :param t: Rank-1 array containing spike times</span>
+<span class="sd">       </span>
+<span class="sd">    :returns: pearson&#39;s correlation coefficient of interspike times </span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">x</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+    <span class="n">pearsonr</span><span class="o">=</span><span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">pearsonr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">t</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">pearsonr</span>
+</div>
+<div class="viewcode-block" id="spike_covar"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.spike_covar">[docs]</a><span class="k">def</span> <span class="nf">spike_covar</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the coefficient of variation of interspike times </span>
+<span class="sd">        </span>
+<span class="sd">    :param t: Rank-1 array containing spike times</span>
+<span class="sd">       </span>
+<span class="sd">    :returns: coefficient of variation of interspike times </span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">interspike_times</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">covar</span><span class="o">=</span><span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">variation</span><span class="p">(</span><span class="n">interspike_times</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">covar</span>
+</div>
+<div class="viewcode-block" id="elburg_bursting"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.elburg_bursting">[docs]</a><span class="k">def</span> <span class="nf">elburg_bursting</span><span class="p">(</span><span class="n">spike_times</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the bursting measure B as described by </span>
+<span class="sd">    Elburg &amp; Ooyen 2004.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">interspikes_1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">spike_times</span><span class="p">)</span>
+
+    <span class="n">num_interspikes</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">spike_times</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+
+    <span class="n">interspikes_2</span><span class="o">=</span><span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_interspikes</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">interspike</span><span class="o">=</span><span class="n">interspikes_1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="n">interspikes_1</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">interspikes_2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">interspike</span><span class="p">)</span>
+
+    <span class="n">mean_interspike</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">interspikes_1</span><span class="p">)</span>    
+
+    <span class="n">var_i_1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">interspikes_1</span><span class="p">)</span>
+    <span class="n">var_i_2</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">interspikes_2</span><span class="p">)</span>
+
+    <span class="n">B</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">var_i_1</span><span class="o">-</span><span class="n">var_i_2</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">mean_interspike</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">B</span>
+</div>
+<div class="viewcode-block" id="alpha_normalised_cost_function"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.alpha_normalised_cost_function">[docs]</a><span class="k">def</span> <span class="nf">alpha_normalised_cost_function</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="n">target</span><span class="p">,</span><span class="n">base</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns fitness of a value-target pair from 0 to 1 </span>
+<span class="sd">    </span>
+<span class="sd">        For any value/target pair will give a normalised value for</span>
+<span class="sd">        agreement 1 is complete value-target match and 0 is 0 match.</span>
+<span class="sd">        A mirrored exponential function is used.</span>
+<span class="sd">     </span>
+<span class="sd">    :param value: value measured</span>
+<span class="sd">    :param t: target</span>
+<span class="sd">    :param base: the base in the expression  fitness=base**(-x) where</span>
+<span class="sd">        x=x=((value-target)/(target+0.01))**2</span>
+<span class="sd">        </span>
+<span class="sd">    :return: fitness value from 0 to 1</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+    
+    <span class="n">x</span><span class="o">=</span><span class="p">((</span><span class="n">value</span><span class="o">-</span><span class="n">target</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">target</span><span class="o">+</span><span class="mf">0.01</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span> <span class="c">#the 0.01 thing is a bit of a hack at the moment.</span>
+    <span class="n">fitness</span><span class="o">=</span><span class="n">base</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fitness</span>    
+</div>
+<div class="viewcode-block" id="normalised_cost_function"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.normalised_cost_function">[docs]</a><span class="k">def</span> <span class="nf">normalised_cost_function</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="n">target</span><span class="p">,</span><span class="n">Q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns fitness of a value-target pair from 0 to 1 </span>
+<span class="sd">    </span>
+<span class="sd">        For any value/target pair will give a normalised value for</span>
+<span class="sd">        agreement 0 is complete value-target match and 1 is &quot;no&quot; match.</span>
+<span class="sd">        </span>
+<span class="sd">        If no Q is assigned, it is set such that it satisfies the condition</span>
+<span class="sd">        fitness=0.7 when (target-valu)e=10*target. This is essentially </span>
+<span class="sd">        empirical and seems to work. Mathematical derivation is on Mike Vella&#39;s </span>
+<span class="sd">        Lab Book 1 p.42 (page dated 15/12/11).</span>
+<span class="sd">             </span>
+<span class="sd">    :param value: value measured</span>
+<span class="sd">    :param t: target</span>
+<span class="sd">    :param Q: This is the sharpness of the cost function, higher values correspond</span>
+<span class="sd">        to a sharper cost function. A high Q-Value may lead an optimizer to a solution</span>
+<span class="sd">        quickly once it nears the solution.</span>
+<span class="sd">        </span>
+<span class="sd">    :return: fitness value from 0 to 1</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">Q</span><span class="o">==</span><span class="bp">None</span><span class="p">:</span>
+        <span class="n">Q</span><span class="o">=</span><span class="mi">7</span><span class="o">/</span><span class="p">(</span><span class="mi">300</span><span class="o">*</span><span class="p">(</span><span class="n">target</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+               
+    <span class="n">fitness</span><span class="o">=</span><span class="mi">1</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">Q</span><span class="o">*</span><span class="p">(</span><span class="n">target</span><span class="o">-</span><span class="n">value</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">fitness</span>    
+</div>
+<div class="viewcode-block" id="load_csv_data"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.load_csv_data">[docs]</a><span class="k">def</span> <span class="nf">load_csv_data</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return time and voltage data from a csv file</span>
+<span class="sd">    </span>
+<span class="sd">    Data must be in a csv and in two columns, first time and second </span>
+<span class="sd">    voltage. Units should be SI (Volts and Seconds).</span>
+
+<span class="sd">    :param file_path: full file path to file e.g /home/mike/test.csv</span>
+<span class="sd">        </span>
+<span class="sd">    :return: two lists - time and voltage</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">csv</span>
+
+    <span class="n">csv_file</span><span class="o">=</span><span class="nb">file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span><span class="s">&#39;r&#39;</span><span class="p">)</span>
+    <span class="n">csv_reader</span><span class="o">=</span><span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+
+    <span class="n">v</span><span class="o">=</span><span class="p">[]</span>
+    <span class="n">t</span><span class="o">=</span><span class="p">[]</span>
+
+    <span class="n">i</span><span class="o">=</span><span class="mi">0</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">csv_reader</span><span class="p">:</span>
+
+        <span class="k">try</span><span class="p">:</span>
+
+            <span class="n">t_value</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="mi">1000</span> <span class="c">#convert to ms</span>
+            <span class="n">v_value</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="mi">1000</span> <span class="c">#convert to mV</span>
+
+            <span class="n">t</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t_value</span><span class="p">)</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v_value</span><span class="p">)</span>
+
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&#39;row &#39;</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="s">&#39; invalid&#39;</span>
+
+        <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span>        
+        <span class="n">pyplot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">v</span><span class="p">)</span>
+        <span class="n">pyplot</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Raw data&#39;</span><span class="p">)</span>
+        <span class="n">pyplot</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;Time (ms)&#39;</span><span class="p">)</span>
+        <span class="n">pyplot</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;Voltage (mV)&#39;</span><span class="p">)</span>
+        <span class="n">pyplot</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">t</span><span class="p">,</span><span class="n">v</span>
+
+</div>
+<div class="viewcode-block" id="phase_plane"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.phase_plane">[docs]</a><span class="k">def</span> <span class="nf">phase_plane</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span> <span class="c">#plot should be here really</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return a tuple with two vectors corresponding to the phase plane of</span>
+<span class="sd">    the tracetarget</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dv</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">dt</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">dy_dt</span><span class="o">=</span><span class="n">dv</span><span class="o">/</span><span class="n">dt</span>
+
+    <span class="n">y</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span>
+        <span class="n">pyplot</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Phase Plot&#39;</span><span class="p">)</span>
+        <span class="n">pyplot</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;dV/dt&#39;</span><span class="p">)</span>
+        <span class="n">pyplot</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;Voltage (mV)&#39;</span><span class="p">)</span>
+        <span class="n">pyplot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">dy_dt</span><span class="p">)</span>
+        <span class="n">pyplot</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">y</span><span class="p">,</span><span class="n">dy_dt</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="filter"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.filter">[docs]</a><span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">v</span><span class="p">):</span> <span class="c">#still experimental</span>
+
+    <span class="kn">import</span> <span class="nn">scipy</span>
+
+    <span class="n">fft</span><span class="o">=</span><span class="n">scipy</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="c"># (G) and (H)  </span>
+    <span class="n">bp</span><span class="o">=</span><span class="n">fft</span><span class="p">[:]</span>  
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bp</span><span class="p">)):</span> <span class="c"># (H-red)  </span>
+     <span class="k">if</span> <span class="n">i</span><span class="o">&gt;=</span><span class="mi">500</span><span class="p">:</span><span class="n">bp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span>  
+    <span class="n">ibp</span><span class="o">=</span><span class="n">scipy</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">bp</span><span class="p">)</span> <span class="c"># (I), (J), (K) and (L) </span>
+
+    <span class="k">return</span> <span class="n">ibp</span>
+</div>
+<div class="viewcode-block" id="pptd"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.pptd">[docs]</a><span class="k">def</span> <span class="nf">pptd</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">xyrange</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">dvdt_threshold</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a 2D map of x vs y data and the xedges and yedges. </span>
+<span class="sd">    in the form of a vector (H,xedges,yedges) Useful for the </span>
+<span class="sd">    PPTD method described by Van Geit 2007.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">phase_space</span><span class="o">=</span><span class="n">phase_plane</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="c">#filter the phase space data</span>
+    <span class="n">phase_dvdt_new</span><span class="o">=</span><span class="p">[]</span>
+    <span class="n">phase_v_new</span><span class="o">=</span><span class="p">[]</span>
+    <span class="k">if</span> <span class="n">dvdt_threshold</span><span class="o">!=</span><span class="bp">None</span><span class="p">:</span>
+        <span class="n">i</span><span class="o">=</span><span class="mi">0</span>
+        <span class="k">for</span> <span class="n">dvdt</span> <span class="ow">in</span> <span class="n">phase_space</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+           <span class="k">if</span> <span class="n">dvdt</span><span class="o">&gt;</span><span class="n">dvdt_threshold</span><span class="p">:</span>
+               <span class="n">phase_dvdt_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phase_space</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+               <span class="n">phase_v_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phase_space</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+           <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+        <span class="n">phase_space</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="n">phase_dvdt_new</span>
+        <span class="n">phase_space</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="n">phase_v_new</span>
+
+    <span class="k">if</span> <span class="n">xyrange</span><span class="o">!=</span><span class="bp">None</span><span class="p">:</span>
+        <span class="n">density_map</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">histogram2d</span><span class="p">(</span><span class="n">phase_space</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">phase_space</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> 
+                                <span class="n">normed</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">xyrange</span><span class="o">==</span><span class="bp">None</span><span class="p">:</span>
+        <span class="n">density_map</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">histogram2d</span><span class="p">(</span><span class="n">phase_space</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">phase_space</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="n">xyrange</span><span class="p">,</span> 
+                                <span class="n">normed</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+
+    <span class="c">#Reverse the density map (probably not necessary as</span>
+    <span class="c">#it&#39;s being done because imshow has a funny origin):</span>
+    <span class="n">density</span><span class="o">=</span><span class="n">density_map</span><span class="p">[</span><span class="mi">0</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">xedges</span><span class="o">=</span><span class="n">density_map</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">yedges</span><span class="o">=</span><span class="n">density_map</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span>
+        <span class="n">extent</span> <span class="o">=</span> <span class="p">[</span><span class="n">yedges</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">yedges</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">xedges</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xedges</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">imgplot</span><span class="o">=</span><span class="n">pyplot</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">)</span>
+        <span class="n">imgplot</span><span class="o">.</span><span class="n">set_interpolation</span><span class="p">(</span><span class="s">&#39;nearest&#39;</span><span class="p">)</span> <span class="c">#makes image pixilated</span>
+        <span class="n">pyplot</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Phase Plane Trajectory Density&#39;</span><span class="p">)</span>
+        <span class="n">pyplot</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;dV/dt&#39;</span><span class="p">)</span>
+        <span class="n">pyplot</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;Voltage (mV)&#39;</span><span class="p">)</span>
+        <span class="n">pyplot</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+        <span class="n">pyplot</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">density</span><span class="p">,</span><span class="n">xedges</span><span class="p">,</span><span class="n">yedges</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="spike_broadening"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.spike_broadening">[docs]</a><span class="k">def</span> <span class="nf">spike_broadening</span><span class="p">(</span><span class="n">spike_width_list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the value of the width of the first AP over</span>
+<span class="sd">    the mean value of the following APs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">first_spike</span><span class="o">=</span><span class="n">spike_width_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">mean_following_spikes</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">spike_width_list</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="n">broadening</span><span class="o">=</span><span class="n">first_spike</span><span class="o">/</span><span class="n">mean_following_spikes</span>
+
+    <span class="k">return</span> <span class="n">broadening</span>
+</div>
+<div class="viewcode-block" id="pptd_error"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.pptd_error">[docs]</a><span class="k">def</span> <span class="nf">pptd_error</span><span class="p">(</span><span class="n">t_model</span><span class="p">,</span><span class="n">v_model</span><span class="p">,</span><span class="n">t_target</span><span class="p">,</span><span class="n">v_target</span><span class="p">,</span><span class="n">dvdt_threshold</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns error function value from comparison of two phase</span>
+<span class="sd">    pptd maps as described by Van Geit 2007.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">pptd_data</span><span class="o">=</span><span class="n">pptd</span><span class="p">(</span><span class="n">t_target</span><span class="p">,</span><span class="n">v_target</span><span class="p">,</span><span class="n">dvdt_threshold</span><span class="o">=</span><span class="n">dvdt_threshold</span><span class="p">)</span>
+    <span class="n">target_density_map</span><span class="o">=</span><span class="n">pptd_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">xedges</span><span class="o">=</span><span class="n">pptd_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">xmin</span><span class="o">=</span><span class="n">xedges</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">xmax</span><span class="o">=</span><span class="n">xedges</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">yedges</span><span class="o">=</span><span class="n">pptd_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">ymin</span><span class="o">=</span><span class="n">yedges</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">ymax</span><span class="o">=</span><span class="n">yedges</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">xyrng</span><span class="o">=</span><span class="p">[[</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">],</span> <span class="p">[</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">]]</span>
+
+    <span class="n">model_density_map</span><span class="o">=</span><span class="n">pptd</span><span class="p">(</span><span class="n">t_model</span><span class="p">,</span><span class="n">v_model</span><span class="p">,</span><span class="n">xyrange</span><span class="o">=</span><span class="n">xyrng</span><span class="p">,</span>
+                           <span class="n">dvdt_threshold</span><span class="o">=</span><span class="n">dvdt_threshold</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c">#calculate number of data points for the model and target:</span>
+    <span class="n">N_target</span><span class="o">=</span><span class="nb">sum</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">target_density_map</span><span class="p">))</span>
+    <span class="n">N_model</span><span class="o">=</span><span class="nb">sum</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">model_density_map</span><span class="p">))</span>
+
+    <span class="c">#normalise each map:</span>
+    <span class="n">normalised_target_density_map</span><span class="o">=</span><span class="n">target_density_map</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">N_target</span><span class="p">)</span>
+    <span class="n">normalised_model_density_map</span><span class="o">=</span><span class="n">model_density_map</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">N_model</span><span class="p">)</span>
+
+    <span class="c">#calculate the differences and calculate the mod</span>
+    <span class="n">difference_matrix</span><span class="o">=</span><span class="n">normalised_target_density_map</span><span class="o">-</span><span class="n">normalised_model_density_map</span>
+    <span class="n">difference_matrix</span><span class="o">=</span><span class="nb">abs</span><span class="p">(</span><span class="n">difference_matrix</span><span class="p">)</span>
+    
+    <span class="c">#root each value:</span>
+    <span class="n">root_matrix</span><span class="o">=</span><span class="n">difference_matrix</span><span class="o">**</span><span class="mf">0.5</span>
+
+    <span class="c">#sum each element:</span>
+    <span class="n">summed_matrix</span><span class="o">=</span><span class="nb">sum</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">root_matrix</span><span class="p">))</span>
+
+    <span class="c">#calculate the error:</span>
+    <span class="n">error</span><span class="o">=</span><span class="n">summed_matrix</span><span class="o">**</span><span class="mi">2</span>
+
+    <span class="k">print</span> <span class="s">&#39;pptd error:&#39;</span>
+    <span class="k">print</span> <span class="n">error</span>
+
+    <span class="k">return</span> <span class="n">error</span>
+</div>
+<div class="viewcode-block" id="minima_phases"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.minima_phases">[docs]</a><span class="k">def</span> <span class="nf">minima_phases</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">delta</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the phases of minima.</span>
+<span class="sd">    </span>
+<span class="sd">    Minima are found by finding the minimum value between sets of two peaks.</span>
+<span class="sd">    The phase of the minimum relative to the two peaks is then returned.</span>
+<span class="sd">    i.e the fraction of time elapsed between the two peaks when the minimum</span>
+<span class="sd">    occurs is returned.</span>
+<span class="sd">    </span>
+<span class="sd">    It is very important to make sure the correct delta is specified for</span>
+<span class="sd">    peak discrimination, otherwise unexpected results may be returned.</span>
+<span class="sd">     </span>
+<span class="sd">    :param y: time-dependent variable (usually voltage)</span>
+<span class="sd">    :param t: time-vector</span>
+<span class="sd">    :param delta: the value by which a peak or trough has to exceed its</span>
+<span class="sd">        neighbours to be considered &quot;outside of the noise&quot;</span>
+<span class="sd">        </span>
+<span class="sd">    :return: phase of minimum relative to peaks.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">max_min_dictionary</span><span class="o">=</span><span class="n">max_min</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">delta</span><span class="p">)</span>
+    
+    <span class="n">minima_num</span><span class="o">=</span><span class="n">max_min_dictionary</span><span class="p">[</span><span class="s">&#39;minima_number&#39;</span><span class="p">]</span>
+    <span class="n">maxima_times</span><span class="o">=</span><span class="n">max_min_dictionary</span><span class="p">[</span><span class="s">&#39;maxima_times&#39;</span><span class="p">]</span>
+    <span class="n">minima_times</span><span class="o">=</span><span class="n">max_min_dictionary</span><span class="p">[</span><span class="s">&#39;minima_times&#39;</span><span class="p">]</span>
+    <span class="n">maxima_locations</span><span class="o">=</span><span class="n">max_min_dictionary</span><span class="p">[</span><span class="s">&#39;maxima_locations&#39;</span><span class="p">]</span>
+    
+    <span class="n">minima_phases</span><span class="o">=</span><span class="p">[]</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">minima_num</span><span class="p">):</span>
+        <span class="n">maximum_0_t</span><span class="o">=</span><span class="n">maxima_times</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">maximum_1_t</span><span class="o">=</span><span class="n">maxima_times</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">maximum_0_location</span><span class="o">=</span><span class="n">maxima_locations</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">maximum_1_location</span><span class="o">=</span><span class="n">maxima_locations</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">minimum_time</span><span class="o">=</span><span class="n">minima_times</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">phase</span><span class="o">=</span><span class="p">(</span><span class="n">minimum_time</span><span class="o">-</span><span class="n">maximum_0_t</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">maximum_1_t</span><span class="o">-</span><span class="n">maximum_0_t</span><span class="p">)</span>
+        <span class="n">minima_phases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phase</span><span class="p">)</span>
+        
+    <span class="n">phase_list</span><span class="o">=</span><span class="p">[</span><span class="n">minima_times</span><span class="p">,</span><span class="n">minima_phases</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">phase_list</span> 
+              </div>
+<div class="viewcode-block" id="TraceAnalysis"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.TraceAnalysis">[docs]</a><span class="k">class</span> <span class="nc">TraceAnalysis</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for analysis of electrophysiology data</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c">#should put a plotting routine in here</span>
+    
+    <span class="k">def</span> <span class="nf">__nearest_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">array</span><span class="p">,</span><span class="n">target_value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Finds index of first nearest value to target_value in list&quot;&quot;&quot;</span>
+        
+        <span class="n">nparray</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+        <span class="n">differences</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">nparray</span><span class="o">-</span><span class="n">target_value</span><span class="p">)</span>
+        <span class="n">min_difference</span><span class="o">=</span><span class="n">differences</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">index</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">differences</span><span class="o">==</span><span class="n">min_difference</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">index</span>
+        
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">start_analysis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">end_analysis</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for TraceAnalysis base class</span>
+<span class="sd">        </span>
+<span class="sd">        :param v: time-dependent variable (usually voltage)</span>
+<span class="sd">        :param t: time-vector</span>
+<span class="sd">        :param start_analysis: time in v,t where analysis is to start</span>
+<span class="sd">        :param end_analysis: time in v,t where analysis is to end</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c">#would be done better with times:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">=</span><span class="n">v</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="o">=</span><span class="n">t</span>
+        
+        <span class="n">start_index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__nearest_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span><span class="n">start_analysis</span><span class="p">)</span>
+        <span class="n">end_index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__nearest_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span><span class="n">end_analysis</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">end_analysis</span><span class="o">!=</span><span class="bp">None</span><span class="p">:</span>            
+            <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">=</span><span class="n">v</span><span class="p">[</span><span class="n">start_index</span><span class="p">:</span><span class="n">end_index</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">[</span><span class="n">start_index</span><span class="p">:</span><span class="n">end_index</span><span class="p">]</span>
+            
+<div class="viewcode-block" id="TraceAnalysis.plot_trace"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.TraceAnalysis.plot_trace">[docs]</a>    <span class="k">def</span> <span class="nf">plot_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">save_fig</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span><span class="n">trace_name</span><span class="o">=</span><span class="s">&#39;voltage_trace.png&#39;</span><span class="p">,</span><span class="n">show_plot</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+        
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">save_fig</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">trace_name</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">show_plot</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+                </div>
+<div class="viewcode-block" id="TraceAnalysis.evaluate_fitness"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.TraceAnalysis.evaluate_fitness">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate_fitness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">target_dict</span><span class="p">,</span><span class="n">target_weights</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">cost_function</span><span class="o">=</span><span class="n">normalised_cost_function</span><span class="p">):</span>
+    
+        <span class="c">#calculate max fitness value (may be a more pythonic way to do this)</span>
+        <span class="n">worst_cumulative_fitness</span><span class="o">=</span><span class="mi">0</span>
+        <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">target_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">target_weights</span><span class="o">==</span><span class="bp">None</span><span class="p">:</span> 
+                <span class="n">target_weight</span><span class="o">=</span><span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">target_weight</span><span class="o">=</span><span class="n">target_weights</span><span class="p">[</span><span class="n">target</span><span class="p">]</span>
+                
+            <span class="n">worst_cumulative_fitness</span><span class="o">+=</span><span class="n">target_weight</span>
+    
+        <span class="c">#if we have 1 or 0 peaks we won&#39;t conduct any analysis</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysable_data</span><span class="o">==</span><span class="bp">False</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&#39;data is non-analysable&#39;</span>
+            <span class="k">return</span> <span class="n">worst_cumulative_fitness</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fitness</span><span class="o">=</span><span class="mi">0</span>
+        
+            <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">target_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            
+                <span class="n">target_value</span><span class="o">=</span><span class="n">target_dict</span><span class="p">[</span><span class="n">target</span><span class="p">]</span>
+                <span class="k">print</span> <span class="s">&#39;examining target &#39;</span><span class="o">+</span><span class="n">target</span>
+                <span class="k">if</span> <span class="n">target_weights</span><span class="o">==</span><span class="bp">None</span><span class="p">:</span> 
+                    <span class="n">target_weight</span><span class="o">=</span><span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">target_weight</span><span class="o">=</span><span class="n">target_weights</span><span class="p">[</span><span class="n">target</span><span class="p">]</span>
+                
+                <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">analysis_results</span><span class="p">[</span><span class="n">target</span><span class="p">]</span>
+                <span class="c">#let function pick Q automatically</span>
+                <span class="n">fitness</span><span class="o">+=</span><span class="n">target_weight</span><span class="o">*</span><span class="n">cost_function</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="n">target_value</span><span class="p">)</span>
+                
+            <span class="bp">self</span><span class="o">.</span><span class="n">fitness</span><span class="o">=</span><span class="n">fitness</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitness</span>
+            </div></div>
+<div class="viewcode-block" id="IClampAnalysis"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.IClampAnalysis">[docs]</a><span class="k">class</span> <span class="nc">IClampAnalysis</span><span class="p">(</span><span class="n">TraceAnalysis</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Analysis class for current clamps, inherits from TraceAnalysis&quot;&quot;&quot;</span>   
+        
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">analysis_var</span><span class="p">,</span><span class="n">start_analysis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">end_analysis</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+		 <span class="n">target_data_path</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">smooth_data</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+		 <span class="n">show_smoothed_data</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+		 <span class="n">smoothing_window_len</span><span class="o">=</span><span class="mi">11</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for IClampAnalysis class</span>
+<span class="sd">        </span>
+<span class="sd">        :param v: time-dependent variable (usually voltage)</span>
+<span class="sd">        :param t: time-vector</span>
+<span class="sd">        :param analysis_var: dictionary containing parameters to be used</span>
+<span class="sd">            in analysis such as delta for peak detection</span>
+<span class="sd">        :param start_analysis: time t where analysis is to start</span>
+<span class="sd">        :param end_analysis: time in t where analysis is to end</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="c">#call the parent constructor to prepare the v,t vectors:</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">IClampAnalysis</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">v</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">start_analysis</span><span class="p">,</span><span class="n">end_analysis</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">smooth_data</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">=</span><span class="n">smooth</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">,</span><span class="n">window_len</span><span class="o">=</span><span class="n">smoothing_window_len</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="n">show_smoothed_data</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+	    <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span>
+	    <span class="n">pyplot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">)</span>
+	    <span class="n">pyplot</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="o">=</span><span class="n">analysis_var</span><span class="p">[</span><span class="s">&#39;peak_delta&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">baseline</span><span class="o">=</span><span class="n">analysis_var</span><span class="p">[</span><span class="s">&#39;baseline&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dvdt_threshold</span><span class="o">=</span><span class="n">analysis_var</span><span class="p">[</span><span class="s">&#39;dvdt_threshold&#39;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_data_path</span><span class="o">=</span><span class="n">target_data_path</span>
+
+	<span class="k">try</span><span class="p">:</span>
+	    <span class="n">peak_threshold</span> <span class="o">=</span> <span class="n">analysis_var</span><span class="p">[</span><span class="s">&quot;peak_threshold&quot;</span><span class="p">]</span>
+	<span class="k">except</span><span class="p">:</span>
+	    <span class="n">peak_threshold</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_min_dictionary</span><span class="o">=</span><span class="n">max_min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">,</span>
+					<span class="n">peak_threshold</span> <span class="o">=</span> <span class="n">peak_threshold</span><span class="p">)</span>
+        
+        <span class="n">max_peak_no</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_min_dictionary</span><span class="p">[</span><span class="s">&#39;maxima_number&#39;</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="n">max_peak_no</span><span class="o">&lt;</span><span class="mi">3</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">analysable_data</span><span class="o">=</span><span class="bp">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">analysable_data</span><span class="o">=</span><span class="bp">True</span>
+            
+<div class="viewcode-block" id="IClampAnalysis.analyse"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.traceanalysis.IClampAnalysis.analyse">[docs]</a>    <span class="k">def</span> <span class="nf">analyse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;If data is analysable analyses and puts all results into a dict&quot;&quot;&quot;</span>    
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysable_data</span><span class="p">:</span>
+            <span class="n">max_min_dictionary</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_min_dictionary</span>
+            <span class="n">analysis_results</span><span class="o">=</span><span class="p">{}</span>
+
+            <span class="n">analysis_results</span><span class="p">[</span><span class="s">&#39;average_minimum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">max_min_dictionary</span><span class="p">[</span><span class="s">&#39;minima_values&#39;</span><span class="p">])</span>
+            <span class="n">analysis_results</span><span class="p">[</span><span class="s">&#39;average_maximum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">max_min_dictionary</span><span class="p">[</span><span class="s">&#39;maxima_values&#39;</span><span class="p">])</span>
+            <span class="n">analysis_results</span><span class="p">[</span><span class="s">&#39;min_peak_no&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_min_dictionary</span><span class="p">[</span><span class="s">&#39;minima_number&#39;</span><span class="p">]</span>
+            <span class="n">analysis_results</span><span class="p">[</span><span class="s">&#39;max_peak_no&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_min_dictionary</span><span class="p">[</span><span class="s">&#39;maxima_number&#39;</span><span class="p">]</span>
+            <span class="n">analysis_results</span><span class="p">[</span><span class="s">&#39;mean_spike_frequency&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mean_spike_frequency</span><span class="p">(</span><span class="n">max_min_dictionary</span><span class="p">[</span><span class="s">&#39;maxima_times&#39;</span><span class="p">])</span>
+            <span class="n">analysis_results</span><span class="p">[</span><span class="s">&#39;interspike_time_covar&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spike_covar</span><span class="p">(</span><span class="n">max_min_dictionary</span><span class="p">[</span><span class="s">&#39;maxima_times&#39;</span><span class="p">])</span>
+            <span class="n">analysis_results</span><span class="p">[</span><span class="s">&#39;first_spike_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_min_dictionary</span><span class="p">[</span><span class="s">&#39;maxima_times&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">trough_phases</span><span class="o">=</span><span class="n">minima_phases</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">,</span><span class="n">delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">)</span>
+            <span class="n">analysis_results</span><span class="p">[</span><span class="s">&#39;trough_phase_adaptation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">exp_fit</span><span class="p">(</span><span class="n">trough_phases</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">trough_phases</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">spike_width_list</span><span class="o">=</span><span class="n">spike_widths</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">baseline</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">)</span>
+            <span class="n">analysis_results</span><span class="p">[</span><span class="s">&#39;spike_width_adaptation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">exp_fit</span><span class="p">(</span><span class="n">spike_width_list</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">spike_width_list</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">spike_frequency_list</span> <span class="o">=</span> <span class="n">spike_frequencies</span><span class="p">(</span><span class="n">max_min_dictionary</span><span class="p">[</span><span class="s">&#39;maxima_times&#39;</span><span class="p">])</span>
+            <span class="n">analysis_results</span><span class="p">[</span><span class="s">&#39;peak_decay_exponent&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">three_spike_adaptation</span><span class="p">(</span><span class="n">max_min_dictionary</span><span class="p">[</span><span class="s">&#39;maxima_times&#39;</span><span class="p">],</span><span class="n">max_min_dictionary</span><span class="p">[</span><span class="s">&#39;maxima_values&#39;</span><span class="p">])</span>
+            <span class="n">analysis_results</span><span class="p">[</span><span class="s">&#39;trough_decay_exponent&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">three_spike_adaptation</span><span class="p">(</span><span class="n">max_min_dictionary</span><span class="p">[</span><span class="s">&#39;minima_times&#39;</span><span class="p">],</span><span class="n">max_min_dictionary</span><span class="p">[</span><span class="s">&#39;minima_values&#39;</span><span class="p">])</span>
+            <span class="n">analysis_results</span><span class="p">[</span><span class="s">&#39;spike_frequency_adaptation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">exp_fit</span><span class="p">(</span><span class="n">spike_frequency_list</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">spike_frequency_list</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">analysis_results</span><span class="p">[</span><span class="s">&#39;spike_broadening&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spike_broadening</span><span class="p">(</span><span class="n">spike_width_list</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+	    <span class="n">analysis_results</span><span class="p">[</span><span class="s">&#39;peak_linear_gradient&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">linear_fit</span><span class="p">(</span><span class="n">max_min_dictionary</span><span class="p">[</span><span class="s">&quot;maxima_times&quot;</span><span class="p">],</span><span class="n">max_min_dictionary</span><span class="p">[</span><span class="s">&quot;maxima_values&quot;</span><span class="p">])</span>
+
+
+            <span class="c">#this line here is because PPTD needs to be compared directly with experimental data:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_data_path</span><span class="o">!=</span><span class="bp">None</span><span class="p">:</span>
+                <span class="n">t_experimental</span><span class="p">,</span><span class="n">v_experimental</span><span class="o">=</span><span class="n">load_csv_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target_data_path</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">analysis_results</span><span class="p">[</span><span class="s">&#39;pptd_error&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">pptd_error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">,</span>
+                                              <span class="n">t_experimental</span><span class="p">,</span><span class="n">v_experimental</span><span class="p">,</span>
+                                              <span class="n">dvdt_threshold</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dvdt_threshold</span><span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="s">&#39;WARNING PPTD failure&#39;</span>
+                    <span class="n">analysis_results</span><span class="p">[</span><span class="s">&#39;pptd_error&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">analysis_results</span><span class="o">=</span><span class="n">analysis_results</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&#39;data not suitable for analysis,&lt;3 APs&#39;</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">optimalneuron  documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Author.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,487 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>optimalneuron.evaluators &mdash; optimalneuron  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="optimalneuron  documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">optimalneuron  documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for optimalneuron.evaluators</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="k">class</span> <span class="nc">__CandidateData</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Container for information about a candidate (chromosome)&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">chromosome</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chromosome</span><span class="o">=</span><span class="n">chromosome</span>
+    
+    <span class="k">def</span> <span class="nf">set_dbpath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dbpath</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dbpath</span><span class="o">=</span><span class="n">dbpath</span>
+        
+    <span class="k">def</span> <span class="nf">set_exp_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">exp_id</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exp_id</span><span class="o">=</span><span class="n">exp_id</span>
+    
+    <span class="k">def</span> <span class="nf">set_job_num</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">job_num</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">job_num</span><span class="o">=</span><span class="n">job_num</span>
+
+
+<span class="k">class</span> <span class="nc">__Evaluator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for Evaluators&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">parameters</span><span class="p">,</span><span class="n">weights</span><span class="p">,</span><span class="n">targets</span><span class="p">,</span><span class="n">controller</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">=</span><span class="n">weights</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="o">=</span><span class="n">targets</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">=</span><span class="n">controller</span>
+            
+
+<span class="k">class</span> <span class="nc">__CondorContext</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;manager for dealing with a condor-based grid&quot;&quot;&quot;</span>
+        
+    <span class="k">def</span> <span class="nf">__split_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">alist</span><span class="p">,</span> <span class="n">wanted_parts</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        
+        <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">alist</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span> <span class="n">alist</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="n">length</span> <span class="o">//</span> <span class="n">wanted_parts</span><span class="p">:</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">length</span> <span class="o">//</span> <span class="n">wanted_parts</span><span class="p">]</span> 
+                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">wanted_parts</span><span class="p">)</span> <span class="p">]</span>
+    
+    <span class="k">def</span> <span class="nf">__prepare_candidates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">candidates</span><span class="p">,</span><span class="n">candidates_per_job</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        
+        <span class="c">#Split candidate list into smaller ones (jobs):</span>
+        <span class="c">#and make a job list</span>
+        <span class="k">if</span> <span class="n">optimizer_params</span><span class="o">.</span><span class="n">candidates_in_job</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">candidates_in_job</span><span class="o">=</span><span class="n">optimizer_params</span><span class="o">.</span><span class="n">candidates_in_job</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">candidates_in_job</span><span class="o">=</span><span class="n">candidates_per_job</span>
+
+        <span class="n">num_candidates</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span>
+        <span class="n">ids</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="n">num_candidates</span><span class="p">)</span>
+        <span class="n">enumerated_candidates</span><span class="o">=</span><span class="nb">zip</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span><span class="n">ids</span><span class="p">)</span>
+        <span class="n">num_jobs</span><span class="o">=</span><span class="n">num_candidates</span><span class="o">/</span><span class="n">candidates_in_job</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_jobs</span><span class="o">=</span><span class="n">num_jobs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">job_list</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__split_list</span><span class="p">(</span><span class="n">enumerated_candidates</span><span class="p">,</span><span class="n">wanted_parts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_jobs</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">__make_job_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">job</span><span class="p">,</span><span class="n">job_number</span><span class="p">):</span>
+        <span class="c">#write the header:</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> <span class="s">&#39;run&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">job_number</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;.sh&#39;</span><span class="p">)</span>
+        <span class="n">run_shell</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">run_shell</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;#!/bin/bash</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">run_shell</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;reldir=`dirname $0`</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">run_shell</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;cd $reldir</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">run_shell</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;directory=`pwd`</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">run_shell</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;pndirectory=$directory</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">run_shell</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;#Untar the file:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">run_shell</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;/bin/tar xzf ./portable-neuron.tar.gz</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">tarfile_name</span><span class="o">=</span><span class="n">optimizer_params</span><span class="o">.</span><span class="n">tarred_nrnproj</span>
+        <span class="n">run_shell</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;/bin/tar xzf ./&#39;</span><span class="o">+</span><span class="n">tarfile_name</span><span class="o">+</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        
+        <span class="c">#CandidateData_list=[]</span>
+        <span class="k">for</span> <span class="n">enumerated_candidate</span> <span class="ow">in</span> <span class="n">job</span><span class="p">:</span>
+                
+            <span class="n">chromosome</span> <span class="o">=</span> <span class="n">enumerated_candidate</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">candidate_info</span> <span class="o">=</span> <span class="n">CandidateData</span><span class="p">(</span><span class="n">chromosome</span><span class="p">)</span>
+            <span class="n">exp_id</span> <span class="o">=</span> <span class="n">enumerated_candidate</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">candidate_info</span><span class="o">.</span><span class="n">set_exp_id</span><span class="p">(</span><span class="n">exp_id</span><span class="p">)</span>
+            <span class="n">candidate_info</span><span class="o">.</span><span class="n">set_job_num</span><span class="p">(</span><span class="n">job_number</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">CandidateData_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">candidate_info</span><span class="p">)</span>
+                
+            <span class="n">nproj</span> <span class="o">=</span> <span class="n">controllers</span><span class="o">.</span><span class="n">NrnProjSimRun</span><span class="p">(</span><span class="n">optimizer_params</span><span class="o">.</span><span class="n">project_path</span><span class="p">,</span> <span class="n">chromosome</span><span class="p">)</span>
+            <span class="n">run_shell</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;#issue the commands</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+            <span class="n">run_shell</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;$pndirectory/pnpython.sh </span><span class="se">\</span>
+<span class="s">                    $directory/src/simrunner.py &quot;sim_var[</span><span class="se">\&#39;</span><span class="s">exp_id</span><span class="se">\&#39;</span><span class="s">] </span><span class="se">\</span>
+<span class="s">                    = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">exp_id</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\&quot;</span><span class="s"> &#39;</span> <span class="o">+</span> <span class="s">&#39;&quot;sim_var[</span><span class="se">\&#39;</span><span class="s">&#39;&#39;dbname&#39;&#39;</span><span class="se">\&#39;</span><span class="s">] </span><span class="se">\</span>
+<span class="s">                    = </span><span class="se">\&#39;</span><span class="s">outputdb&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">job_number</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;.sqlite</span><span class="se">\&#39;</span><span class="s">&quot;&#39;</span> <span class="o">+</span> 
+                    <span class="n">nproj</span><span class="o">.</span><span class="n">sim_var_string</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+            <span class="n">run_shell</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;echo </span><span class="se">\&#39;</span><span class="s">done</span><span class="se">\&#39;\n</span><span class="s">&#39;</span><span class="p">)</span>
+        
+        <span class="n">run_shell</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;cp $directory/sims/outputdb&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">job_number</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;.sqlite $directory</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="c">#self.CandidateData_list=CandidateData_list</span>
+        <span class="n">run_shell</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__make_submit_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c">#now we write the submit file</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span> <span class="s">&#39;submitfile.submit&#39;</span><span class="p">)</span>
+        <span class="n">submit_file</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span><span class="s">&#39;w&#39;</span><span class="p">)</span>
+        
+        <span class="n">submit_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;universe   = vanilla</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">submit_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;log        = pneuron.log</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">submit_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;Error   = err.$(Process)</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>                                                
+        <span class="n">submit_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;Output  = out.$(Process)</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">submit_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;requirements = GLIBC == &quot;2.11&quot;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">tarfile_name</span><span class="o">=</span><span class="n">optimizer_params</span><span class="o">.</span><span class="n">tarred_nrnproj</span>
+        <span class="n">submit_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;transfer_input_files = portable-neuron.tar.gz,&#39;</span><span class="o">+</span><span class="n">tarfile_name</span><span class="o">+</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">submit_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;should_transfer_files   = yes</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">submit_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;when_to_transfer_output = on_exit_or_evict</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="c">#this is where you have to do the clever stuff:</span>
+        
+        <span class="k">for</span> <span class="n">shellno</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_jobs</span><span class="p">):</span>
+            <span class="n">submit_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;executable = run&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">shellno</span><span class="p">)</span><span class="o">+</span><span class="s">&#39;.sh</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+            <span class="n">submit_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;queue</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        
+        <span class="c">#finally close the submit file</span>
+        <span class="n">submit_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="k">def</span> <span class="nf">__build_condor_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">candidates</span><span class="p">,</span><span class="n">candidates_per_job</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+        
+        <span class="c">#prepare list of candidates to be farmed on grid:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__prepare_candidates</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span><span class="n">candidates_per_job</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+        
+        <span class="c">#make the job files (shell scripts to be executed on the execute nodes)</span>
+        <span class="n">job_number</span><span class="o">=</span><span class="mi">0</span> <span class="c">#run shell script number</span>
+        <span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_list</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__make_job_file</span><span class="p">(</span><span class="n">job</span><span class="p">,</span><span class="n">job_number</span><span class="p">)</span>
+            <span class="n">job_number</span><span class="o">+=</span><span class="mi">1</span>
+        
+        <span class="c">#now make the submit file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__make_submit_file</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__delete_remote_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">host</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">ssh_utils</span>
+        <span class="n">command</span><span class="o">=</span><span class="s">&#39;rm -rf ./*&#39;</span>
+        <span class="n">ssh_utils</span><span class="o">.</span><span class="n">issue_command</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">__put_multiple_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">host</span><span class="p">,</span><span class="n">filelist</span><span class="p">,</span><span class="n">localdir</span><span class="o">=</span><span class="s">&#39;/&#39;</span><span class="p">,</span><span class="n">remotedir</span><span class="o">=</span><span class="s">&#39;/&#39;</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">ssh_utils</span>
+        
+        <span class="k">for</span> <span class="nb">file</span> <span class="ow">in</span> <span class="n">filelist</span><span class="p">:</span>
+            <span class="n">localpath</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">localdir</span><span class="p">,</span><span class="nb">file</span><span class="p">)</span>
+            <span class="n">remotepath</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">remotedir</span><span class="p">,</span><span class="nb">file</span><span class="p">)</span>
+            <span class="n">ssh_utils</span><span class="o">.</span><span class="n">put_file</span><span class="p">(</span><span class="n">host</span><span class="p">,</span><span class="n">localpath</span><span class="p">,</span><span class="n">remotepath</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="DumbEvaluator"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.evaluators.DumbEvaluator">[docs]</a><span class="k">class</span> <span class="nc">DumbEvaluator</span><span class="p">(</span><span class="n">__Evaluator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The simulations themselves report their fitness. The evaluator</span>
+<span class="sd">    just reads them from a file. Requires the appropriate controller.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">controller</span><span class="p">,</span><span class="n">fitness_filename</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span> <span class="o">=</span> <span class="n">controller</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fitness_filename</span> <span class="o">=</span> <span class="n">fitness_filename</span>
+        
+<div class="viewcode-block" id="DumbEvaluator.evaluate"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.evaluators.DumbEvaluator.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">candidates</span><span class="p">,</span><span class="n">args</span><span class="p">):</span>
+        <span class="c">#if fitness file exists need to destroy it:</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fitness_filename</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fitness_filename</span><span class="p">)</span>
+
+        <span class="c">#run all the candidates:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="c">#get their fitness from the file</span>
+        <span class="n">fitness</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fitness_filename</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()]</span>
+
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fitness_filename</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">fitness</span>
+    </div></div>
+<div class="viewcode-block" id="IClampEvaluator"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.evaluators.IClampEvaluator">[docs]</a><span class="k">class</span> <span class="nc">IClampEvaluator</span><span class="p">(</span><span class="n">__Evaluator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Locally-evaluates (not using cluster or grid computing) a model.</span>
+<span class="sd">    </span>
+<span class="sd">    The evaluate routine runs the model and returns its fitness value</span>
+<span class="sd">      </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">analysis_start_time</span><span class="p">,</span><span class="n">controller</span><span class="p">,</span>
+                 <span class="n">analysis_end_time</span><span class="p">,</span><span class="n">target_data_path</span><span class="p">,</span>
+                 <span class="n">parameters</span><span class="p">,</span><span class="n">analysis_var</span><span class="p">,</span><span class="n">weights</span><span class="p">,</span>
+                 <span class="n">targets</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">automatic</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">IClampEvaluator</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span>
+                                        <span class="n">weights</span><span class="p">,</span><span class="n">targets</span><span class="p">,</span>
+                                        <span class="n">controller</span><span class="p">)</span>
+      
+        <span class="bp">self</span><span class="o">.</span><span class="n">analysis_start_time</span><span class="o">=</span><span class="n">analysis_start_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analysis_end_time</span><span class="o">=</span><span class="n">analysis_end_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_data_path</span><span class="o">=</span><span class="n">target_data_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analysis_var</span><span class="o">=</span><span class="n">analysis_var</span>
+
+        <span class="k">if</span> <span class="n">automatic</span><span class="o">==</span><span class="bp">True</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">traceanalysis</span>
+            <span class="kn">import</span> <span class="nn">numpy</span>
+            <span class="n">t</span><span class="p">,</span><span class="n">v_raw</span><span class="o">=</span><span class="n">traceanalysis</span><span class="o">.</span><span class="n">load_csv_data</span><span class="p">(</span><span class="n">target_data_path</span><span class="p">)</span>
+            <span class="n">v</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">v_raw</span><span class="p">)</span>
+            <span class="n">v_smooth</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">traceanalysis</span><span class="o">.</span><span class="n">smooth</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+            <span class="n">analysis</span><span class="o">=</span><span class="n">traceanalysis</span><span class="o">.</span><span class="n">IClampAnalysis</span><span class="p">(</span>
+                <span class="n">v_smooth</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">analysis_var</span><span class="p">,</span><span class="n">start_analysis</span><span class="o">=</span><span class="n">analysis_start_time</span><span class="p">,</span>
+                <span class="n">end_analysis</span><span class="o">=</span><span class="n">analysis_end_time</span><span class="p">)</span> 
+            <span class="n">analysis</span><span class="o">.</span><span class="n">analyse</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="o">=</span><span class="n">analysis</span><span class="o">.</span><span class="n">analysis_results</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&#39;Obtained targets are:&#39;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="IClampEvaluator.evaluate"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.evaluators.IClampEvaluator.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">candidates</span><span class="p">,</span><span class="n">args</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">traceanalysis</span>
+        
+        <span class="n">exp_data_array</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+
+        <span class="n">fitness</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">for</span> <span class="n">exp_data</span> <span class="ow">in</span> <span class="n">exp_data_array</span><span class="p">:</span>
+    
+            <span class="k">print</span> <span class="s">&#39;setting up analysis&#39;</span>
+
+            <span class="n">analysis</span><span class="o">=</span><span class="n">traceanalysis</span><span class="o">.</span><span class="n">IClampAnalysis</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">samples</span><span class="p">,</span>
+                                                <span class="n">exp_data</span><span class="o">.</span><span class="n">t</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">analysis_var</span><span class="p">,</span>
+                                                <span class="bp">self</span><span class="o">.</span><span class="n">analysis_start_time</span><span class="p">,</span>
+                                                <span class="bp">self</span><span class="o">.</span><span class="n">analysis_end_time</span><span class="p">,</span>
+						<span class="n">target_data_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_data_path</span><span class="p">)</span>
+            
+            <span class="k">print</span> <span class="s">&#39;staritng analysis&#39;</span>
+
+            <span class="n">analysis</span><span class="o">.</span><span class="n">analyse</span><span class="p">()</span>
+            
+            <span class="k">print</span> <span class="s">&#39;obtaining fitness&#39;</span>
+            
+            <span class="n">exp_fitness</span><span class="o">=</span><span class="n">analysis</span><span class="o">.</span><span class="n">evaluate_fitness</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">,</span>
+                                                  <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">,</span><span class="n">cost_function</span><span class="o">=</span>
+                                                  <span class="n">traceanalysis</span><span class="o">.</span><span class="n">normalised_cost_function</span><span class="p">)</span>
+            <span class="n">fitness</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">exp_fitness</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fitness</span>
+
+<span class="c">#this entire class should now be considered obsolete, the evaluator</span>
+<span class="c">#is just an IClampEvaluator and everything here that is different</span>
+<span class="c">#from that class needs to become its own controller</span></div></div>
+<div class="viewcode-block" id="IClampCondorEvaluator"><a class="viewcode-back" href="../../optimalneuron.html#optimalneuron.evaluators.IClampCondorEvaluator">[docs]</a><span class="k">class</span> <span class="nc">IClampCondorEvaluator</span><span class="p">(</span><span class="n">IClampEvaluator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluate simulations and return their fitness on a condor grid.</span>
+<span class="sd">    </span>
+<span class="sd">        Tested and known to work on CamGrid </span>
+<span class="sd">        (http://www.escience.cam.ac.uk/projects/camgrid/)</span>
+<span class="sd">      </span>
+<span class="sd">    Dont inherit from condor evaluator - it&#39;s just a condor context</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">local_analysis</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">IClampCondorEvaluator</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+
+        <span class="c">#other things like the number of nodes to divide the work onto and</span>
+        <span class="c">#host connection parameters need to go into this constructor</span>
+
+        <span class="k">if</span> <span class="n">local_analysis</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">evaluate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__local_evaluate</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">evaluate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__remote_evaluate__</span>
+
+    <span class="k">def</span> <span class="nf">__condor_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">candidates</span><span class="p">,</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run simulations on grid and analyse data locally (???I&#39;m quite confused here...there is a mistake somewhere as the name doesn&#39;t match the description - which method is which?)</span>
+<span class="sd">      </span>
+<span class="sd">            Once each generation has finished, all data is pulled to local</span>
+<span class="sd">            workstation in form of sqlite databases (1 database per job)</span>
+<span class="sd">            and these are analysed and the fitness estimated sequentially</span>
+<span class="sd">            the fitness array is then returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="kn">import</span> <span class="nn">time</span>
+        <span class="kn">from</span> <span class="nn">nrndev</span> <span class="kn">import</span> <span class="n">traceanalysis</span>
+        <span class="kn">import</span> <span class="nn">ssh_utils</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">CandidateData_list</span><span class="o">=</span><span class="p">[]</span>
+       
+        <span class="bp">self</span><span class="o">.</span><span class="n">__build_condor_files</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span> <span class="c">#Build submit and runx.sh files, exp_id now corresponds to position in chromosome and fitness arrays</span>
+        
+        <span class="n">messagehost</span><span class="o">=</span><span class="n">ssh_utils</span><span class="o">.</span><span class="n">host</span><span class="p">(</span><span class="n">optimizer_params</span><span class="o">.</span><span class="n">host</span><span class="p">,</span><span class="n">optimizer_params</span><span class="o">.</span><span class="n">username</span><span class="p">,</span><span class="n">optimizer_params</span><span class="o">.</span><span class="n">password</span><span class="p">,</span><span class="n">optimizer_params</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">__delete_remote_files__</span><span class="p">(</span><span class="n">messagehost</span><span class="p">)</span><span class="c">#delete everything in thssh_utilse directory you&#39;re about to put files in</span>
+        <span class="n">filelist</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__put_multiple_files</span><span class="p">(</span><span class="n">messagehost</span><span class="p">,</span><span class="n">filelist</span><span class="p">,</span><span class="n">localdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">,</span><span class="n">remotedir</span><span class="o">=</span><span class="n">optimizer_params</span><span class="o">.</span><span class="n">remotedir</span><span class="p">)</span><span class="c">#copy local files over</span>
+        <span class="n">filelist</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">portableswdir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__put_multiple_files</span><span class="p">(</span><span class="n">messagehost</span><span class="p">,</span><span class="n">filelist</span><span class="p">,</span><span class="n">localdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">portableswdir</span><span class="p">,</span><span class="n">remotedir</span><span class="o">=</span><span class="n">optimizer_params</span><span class="o">.</span><span class="n">remotedir</span><span class="p">)</span><span class="c">#copy local files over</span>
+        
+        <span class="n">ssh_utils</span><span class="o">.</span><span class="n">issue_command</span><span class="p">(</span><span class="n">messagehost</span><span class="p">,</span><span class="s">&#39;export PATH=/opt/Condor/release/bin:$PATH</span><span class="se">\n</span><span class="s">condor_submit submitfile.submit&#39;</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">jobdbnames</span><span class="o">=</span><span class="p">[]</span>
+        <span class="k">for</span> <span class="n">job_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_jobs</span><span class="p">):</span>        <span class="c">#make a list of the databases we need:</span>
+            <span class="n">jobdbname</span><span class="o">=</span><span class="s">&#39;outputdb&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">job_num</span><span class="p">)</span><span class="o">+</span><span class="s">&#39;.sqlite&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">jobdbnames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">jobdbname</span><span class="p">)</span>
+           
+        <span class="c">#wait till you know file exists:</span>
+        <span class="n">dbs_created</span><span class="o">=</span><span class="bp">False</span>
+        <span class="n">pulled_dbs</span><span class="o">=</span><span class="p">[]</span> <span class="c"># list of databases which have been extracted from remote server</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">dbs_created</span><span class="o">==</span><span class="bp">False</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s">&#39;waiting..&#39;</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>            
+            <span class="k">print</span> <span class="s">&#39;checking if dbs created:&#39;</span>
+            <span class="n">command</span><span class="o">=</span><span class="s">&#39;ls&#39;</span>
+            <span class="n">remote_filelist</span><span class="o">=</span><span class="n">ssh_utils</span><span class="o">.</span><span class="n">issue_command</span><span class="p">(</span><span class="n">messagehost</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">jobdbname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobdbnames</span><span class="p">:</span>
+
+                <span class="n">db_exists</span><span class="o">=</span><span class="n">jobdbname</span><span class="o">+</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="ow">in</span> <span class="n">remote_filelist</span>
+                
+                <span class="k">if</span> <span class="p">(</span><span class="n">db_exists</span><span class="o">==</span><span class="bp">False</span><span class="p">):</span>
+                    <span class="k">print</span> <span class="n">jobdbname</span><span class="p">,</span><span class="s">&#39; has not been generated&#39;</span>
+                    <span class="n">dbs_created</span><span class="o">=</span><span class="bp">False</span>
+
+                <span class="k">elif</span> <span class="n">db_exists</span><span class="o">==</span><span class="bp">True</span> <span class="ow">and</span> <span class="n">jobdbname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pulled_dbs</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="n">jobdbname</span><span class="p">,</span><span class="s">&#39; has been generated&#39;</span>
+                    <span class="n">remotefile</span><span class="o">=</span><span class="n">optimizer_params</span><span class="o">.</span><span class="n">remotedir</span><span class="o">+</span><span class="n">jobdbname</span>
+                    <span class="n">localpath</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datadir</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generation</span><span class="p">)</span><span class="o">+</span><span class="n">jobdbname</span><span class="p">)</span>
+                    <span class="n">ssh_utils</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span><span class="n">messagehost</span><span class="p">,</span><span class="n">remotefile</span><span class="p">,</span><span class="n">localpath</span><span class="p">)</span>
+                    <span class="n">pulled_dbs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">jobdbname</span><span class="p">)</span> <span class="c">#so that it is not extracted more than once</span>
+                    <span class="c">#here pop-in the fitness evaluation</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pulled_dbs</span><span class="p">)</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jobdbnames</span><span class="p">):</span>
+                    <span class="n">dbs_created</span><span class="o">=</span><span class="bp">True</span>
+            
+        <span class="n">fitness</span><span class="o">=</span><span class="p">[]</span>
+        <span class="k">for</span> <span class="n">CandidateData</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">CandidateData_list</span><span class="p">:</span>
+            <span class="n">job_num</span> <span class="o">=</span> <span class="n">CandidateData</span><span class="o">.</span><span class="n">job_num</span>
+            
+            <span class="n">dbname</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generation</span><span class="p">)</span><span class="o">+</span><span class="s">&#39;outputdb&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">job_num</span><span class="p">)</span><span class="o">+</span><span class="s">&#39;.sqlite&#39;</span>
+            <span class="n">dbpath</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datadir</span><span class="p">,</span><span class="n">dbname</span><span class="p">)</span>
+            <span class="n">exp_id</span><span class="o">=</span><span class="n">CandidateData</span><span class="o">.</span><span class="n">exp_id</span>
+            
+            <span class="n">connection</span><span class="o">=</span><span class="n">sqldbutils</span><span class="o">.</span><span class="n">db_connect</span><span class="p">(</span><span class="n">dbpath</span><span class="p">)</span> <span class="c">#establish a database connection</span>
+            <span class="n">query</span><span class="o">=</span><span class="s">&#39;SELECT numerical_value</span><span class="se">\</span>
+<span class="s">                    FROM output_params WHERE experiment_id=</span><span class="se">\</span>
+<span class="s">                    &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">exp_id</span><span class="p">)</span><span class="o">+</span><span class="s">&#39; AND parameter=&quot;fitness&quot;&#39;</span>       
+
+            <span class="n">exp_fitness</span><span class="o">=</span><span class="n">sqldbutils</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span><span class="n">query</span><span class="p">)</span>
+            <span class="n">exp_fitness</span><span class="o">=</span><span class="n">exp_fitness</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+            <span class="n">exp_fitness</span><span class="o">=</span><span class="n">exp_fitness</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            
+            <span class="k">print</span> <span class="s">&#39;fitness:&#39;</span>
+            <span class="k">print</span> <span class="n">exp_fitness</span>
+    
+            <span class="n">fitness</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">exp_fitness</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">generation</span><span class="o">+=</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="n">fitness</span>
+
+    <span class="k">def</span> <span class="nf">__local_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">candidates</span><span class="p">,</span><span class="n">args</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">time</span>
+        <span class="kn">from</span> <span class="nn">nrndev</span> <span class="kn">import</span> <span class="n">traceanalysis</span>
+     
+        <span class="bp">self</span><span class="o">.</span><span class="n">CandidateData_list</span><span class="o">=</span><span class="p">[]</span>
+        <span class="n">analysis_var</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">analysis_var</span>
+        
+        <span class="c">#Build submitfile.submit and runx.sh files:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__build_condor_files</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span> <span class="c">#exp_id now corresponds to position in chromosome/fitness array</span>
+        
+        <span class="n">fitness</span><span class="o">=</span><span class="p">[]</span>
+        <span class="c">#submit the jobs to the grid</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s">&#39;condor_submit submitfile.submit&#39;</span><span class="p">)</span>
+        
+        <span class="c">#wait till you know file exists:</span>
+        <span class="n">dbs_created</span><span class="o">=</span><span class="bp">False</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">dbs_created</span><span class="o">==</span><span class="bp">False</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s">&#39;checking if dbs created:&#39;</span>
+            <span class="k">for</span> <span class="n">job_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_jobs</span><span class="p">):</span>
+                <span class="n">jobdbname</span><span class="o">=</span><span class="s">&#39;outputdb&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">job_num</span><span class="p">)</span><span class="o">+</span><span class="s">&#39;.sqlite&#39;</span>
+                <span class="n">jobdbpath</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datadir</span><span class="p">,</span><span class="n">jobdbname</span><span class="p">)</span>
+                <span class="k">print</span> <span class="n">jobdbpath</span>
+                <span class="n">db_exists</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">jobdbpath</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="p">(</span><span class="n">db_exists</span><span class="o">==</span><span class="bp">False</span><span class="p">):</span>
+                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
+                    <span class="n">dbs_created</span><span class="o">=</span><span class="bp">False</span>
+                    <span class="k">break</span>
+                
+                <span class="n">dbs_created</span><span class="o">=</span><span class="bp">True</span>
+
+        <span class="k">for</span> <span class="n">CandidateData</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">CandidateData_list</span><span class="p">:</span>
+            <span class="n">job_num</span> <span class="o">=</span> <span class="n">CandidateData</span><span class="o">.</span><span class="n">job_num</span>
+            <span class="n">dbname</span><span class="o">=</span><span class="s">&#39;/outputdb&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">job_num</span><span class="p">)</span><span class="o">+</span><span class="s">&#39;.sqlite&#39;</span>
+            <span class="n">dbpath</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">datadir</span><span class="o">+</span><span class="n">dbname</span>
+            <span class="n">exp_id</span><span class="o">=</span><span class="n">CandidateData</span><span class="o">.</span><span class="n">exp_id</span>
+            <span class="n">exp_data</span><span class="o">=</span><span class="n">sqldbutils</span><span class="o">.</span><span class="n">sim_data</span><span class="p">(</span><span class="n">dbpath</span><span class="p">,</span><span class="n">exp_id</span><span class="p">)</span>
+            <span class="n">analysis</span><span class="o">=</span><span class="n">traceanalysis</span><span class="o">.</span><span class="n">IClampAnalysis</span><span class="p">(</span><span class="n">exp_data</span><span class="o">.</span><span class="n">samples</span><span class="p">,</span><span class="n">exp_data</span><span class="o">.</span><span class="n">t</span><span class="p">,</span><span class="n">analysis_var</span><span class="p">,</span><span class="mi">5000</span><span class="p">,</span><span class="mi">10000</span><span class="p">)</span>
+            <span class="n">exp_fitness</span><span class="o">=</span><span class="n">analysis</span><span class="o">.</span><span class="n">evaluate_fitness</span><span class="p">(</span><span class="n">optimizer_params</span><span class="o">.</span><span class="n">targets</span><span class="p">,</span><span class="n">optimizer_params</span><span class="o">.</span><span class="n">weights</span><span class="p">,</span><span class="n">cost_function</span><span class="o">=</span><span class="n">traceanalysis</span><span class="o">.</span><span class="n">normalised_cost_function</span><span class="p">)</span>
+            <span class="n">fitness</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">exp_fitness</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">job_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_jobs</span><span class="p">):</span>
+            <span class="n">jobdbname</span><span class="o">=</span><span class="s">&#39;outputdb&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">job_num</span><span class="p">)</span><span class="o">+</span><span class="s">&#39;.sqlite&#39;</span>
+            <span class="n">jobdbpath</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datadir</span><span class="p">,</span><span class="n">jobdbname</span><span class="p">)</span>
+            <span class="k">print</span> <span class="n">jobdbpath</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">jobdbpath</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fitness</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">optimalneuron  documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Author.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

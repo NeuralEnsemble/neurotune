@@ -5,10 +5,12 @@ Dependencies
 ------------
 
 Optimal Neuron has the following hard dependencies:
+
 * Inspyred
 * Numpy
 
 And the following soft dependencies:
+
 * Scipy
 * neuronpy
 * NEURON
@@ -27,6 +29,7 @@ Install `git`_ and type:
 Then navigate to the "Optimal Neuron" directory and run the command:
 
 ::
+
    python setup.py install
 
 You may need to run the above command with superuser rights. Optimal Neuron will now be installed.

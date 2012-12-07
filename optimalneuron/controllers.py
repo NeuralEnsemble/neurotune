@@ -1,41 +1,43 @@
 """
 Still not implemented but will take controllers out of
 evaluators as it's the wrong place for them
+
+Controller must provide a run method
+which returns exp_data type with a
+exp_data.samples and exp_data.t attributes.
+Now there is some very complicated technical stuff to
+deal with here because my evaluators are not currently
+decoupled from the implementation. I think what needs to
+be done is that the controller object needs to accept a
+list of params and chromosomes rather than just the one.
+then whether it's parallel or not depends on the controller
+rather than the evaluator, the evaluator can then just
+logically become IClamp,VClamp etc... and all the
+logic to do with whether it's implemented on a grid or not
+goes down to the controller level.
+
+To summarize my thoughts on this - the controller's job
+is to control simulations. Unless it can accept lists of
+parameters and chromosomes there is no way of parallelizing
+the operation of a controller and parallelization will have
+to fall to the Evaluator. The evaluator however should only
+be concerned with assigining fitness to chromosomes (lower-
+level stuff is, as stated, the controller's job) and as
+such the controller needs to be able to accept lists of
+chromosomes and parameters. This will allow much nicer
+modularization, as long as the client can provide a controller
+which will reutrn sample and time vectors for chromosome and parameter
+lists any evaluator will be able to talk to it.
+
+as a slight modification perhaps it should be provided
+with candidate objects rather than chromosomes
 """
 
 import os
 
 class __Controller():
     """
-    Controller must provide a run method
-    which returns exp_data type with a
-    exp_data.samples and exp_data.t attributes.
-    Now there is some very complicated technical stuff to
-    deal with here because my evaluators are not currently
-    decoupled from the implementation. I think what needs to
-    be done is that the controller object needs to accept a
-    list of params and chromosomes rather than just the one.
-    then whether it's parallel or not depends on the controller
-    rather than the evaluator, the evaluator can then just
-    logically become IClamp,VClamp etc... and all the
-    logic to do with whether it's implemented on a grid or not
-    goes down to the controller level.
-
-    To summarize my thoughts on this - the controller's job
-    is to control simulations. Unless it can accept lists of
-    parameters and chromosomes there is no way of parallelizing
-    the operation of a controller and parallelization will have
-    to fall to the Evaluator. The evaluator however should only
-    be concerned with assigining fitness to chromosomes (lower-
-    level stuff is, as stated, the controller's job) and as
-    such the controller needs to be able to accept lists of
-    chromosomes and parameters. This will allow much nicer
-    modularization, as long as the client can provide a controller
-    which will reutrn sample and time vectors for chromosome and parameter
-    lists any evaluator will be able to talk to it.
-    
-    as a slight modification perhaps it should be provided
-    with candidate objects rather than chromosomes
+    Controller base class
     """
 
     def run(self,candidates,parameters):

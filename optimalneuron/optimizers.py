@@ -1,3 +1,7 @@
+"""
+Optimizer objects live here.
+"""
+
 import evaluators
 import os
 from inspyred import ec

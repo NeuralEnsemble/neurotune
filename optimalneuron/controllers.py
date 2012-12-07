@@ -1,7 +1,4 @@
 """
-Still not implemented but will take controllers out of
-evaluators as it's the wrong place for them
-
 Controller must provide a run method
 which returns exp_data type with a
 exp_data.samples and exp_data.t attributes.

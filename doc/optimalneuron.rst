@@ -4,7 +4,7 @@ optimalneuron Package
 :mod:`controllers` Module
 -------------------------
 
-.. automodule:: optimalneuron.controllers
+.. automodule:: controllers
     :members:
     :undoc-members:
     :show-inheritance:

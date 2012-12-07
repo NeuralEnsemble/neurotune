@@ -15,16 +15,14 @@ Contents:
 	
    installation
    architecture
-   optimalneuron
+   
 
 
 Source documentation
 ==================
 
-.. toctree::
-   :maxdepth: 3
-   
-   modules
+   optimalneuron
+
 Indices and tables
 ==================
 

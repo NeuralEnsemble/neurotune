@@ -4,7 +4,7 @@ Optimal Neuron Architecture
 Optimal Neuron provides three main classes: Optimizers, Evaluators
 and Controllers.
 
-.. figure::  images/OptimalNeuronArchitecture.png
+.. figure::  OptimalNeuronArchitecture.png
    :align:   center
 
 Optimizer Class

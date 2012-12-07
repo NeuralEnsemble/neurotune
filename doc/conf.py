@@ -284,13 +284,26 @@ epub_copyright = u'2012, Author'
 
 # Allow duplicate toc entries.
 #epub_tocdup = True
+import sys
 
 class Mock(object):
-    def __init__(self, *args):
+    def __init__(self, *args, **kwargs):
         pass
 
-    def __getattr__(self, name):
-        return Mock
+    def __call__(self, *args, **kwargs):
+        return Mock()
 
-for mod_name in ['inspyred','scipy.stats']:
+    @classmethod
+    def __getattr__(cls, name):
+        if name in ('__file__', '__path__'):
+            return '/dev/null'
+        elif name[0] == name[0].upper():
+            mockType = type(name, (), {})
+            mockType.__module__ = __name__
+            return mockType
+        else:
+            return Mock()
+
+MOCK_MODULES = ['scipy','scipy.stats','inspyred']
+for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = Mock()

@@ -284,3 +284,13 @@ epub_copyright = u'2012, Author'
 
 # Allow duplicate toc entries.
 #epub_tocdup = True
+
+class Mock(object):
+    def __init__(self, *args):
+        pass
+
+    def __getattr__(self, name):
+        return Mock
+
+for mod_name in ('inspyred'):
+    sys.modules[mod_name] = Mock()

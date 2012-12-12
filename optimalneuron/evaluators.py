@@ -1,4 +1,5 @@
 import os
+from threading import Thread
 
 class __CandidateData(object):
     """Container for information about a candidate (chromosome)"""
@@ -146,22 +147,36 @@ class DumbEvaluator(__Evaluator):
     just reads them from a file. Requires the appropriate controller.
     """
 
-    def __init__(self,controller,fitness_filename):
+    def __init__(self,controller,fitness_filename_prefix,threads_number=1):
         self.controller = controller
-        self.fitness_filename = fitness_filename
+        self.fitness_filename_prefix = fitness_filename_prefix
+        self.threads_number = threads_number
         
     def evaluate(self,candidates,args):
-        #if fitness file exists need to destroy it:
-        if os.path.exists(self.fitness_filename):
-            os.remove(self.fitness_filename)
+        threads_number = int(self.threads_number)
+        candidates_per_thread = 1 + len(candidates) / threads_number
+        chunk_begin = 0
+        chunk_end = candidates_per_thread
+        threads = []
 
-        #run all the candidates:
-        self.controller.run(candidates,args)
+        for i in range(0, threads_number):
+            #if fitness file exists need to destroy it:
+            file_name = self.fitness_filename_prefix + str(i)
+            if os.path.exists(file_name):
+                os.remove(file_name)
 
-        #get their fitness from the file
-        fitness = [float(i) for i in open(self.fitness_filename).readlines()]
-
-        os.remove(self.fitness_filename)
+            #run the candidates:
+            threads.append(Thread(target=self.controller.run, args=(candidates[chunk_begin:chunk_end],args,file_name,)))
+            threads[i].start()
+            chunk_begin = chunk_begin + candidates_per_thread
+            chunk_end = chunk_end + candidates_per_thread
+        fitness = []   
+        for i in range(0, threads_number):
+            #get their fitness from the file
+            file_name =  self.fitness_filename_prefix + str(i)
+            threads[i].join()
+            fitness = fitness + [float(i) for i in open(file_name).readlines()]
+            os.remove(file_name)
         
         return fitness
     

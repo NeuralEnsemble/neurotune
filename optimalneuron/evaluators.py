@@ -154,7 +154,7 @@ class DumbEvaluator(__Evaluator):
         
     def evaluate(self,candidates,args):
         threads_number = int(self.threads_number)
-        candidates_per_thread = 1 + len(candidates) / threads_number
+        candidates_per_thread = 1 + len(candidates) / threads_number #warning: this means candidates needs to be a multiple of thread number
         chunk_begin = 0
         chunk_end = candidates_per_thread
         threads = []
@@ -162,22 +162,22 @@ class DumbEvaluator(__Evaluator):
         for i in range(0, threads_number):
             #if fitness file exists need to destroy it:
             file_name = self.fitness_filename_prefix + str(i)
-#mv test - this somehow causes the files to be deleted while they are still needed
-#            if os.path.exists(file_name):
-#                os.remove(file_name)
+            if os.path.exists(file_name):
+                os.remove(file_name)
 
             #run the candidates:
             threads.append(Thread(target=self.controller.run, args=(candidates[chunk_begin:chunk_end],args,file_name,)))
             threads[i].start()
             chunk_begin = chunk_begin + candidates_per_thread
             chunk_end = chunk_end + candidates_per_thread
+
         fitness = []   
         for i in range(0, threads_number):
             #get their fitness from the file
             file_name =  self.fitness_filename_prefix + str(i)
             threads[i].join()
             fitness = fitness + [float(i) for i in open(file_name).readlines()]
-#        os.remove(file_name)
+#            os.remove(file_name)
         
         return fitness
     

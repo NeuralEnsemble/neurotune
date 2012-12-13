@@ -162,8 +162,9 @@ class DumbEvaluator(__Evaluator):
         for i in range(0, threads_number):
             #if fitness file exists need to destroy it:
             file_name = self.fitness_filename_prefix + str(i)
-            if os.path.exists(file_name):
-                os.remove(file_name)
+#mv test - this somehow causes the files to be deleted while they are still needed
+#            if os.path.exists(file_name):
+#                os.remove(file_name)
 
             #run the candidates:
             threads.append(Thread(target=self.controller.run, args=(candidates[chunk_begin:chunk_end],args,file_name,)))
@@ -176,7 +177,7 @@ class DumbEvaluator(__Evaluator):
             file_name =  self.fitness_filename_prefix + str(i)
             threads[i].join()
             fitness = fitness + [float(i) for i in open(file_name).readlines()]
-            os.remove(file_name)
+#        os.remove(file_name)
         
         return fitness
     

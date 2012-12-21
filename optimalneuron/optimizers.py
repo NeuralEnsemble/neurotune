@@ -93,7 +93,7 @@ class CustomOptimizerA(__Optimizer):
         algorithm.observer = observers.file_observer
         algorithm.terminator = terminators.evaluation_termination
         algorithm.selector = selectors.tournament_selection
-        algorithm.replacer = replacers.generational_replacement
+        algorithm.replacer = replacers.steady_state_replacement
         algorithm.variator = [variators.blend_crossover, variators.gaussian_mutation]
 
         final_pop = algorithm.evolve(generator=self.uniform_random_chromosome,

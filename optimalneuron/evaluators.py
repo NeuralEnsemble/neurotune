@@ -1,4 +1,6 @@
 import os
+from threading import Thread
+import multiprocessing
 
 class __CandidateData(object):
     """Container for information about a candidate (chromosome)"""
@@ -146,22 +148,47 @@ class DumbEvaluator(__Evaluator):
     just reads them from a file. Requires the appropriate controller.
     """
 
-    def __init__(self,controller,fitness_filename):
+    def __init__(self,controller,fitness_filename_prefix,threads_number=1):
         self.controller = controller
-        self.fitness_filename = fitness_filename
+        self.fitness_filename_prefix = fitness_filename_prefix
+        self.threads_number = threads_number
         
     def evaluate(self,candidates,args):
-        #if fitness file exists need to destroy it:
-        if os.path.exists(self.fitness_filename):
-            os.remove(self.fitness_filename)
 
-        #run all the candidates:
-        self.controller.run(candidates,args)
+        threads_number = int(self.threads_number)
+        candidates_per_thread = (len(candidates)) / threads_number
+        remainder_candidates = len(candidates) % threads_number
+        chunk_begin = 0
+        chunk_end = candidates_per_thread
 
-        #get their fitness from the file
-        fitness = [float(i) for i in open(self.fitness_filename).readlines()]
+        if remainder_candidates != 0:
+            chunk_end += 1
 
-        os.remove(self.fitness_filename)
+        threads = []
+
+        for i in range(0, threads_number):
+            #if fitness file exists need to destroy it:
+            file_name = self.fitness_filename_prefix + str(i)
+            if os.path.exists(file_name):
+                os.remove(file_name)
+
+            #run the candidates:
+            candidate_section=candidates[chunk_begin:chunk_end]
+            threads.append(multiprocessing.Process(target=self.controller.run, args=(candidate_section,args,file_name,)))
+            threads[i].start()
+
+            chunk_begin = chunk_end
+            chunk_end += candidates_per_thread
+            if i < (remainder_candidates - 1):
+                chunk_end += 1
+
+        fitness = []   
+        for i in range(0, threads_number):
+            #get their fitness from the file
+            file_name =  self.fitness_filename_prefix + str(i)
+            threads[i].join()
+            fitness = fitness + [float(i) for i in open(file_name).readlines()]
+            os.remove(file_name)
         
         return fitness
     

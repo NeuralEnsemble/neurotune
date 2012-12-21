@@ -52,15 +52,15 @@ class CLIController(__Controller):
     def __init__(self,cli_argument):
         self.cli_argument = cli_argument
         
-    def run(self,candidates,parameters):
-            
+    def run(self,candidates,parameters,fitness_filename='evaluations'):
         for chromosome in candidates:
             self.chromosome=chromosome
             self.parameters=parameters #actually unneeded
             #this manipulation is slightly messy, done for conversion of chromosome
             #into something that can be executed on the shell
-            str1 = ''.join(str(e)+' ' for e in chromosome)
-            cla = self.cli_argument+' '+str1
+            chromosome_str = ''.join(str(e)+' ' for e in chromosome)
+            cla = self.cli_argument+' '+fitness_filename+' '+chromosome_str
+            print cla
             os.system(cla)        
 
 class NrnProject(__Controller):

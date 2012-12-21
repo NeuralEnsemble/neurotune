@@ -26,16 +26,15 @@ def smooth(x,window_len=11,window='hanning'):
     :param window_len: the dimension of the smoothing window; should be an odd integer
     :param window: the type of window from 'flat', 'hanning', 'hamming', 'bartlett', 'blackman', flat window will produce a moving average smoothing.
 
-    :return the smoothed signal
+    :return: the smoothed signal
         
-    example:
+    .. example::
 
-    t=linspace(-2,2,0.1)
-    x=sin(t)+randn(len(t))*0.1
-    y=smooth(x)
+    >>> t=linspace(-2,2,0.1)
+    >>> x=sin(t)+randn(len(t))*0.1
+    >>> y=smooth(x)
     
-    see also: 
-    
+    .. see also::
     numpy.hanning, numpy.hamming, numpy.bartlett, numpy.blackman, numpy.convolve
     scipy.signal.lfilter
  

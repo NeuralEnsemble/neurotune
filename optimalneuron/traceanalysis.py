@@ -12,13 +12,10 @@ import math
 def smooth(x,window_len=11,window='hanning'):
     """Smooth the data using a window with requested size.
     
-    This is used for dealing with data.
-
-    This method is based on the convolution of a scaled window with the signal.
+    This function is useful for smoothing out experimental data. This method is based on the convolution of a scaled window with the signal.
     The signal is prepared by introducing reflected copies of the signal 
     (with the window size) in both ends so that transient parts are minimized
     in the begining and end part of the output signal.
-    Params work very well with a tested whole-cell 20KHz signal.
     
     :param x: the input signal 
     :param window_len: the dimension of the smoothing window; should be an odd integer
@@ -804,24 +801,23 @@ class TraceAnalysis(object):
             return self.fitness
             
 class IClampAnalysis(TraceAnalysis):
-    """Analysis class for current clamps, inherits from TraceAnalysis"""   
+    """Analysis class for data from whole cell current injection experiments
+
+    This is designed to work with simulations of spiking cells.
+
+    :param v: time-dependent variable (usually voltage)
+    :param t: time-vector
+    :param analysis_var: dictionary containing parameters to be used
+        in analysis such as delta for peak detection
+    :param start_analysis: time t where analysis is to start
+    :param end_analysis: time in t where analysis is to end
+        
+    """
         
     def __init__(self,v,t,analysis_var,start_analysis=0,end_analysis=None,
 		 target_data_path=None,smooth_data=False,
 		 show_smoothed_data=False,
 		 smoothing_window_len=11):
-        """
-        Constructor for IClampAnalysis class
-        
-        :param v: time-dependent variable (usually voltage)
-        :param t: time-vector
-        :param analysis_var: dictionary containing parameters to be used
-            in analysis such as delta for peak detection
-        :param start_analysis: time t where analysis is to start
-        :param end_analysis: time in t where analysis is to end
-        
-        """
-
 
         #call the parent constructor to prepare the v,t vectors:
         super(IClampAnalysis,self).__init__(v,t,start_analysis,end_analysis)

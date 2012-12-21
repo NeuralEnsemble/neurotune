@@ -38,10 +38,15 @@ def smooth(x,window_len=11,window='hanning'):
     .. seealso::
 
        numpy.hanning
+
        numpy.hamming
+
        numpy.bartlett
+
        numpy.blackman
+
        numpy.convolve
+
        scipy.signal.lfilter
  
     """

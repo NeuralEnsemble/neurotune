@@ -154,24 +154,33 @@ class DumbEvaluator(__Evaluator):
         self.threads_number = threads_number
         
     def evaluate(self,candidates,args):
+
         threads_number = int(self.threads_number)
-        candidates_per_thread = (1 + len(candidates)) / threads_number #warning: this means candidates needs to be a multiple of thread number
+        candidates_per_thread = (len(candidates)) / threads_number
+        remainder_candidates = len(candidates) % threads_number
         chunk_begin = 0
         chunk_end = candidates_per_thread
+
+        if remainder_candidates != 0:
+            chunk_end += 1
+
         threads = []
 
         for i in range(0, threads_number):
             #if fitness file exists need to destroy it:
             file_name = self.fitness_filename_prefix + str(i)
-#            if os.path.exists(file_name):
-#                os.remove(file_name)
+            if os.path.exists(file_name):
+                os.remove(file_name)
 
             #run the candidates:
             candidate_section=candidates[chunk_begin:chunk_end]
             threads.append(multiprocessing.Process(target=self.controller.run, args=(candidate_section,args,file_name,)))
             threads[i].start()
-            chunk_begin = chunk_begin + candidates_per_thread
-            chunk_end = chunk_end + candidates_per_thread
+
+            chunk_begin = chunk_end
+            chunk_end += candidates_per_thread
+            if i < (remainder_candidates - 1):
+                chunk_end += 1
 
         fitness = []   
         for i in range(0, threads_number):

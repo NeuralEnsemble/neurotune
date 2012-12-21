@@ -132,16 +132,19 @@ def max_min(a,t,delta=0,peak_threshold=0):
     :return: turning_points, dictionary containing number of max, min and 
         their locations
         
-    :to_change: I think picking the minimum value between two peaks is a better
-        way of getting the minima since this guarantees an answer.
+    .. note::
+
+       minimum value between two peaks is in some ways a better way
+       of obtaining a minimum since it guarantees an answer, this may be
+       something which should be implemented.
         
     """
+
     gradients=np.diff(a)
         
     maxima_info=[]
     minima_info=[]
         
-    #initialise all the vectors:
     count=0
     
     for i in gradients[:-1]:
@@ -252,10 +255,9 @@ def y_from_x(y,x,y_to_find):
 
 
 def single_spike_width(y,t,baseline):
-    """
-    Find the width of a spike at a fixed height
+    """ Find the width of a spike at a fixed height
     
-    Returns the width of the spike at height baseline. If the spike shape
+    calculates the width of the spike at height baseline. If the spike shape
     does not intersect the height at both sides of the peak the method
     will return value 0. If the peak is below the baseline 0 will also 
     be returned.
@@ -328,6 +330,7 @@ def spike_widths(y,t,baseline=0,delta=0):
     :return: width of spike at height defined by baseline
     
     """
+    
     #first get the max and min data:
     max_min_dictionary=max_min(y,t,delta)
     
@@ -365,15 +368,10 @@ def spike_widths(y,t,baseline=0,delta=0):
     return maxima_times_widths
 
 def burst_analyser(t):
-    """
-    pearson's correlation coefficient of interspike times
-        
-        Calculates the pearson's correlation coefficient of interspike times 
+    """ Pearson's correlation coefficient applied to interspike times
         
     :param t: Rank-1 array containing spike times
-       
-    :returns: pearson's correlation coefficient of interspike times 
-    
+    :return: pearson's correlation coefficient of interspike times 
     """
 
     x=np.arange(len(t))
@@ -381,13 +379,10 @@ def burst_analyser(t):
     return pearsonr
 
 def spike_covar(t):
-    """
-    Calculates the coefficient of variation of interspike times 
+    """ Calculates the coefficient of variation of interspike times 
         
     :param t: Rank-1 array containing spike times
-       
-    :returns: coefficient of variation of interspike times 
-    
+    :return: coefficient of variation of interspike times 
     """
     
     interspike_times=np.diff(t)
@@ -395,9 +390,10 @@ def spike_covar(t):
     return covar
 
 def elburg_bursting(spike_times):
-    """
-    Returns the bursting measure B as described by 
-    Elburg & Ooyen 2004.
+    """ bursting measure B as described by Elburg & Ooyen 2004
+
+    :param spike_times: sequence of spike times
+    :return: bursting measure B as described by Elburg & Ooyen 2004
     """
 
     interspikes_1=np.diff(spike_times)

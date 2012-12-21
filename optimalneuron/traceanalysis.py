@@ -36,7 +36,13 @@ def smooth(x,window_len=11,window='hanning'):
     >>> y=smooth(x)
     
     .. seealso::
-       Some relevant modules are: numpy.hanning, numpy.hamming, numpy.bartlett, numpy.blackman, numpy.convolve, scipy.signal.lfilter
+
+       numpy.hanning
+       numpy.hamming
+       numpy.bartlett
+       numpy.blackman
+       numpy.convolve
+       scipy.signal.lfilter
  
     """
 

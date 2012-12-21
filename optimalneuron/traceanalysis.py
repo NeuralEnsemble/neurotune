@@ -2,9 +2,7 @@
 """
 Module for mathematical analysis of voltage traces from electrophysiology.
 
-AUTHORS:
-
-- Mike Vella vellamike@gmail.com
+AUTHOR: Mike Vella vellamike@gmail.com
 
 """
 import scipy.stats
@@ -28,12 +26,13 @@ def smooth(x,window_len=11,window='hanning'):
 
     :return: smoothed signal
         
-    .. example::
+    example:
 
-    >>> #Example usage:
-    >>> t=linspace(-2,2,0.1)
-    >>> x=sin(t)+randn(len(t))*0.1
-    >>> y=smooth(x)
+    .. code-block:: python
+       
+       t=linspace(-2,2,0.1)
+       x=sin(t)+randn(len(t))*0.1
+       y=smooth(x)
     
     .. seealso::
 

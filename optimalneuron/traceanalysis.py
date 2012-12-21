@@ -35,7 +35,8 @@ def smooth(x,window_len=11,window='hanning'):
     >>> x=sin(t)+randn(len(t))*0.1
     >>> y=smooth(x)
     
-    .. note::
+    .. seealso::
+
     Some relevant modules are: numpy.hanning, numpy.hamming, numpy.bartlett, numpy.blackman, numpy.convolve, scipy.signal.lfilter
  
     """

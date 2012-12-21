@@ -34,17 +34,11 @@ def smooth(x,window_len=11,window='hanning'):
     .. seealso::
 
        numpy.hanning
-
        numpy.hamming
-
        numpy.bartlett
-
        numpy.blackman
-
        numpy.convolve
-
        scipy.signal.lfilter
- 
     """
 
     if x.ndim != 1:
@@ -53,14 +47,11 @@ def smooth(x,window_len=11,window='hanning'):
     if x.size < window_len:
         raise ValueError, "Input vector needs to be bigger than window size."
 
-
     if window_len<3:
         return x
 
-
     if not window in ['flat', 'hanning', 'hamming', 'bartlett', 'blackman']:
         raise ValueError, "Window is on of 'flat', 'hanning', 'hamming', 'bartlett', 'blackman'"
-
 
     s=np.r_[x[window_len-1:0:-1],x,x[-1:-window_len:-1]]
     #print(len(s))
@@ -75,14 +66,11 @@ def smooth(x,window_len=11,window='hanning'):
     return y[edge:-edge]
 
 def linear_fit(t, y):
-    """
-    Fits data to a line
-        
-    Returns M (gradient) for a formula of the type y=C+M*x
+    """ Fits data to a line
         
     :param t: time vector
     :param y: variable which varies with time (such as voltage)
-    
+    :returns: Gradient M for a formula of the type y=C+M*x
     """
 
     vals=np.array(y)
@@ -91,16 +79,14 @@ def linear_fit(t, y):
 
 
 def three_spike_adaptation(t,y):
-    """
-    Lnear fit of amplitude vs time of first three AP spikes
-    
-    Logic behind this is that exp_fit doesn't seem to
-    work particularly well and the first three spikes in
-    a trace often tell the whole picture.
+    """ Linear fit of amplitude vs time of first three AP spikes
 
+    Initial action potential amplitudes may very substaintially in amplitude
+    and then settle down.
+    
     :param t: time vector (AP times)
     :param y: corresponding AP amplitude
-    
+    :returns: Gradient M for a formula of the type y=C+M*x for first three action potentials
     """
 
     t=np.array(t)
@@ -811,7 +797,7 @@ class IClampAnalysis(TraceAnalysis):
         in analysis such as delta for peak detection
     :param start_analysis: time t where analysis is to start
     :param end_analysis: time in t where analysis is to end
-        
+       
     """
         
     def __init__(self,v,t,analysis_var,start_analysis=0,end_analysis=None,

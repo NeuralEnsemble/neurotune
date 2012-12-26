@@ -244,6 +244,13 @@ def y_from_x(y,x,y_to_find):
     Returns list of x values corresponding to a y after a doing a 
     univariate spline interpolation
 
+    :param x: x-axis numerical data
+    :param y: corresponding y-axis numerical data
+    :param y_to_find: x value for desired y-value,
+        interpolated from nearest two measured x/y value pairs
+    
+    :return: interpolated y value
+    
     """
 
     from scipy import interpolate
@@ -371,6 +378,7 @@ def burst_analyser(t):
     """ Pearson's correlation coefficient applied to interspike times
         
     :param t: Rank-1 array containing spike times
+
     :return: pearson's correlation coefficient of interspike times 
     """
 
@@ -382,6 +390,7 @@ def spike_covar(t):
     """ Calculates the coefficient of variation of interspike times 
         
     :param t: Rank-1 array containing spike times
+
     :return: coefficient of variation of interspike times 
     """
     
@@ -393,6 +402,7 @@ def elburg_bursting(spike_times):
     """ bursting measure B as described by Elburg & Ooyen 2004
 
     :param spike_times: sequence of spike times
+
     :return: bursting measure B as described by Elburg & Ooyen 2004
     """
 
@@ -415,12 +425,11 @@ def elburg_bursting(spike_times):
     return B
 
 def alpha_normalised_cost_function(value,target,base=10):
-    """
-    Returns fitness of a value-target pair from 0 to 1 
+    """Fitness of a value-target pair from 0 to 1 
     
-        For any value/target pair will give a normalised value for
-        agreement 1 is complete value-target match and 0 is 0 match.
-        A mirrored exponential function is used.
+    For any value/target pair will give a normalised value for
+    agreement 1 is complete value-target match and 0 is 0 match.
+    A mirrored exponential function is used.
      
     :param value: value measured
     :param t: target
@@ -438,8 +447,7 @@ def alpha_normalised_cost_function(value,target,base=10):
     return fitness    
 
 def normalised_cost_function(value,target,Q=None):
-    """
-    Returns fitness of a value-target pair from 0 to 1 
+    """ Returns fitness of a value-target pair from 0 to 1 
     
         For any value/target pair will give a normalised value for
         agreement 0 is complete value-target match and 1 is "no" match.

@@ -1,6 +1,6 @@
 import os
+import sys
 from threading import Thread
-import multiprocessing
 
 class __CandidateData(object):
     """Container for information about a candidate (chromosome)"""
@@ -166,29 +166,39 @@ class DumbEvaluator(__Evaluator):
 
         threads = []
 
-        for i in range(0, threads_number):
-            #if fitness file exists need to destroy it:
-            file_name = self.fitness_filename_prefix + str(i)
-            if os.path.exists(file_name):
+        try:
+            for i in range(0, threads_number):
+                #if fitness file exists need to destroy it:
+                file_name = self.fitness_filename_prefix + str(i)
+                if os.path.exists(file_name):
+                    os.remove(file_name)
+
+                #run the candidates:
+                candidate_section=candidates[chunk_begin:chunk_end]
+                threads.append(Thread(target=self.controller.run, args=(candidate_section,args,file_name,)))
+                threads[i].daemon=True            	
+                threads[i].start()
+
+                chunk_begin = chunk_end
+                chunk_end += candidates_per_thread
+                if i < (remainder_candidates - 1):
+                    chunk_end += 1
+
+            fitness = []   
+            for i in range(0, threads_number):
+               # we should let the main thread handle keybord interrupts
+                while True:
+                    threads[i].join(1)
+                    if not threads[i].isAlive():
+                        break
+
+                #get their fitness from the file
+                file_name =  self.fitness_filename_prefix + str(i)
+                threads[i].join()
+                fitness = fitness + [float(i) for i in open(file_name).readlines()]
                 os.remove(file_name)
-
-            #run the candidates:
-            candidate_section=candidates[chunk_begin:chunk_end]
-            threads.append(multiprocessing.Process(target=self.controller.run, args=(candidate_section,args,file_name,)))
-            threads[i].start()
-
-            chunk_begin = chunk_end
-            chunk_end += candidates_per_thread
-            if i < (remainder_candidates - 1):
-                chunk_end += 1
-
-        fitness = []   
-        for i in range(0, threads_number):
-            #get their fitness from the file
-            file_name =  self.fitness_filename_prefix + str(i)
-            threads[i].join()
-            fitness = fitness + [float(i) for i in open(file_name).readlines()]
-            os.remove(file_name)
+        except (KeyboardInterrupt, SystemExit):
+            sys.exit("Interrupted by ctrl+c\n")
         
         return fitness
     

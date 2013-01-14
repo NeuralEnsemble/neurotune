@@ -104,7 +104,7 @@ class NrnProject(__Controller):
 	    candidates,
 	    parameters):
 
-	"""Run simulations."
+	"""Run simulations."""
 	
         import sqldbutils
         exp_data_array=[]
@@ -134,7 +134,9 @@ class __CondorContext(object):
                                         password,port)
 
         
-    def __split_list(self,alist, wanted_parts=1):
+    def __split_list(self,
+		     alist,
+		     wanted_parts=1):
         
         length = len(alist)
         return [ alist[i*length // wanted_parts: (i+1)*length // wanted_parts] 

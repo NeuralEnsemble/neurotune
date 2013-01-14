@@ -9,10 +9,207 @@ import scipy.stats
 import numpy as np
 import math
 
+class TraceAnalysis(object):
+    """
+    Base class for analysis of electrophysiology data
+
+    Constructor for TraceAnalysis base class takes the following arguments:
+       
+    :param v: time-dependent variable (usually voltage)
+    :param t: time-array (1-to-1 correspondence with v-array)
+    :param start_analysis: time in v,t where analysis is to start
+    :param end_analysis: time in v,t where analysis is to end
+    """
+    
+    def __nearest_index(self,
+			array,
+			target_value):
+
+        """Finds index of first nearest value to target_value in array"""
+        nparray=np.array(array)
+        differences=np.abs(nparray-target_value)
+        min_difference=differences.min()
+        index=np.nonzero(differences==min_difference)[0][0]
+        return index
+        
+    def __init__(self,v,t,start_analysis=0,end_analysis=None):
+
+        self.v=v
+        self.t=t
+        
+        start_index=self.__nearest_index(self.t,start_analysis)
+        end_index=self.__nearest_index(self.t,end_analysis)
+        
+        if end_analysis!=None:            
+            self.v=v[start_index:end_index]
+            self.t=t[start_index:end_index]
+            
+    def plot_trace(self,
+		   save_fig=False,
+		   trace_name='voltage_trace.png',
+		   show_plot=True):
+	"""
+	Plot the trace and save it if requested by user.
+	"""
+	
+        import matplotlib.pyplot as plt
+        
+        plt.plot(self.t,self.v)
+        if save_fig:
+            plt.savefig(trace_name)
+        
+        if show_plot:
+            plt.show()
+                
+    def evaluate_fitness(self,
+			 target_dict={},
+			 target_weights=None,
+			 cost_function=normalised_cost_function):
+	"""
+	Return the estimated fitness of the data, based on the cost function being used.
+
+	:param target_dict: key-value pairs for targets
+	:param target_weights: key-value pairs for target weights
+	:param cost_function: cost function (callback) to assign individual targets sub-fitness.
+	"""
+
+        #calculate max fitness value (TODO: there may be a more pythonic way to do this..)
+        worst_cumulative_fitness=0
+        for target in target_dict.keys():
+            if target_weights==None: 
+                target_weight=1
+            else:
+                target_weight=target_weights[target]
+                
+            worst_cumulative_fitness+=target_weight
+    
+        #if we have 1 or 0 peaks we won't conduct any analysis
+        if self.analysable_data==False:
+            print 'data is non-analysable'
+            return worst_cumulative_fitness
+            
+        else:
+            fitness=0
+        
+            for target in target_dict.keys():
+            
+                target_value=target_dict[target]
+                print 'examining target '+target
+                if target_weights==None: 
+                    target_weight=1
+                else:
+                    target_weight=target_weights[target]
+                
+                value=self.analysis_results[target]
+                #let function pick Q automatically
+                fitness+=target_weight*cost_function(value,target_value)
+                
+            self.fitness=fitness
+            return self.fitness
+            
+class IClampAnalysis(TraceAnalysis):
+    """Analysis class for data from whole cell current injection experiments
+
+    This is designed to work with simulations of spiking cells.
+
+    :param v: time-dependent variable (usually voltage)
+    :param t: time-vector
+    :param analysis_var: dictionary containing parameters to be used
+        in analysis such as delta for peak detection
+    :param start_analysis: time t where analysis is to start
+    :param end_analysis: time in t where analysis is to end
+       
+    """
+        
+    def __init__(self,v,
+		 t,
+		 analysis_var,
+		 start_analysis=0,
+		 end_analysis=None,
+		 target_data_path=None,
+		 smooth_data=False,
+		 show_smoothed_data=False,
+		 smoothing_window_len=11):
+
+        #call the parent constructor to prepare the v,t vectors:
+        super(IClampAnalysis,self).__init__(v,t,start_analysis,end_analysis)
+
+        if smooth_data == True:
+                self.v=smooth(self.v,window_len=smoothing_window_len)
+
+	if show_smoothed_data == True:
+	    from matplotlib import pyplot
+	    pyplot.plot(self.t,self.v)
+	    pyplot.show()
+
+        self.delta=analysis_var['peak_delta']
+        self.baseline=analysis_var['baseline']
+        self.dvdt_threshold=analysis_var['dvdt_threshold']
+
+        self.target_data_path=target_data_path
+
+	try:
+	    peak_threshold = analysis_var["peak_threshold"]
+	except:
+	    peak_threshold = None
+        self.max_min_dictionary=max_min(self.v,self.t,self.delta,
+					peak_threshold = peak_threshold)
+        
+        max_peak_no=self.max_min_dictionary['maxima_number']
+        
+        if max_peak_no<3:
+            self.analysable_data=False
+        else:
+            self.analysable_data=True
+            
+    def analyse(self):
+        """If data is analysable analyses and puts all results into a dict"""    
+        
+        if self.analysable_data:
+            max_min_dictionary=self.max_min_dictionary
+            analysis_results={}
+
+            analysis_results['average_minimum'] = np.average(max_min_dictionary['minima_values'])
+            analysis_results['average_maximum'] = np.average(max_min_dictionary['maxima_values'])
+            analysis_results['min_peak_no'] = max_min_dictionary['minima_number']
+            analysis_results['max_peak_no'] = max_min_dictionary['maxima_number']
+            analysis_results['mean_spike_frequency'] = mean_spike_frequency(max_min_dictionary['maxima_times'])
+            analysis_results['interspike_time_covar'] = spike_covar(max_min_dictionary['maxima_times'])
+            analysis_results['first_spike_time'] = max_min_dictionary['maxima_times'][0]
+            trough_phases=minima_phases(self.t,self.v,delta = self.delta)
+            analysis_results['trough_phase_adaptation'] = exp_fit(trough_phases[0],trough_phases[1])
+            spike_width_list=spike_widths(self.v,self.t,self.baseline,self.delta)
+            analysis_results['spike_width_adaptation'] = exp_fit(spike_width_list[0],spike_width_list[1])
+            spike_frequency_list = spike_frequencies(max_min_dictionary['maxima_times'])
+            analysis_results['peak_decay_exponent'] = three_spike_adaptation(max_min_dictionary['maxima_times'],max_min_dictionary['maxima_values'])
+            analysis_results['trough_decay_exponent'] = three_spike_adaptation(max_min_dictionary['minima_times'],max_min_dictionary['minima_values'])
+            analysis_results['spike_frequency_adaptation'] = exp_fit(spike_frequency_list[0],spike_frequency_list[1])
+            analysis_results['spike_broadening'] = spike_broadening(spike_width_list[1])
+	    analysis_results['peak_linear_gradient'] = linear_fit(max_min_dictionary["maxima_times"],max_min_dictionary["maxima_values"])
+
+
+            #this line here is because PPTD needs to be compared directly with experimental data:
+            if self.target_data_path!=None:
+                t_experimental,v_experimental=load_csv_data(self.target_data_path)
+                try:
+                    analysis_results['pptd_error']=pptd_error(self.t,self.v,
+                                              t_experimental,v_experimental,
+                                              dvdt_threshold=self.dvdt_threshold)
+                except:
+                    print 'WARNING PPTD failure'
+                    analysis_results['pptd_error'] = 1
+
+            self.analysis_results=analysis_results
+
+        else:
+            print 'data not suitable for analysis,<3 APs'
+
+
 def smooth(x,window_len=11,window='hanning'):
     """Smooth the data using a window with requested size.
     
-    This function is useful for smoothing out experimental data. This method is based on the convolution of a scaled window with the signal.
+    This function is useful for smoothing out experimental data.
+    This method utilises the convolution of a scaled window with the signal.
     The signal is prepared by introducing reflected copies of the signal 
     (with the window size) in both ends so that transient parts are minimized
     in the begining and end part of the output signal.
@@ -704,185 +901,4 @@ def minima_phases(t,y,delta=0):
         
     phase_list=[minima_times,minima_phases]
     
-    return phase_list 
-              
-class TraceAnalysis(object):
-    """
-    Base class for analysis of electrophysiology data
-    
-    """
-    
-    #should put a plotting routine in here
-    
-    def __nearest_index(self,array,target_value):
-        """Finds index of first nearest value to target_value in list"""
-        
-        nparray=np.array(array)
-        differences=np.abs(nparray-target_value)
-        min_difference=differences.min()
-        index=np.nonzero(differences==min_difference)[0][0]
-        return index
-        
-    def __init__(self,v,t,start_analysis=0,end_analysis=None):
-        """
-        Constructor for TraceAnalysis base class
-        
-        :param v: time-dependent variable (usually voltage)
-        :param t: time-vector
-        :param start_analysis: time in v,t where analysis is to start
-        :param end_analysis: time in v,t where analysis is to end
-        
-        """
-        #would be done better with times:
-        self.v=v
-        self.t=t
-        
-        start_index=self.__nearest_index(self.t,start_analysis)
-        end_index=self.__nearest_index(self.t,end_analysis)
-        
-        if end_analysis!=None:            
-            self.v=v[start_index:end_index]
-            self.t=t[start_index:end_index]
-            
-    def plot_trace(self,save_fig=False,trace_name='voltage_trace.png',show_plot=True):
-        import matplotlib.pyplot as plt
-        
-        plt.plot(self.t,self.v)
-        if save_fig:
-            plt.savefig(trace_name)
-        
-        if show_plot:
-            plt.show()
-                
-    def evaluate_fitness(self,target_dict,target_weights=None,cost_function=normalised_cost_function):
-    
-        #calculate max fitness value (may be a more pythonic way to do this)
-        worst_cumulative_fitness=0
-        for target in target_dict.keys():
-            if target_weights==None: 
-                target_weight=1
-            else:
-                target_weight=target_weights[target]
-                
-            worst_cumulative_fitness+=target_weight
-    
-        #if we have 1 or 0 peaks we won't conduct any analysis
-        if self.analysable_data==False:
-            print 'data is non-analysable'
-            return worst_cumulative_fitness
-            
-        else:
-            fitness=0
-        
-            for target in target_dict.keys():
-            
-                target_value=target_dict[target]
-                print 'examining target '+target
-                if target_weights==None: 
-                    target_weight=1
-                else:
-                    target_weight=target_weights[target]
-                
-                value=self.analysis_results[target]
-                #let function pick Q automatically
-                fitness+=target_weight*cost_function(value,target_value)
-                
-            self.fitness=fitness
-            return self.fitness
-            
-class IClampAnalysis(TraceAnalysis):
-    """Analysis class for data from whole cell current injection experiments
-
-    This is designed to work with simulations of spiking cells.
-
-    :param v: time-dependent variable (usually voltage)
-    :param t: time-vector
-    :param analysis_var: dictionary containing parameters to be used
-        in analysis such as delta for peak detection
-    :param start_analysis: time t where analysis is to start
-    :param end_analysis: time in t where analysis is to end
-       
-    """
-        
-    def __init__(self,v,
-		 t,
-		 analysis_var,
-		 start_analysis=0,
-		 end_analysis=None,
-		 target_data_path=None,
-		 smooth_data=False,
-		 show_smoothed_data=False,
-		 smoothing_window_len=11):
-
-        #call the parent constructor to prepare the v,t vectors:
-        super(IClampAnalysis,self).__init__(v,t,start_analysis,end_analysis)
-
-        if smooth_data == True:
-                self.v=smooth(self.v,window_len=smoothing_window_len)
-
-	if show_smoothed_data == True:
-	    from matplotlib import pyplot
-	    pyplot.plot(self.t,self.v)
-	    pyplot.show()
-
-        self.delta=analysis_var['peak_delta']
-        self.baseline=analysis_var['baseline']
-        self.dvdt_threshold=analysis_var['dvdt_threshold']
-
-        self.target_data_path=target_data_path
-
-	try:
-	    peak_threshold = analysis_var["peak_threshold"]
-	except:
-	    peak_threshold = None
-        self.max_min_dictionary=max_min(self.v,self.t,self.delta,
-					peak_threshold = peak_threshold)
-        
-        max_peak_no=self.max_min_dictionary['maxima_number']
-        
-        if max_peak_no<3:
-            self.analysable_data=False
-        else:
-            self.analysable_data=True
-            
-    def analyse(self):
-        """If data is analysable analyses and puts all results into a dict"""    
-        
-        if self.analysable_data:
-            max_min_dictionary=self.max_min_dictionary
-            analysis_results={}
-
-            analysis_results['average_minimum'] = np.average(max_min_dictionary['minima_values'])
-            analysis_results['average_maximum'] = np.average(max_min_dictionary['maxima_values'])
-            analysis_results['min_peak_no'] = max_min_dictionary['minima_number']
-            analysis_results['max_peak_no'] = max_min_dictionary['maxima_number']
-            analysis_results['mean_spike_frequency'] = mean_spike_frequency(max_min_dictionary['maxima_times'])
-            analysis_results['interspike_time_covar'] = spike_covar(max_min_dictionary['maxima_times'])
-            analysis_results['first_spike_time'] = max_min_dictionary['maxima_times'][0]
-            trough_phases=minima_phases(self.t,self.v,delta = self.delta)
-            analysis_results['trough_phase_adaptation'] = exp_fit(trough_phases[0],trough_phases[1])
-            spike_width_list=spike_widths(self.v,self.t,self.baseline,self.delta)
-            analysis_results['spike_width_adaptation'] = exp_fit(spike_width_list[0],spike_width_list[1])
-            spike_frequency_list = spike_frequencies(max_min_dictionary['maxima_times'])
-            analysis_results['peak_decay_exponent'] = three_spike_adaptation(max_min_dictionary['maxima_times'],max_min_dictionary['maxima_values'])
-            analysis_results['trough_decay_exponent'] = three_spike_adaptation(max_min_dictionary['minima_times'],max_min_dictionary['minima_values'])
-            analysis_results['spike_frequency_adaptation'] = exp_fit(spike_frequency_list[0],spike_frequency_list[1])
-            analysis_results['spike_broadening'] = spike_broadening(spike_width_list[1])
-	    analysis_results['peak_linear_gradient'] = linear_fit(max_min_dictionary["maxima_times"],max_min_dictionary["maxima_values"])
-
-
-            #this line here is because PPTD needs to be compared directly with experimental data:
-            if self.target_data_path!=None:
-                t_experimental,v_experimental=load_csv_data(self.target_data_path)
-                try:
-                    analysis_results['pptd_error']=pptd_error(self.t,self.v,
-                                              t_experimental,v_experimental,
-                                              dvdt_threshold=self.dvdt_threshold)
-                except:
-                    print 'WARNING PPTD failure'
-                    analysis_results['pptd_error'] = 1
-
-            self.analysis_results=analysis_results
-
-        else:
-            print 'data not suitable for analysis,<3 APs'
+    return phase_list

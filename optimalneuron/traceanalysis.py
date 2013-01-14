@@ -799,8 +799,13 @@ class TraceAnalysis(object):
 class IClampAnalysis(TraceAnalysis):
     """Analysis class for current clamps, inherits from TraceAnalysis"""   
         
-    def __init__(self,v,t,analysis_var,start_analysis=0,end_analysis=None,
-		 target_data_path=None,smooth_data=False,
+    def __init__(self,v,
+		 t,
+		 analysis_var,
+		 start_analysis=0,
+		 end_analysis=None,
+		 target_data_path=None,
+		 smooth_data=False,
 		 show_smoothed_data=False,
 		 smoothing_window_len=11):
         """

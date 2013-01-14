@@ -1,22 +1,21 @@
 Optimal Neuron Architecture
 ===========================
 
-Optimal Neuron provides three main classes: Optimizers, Evaluators
-and Controllers.
-
-.. figure::  OptimalNeuronArchitecture.png
-   :align:   center
+Optimal Neuron provides three important classes: Optimizers, Evaluators
+and Controllers. Any optimization of a model must utilise (usually) one
+instance of each of these classes.
 
 Optimizer Class
 ---------------
-The optimizer decides the mating,survival and death of individuals (each
-individaul being a simulation).
-The optimizer does this by starting with
-an initial population chosen randomly (Say we had a population of 100,
-with 3 free paramaters x,y,z, the population is therefore 100 members
-[x1,y1,z1]. . . [x100,y100,z100] in order to evaluate this population, the op-
-timizer passes every member to the evaluator which assigns each indivudal
-a fitness value based on the simulation output.
+The optimizer controls the progress of the optimization - the mating, survival 
+and death of individuals (each individaul in this case being a simulation).
+The optimizer generally acheives this by starting with an initial population 
+chosen randomly (Say a population of 100, with 3 free paramaters x,y,z, 
+the population is therefore 100 members [x1,y1,z1]. . . [x100,y100,z100]).
+Seeds chosen by the user may also be present in the initial population. 
+In order to evaluate this population, the optimizer passes every member 
+to the evaluator which assigns each indivudal a fitness value based on 
+the simulation output.
 
 Evaluator Class
 ---------------
@@ -37,6 +36,8 @@ The controller class implements the actual running of the simulation given
 the parameters. A controller will provide the evaluator with a run() method
 and hide the details of the simulation implementation from the evaluator.
 
+.. figure::  OptimalNeuronArchitecture.png
+   :align:   center
 
 Why this architecture?
 ---------------------

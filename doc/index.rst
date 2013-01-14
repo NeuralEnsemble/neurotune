@@ -8,6 +8,8 @@ Welcome to Optimal Neuron's documentation!
 A tool for automated parameter tuning of neuronal models
 -------------------------------------------------------
 
+Since Pythagoras, we know that :math:`a^2 + b^2 = c^2`.
+
 Contents:
 
 .. toctree::

@@ -434,8 +434,8 @@ def alpha_normalised_cost_function(value,target,base=10):
      
     :param value: value measured
     :param t: target
-    :param base: the base in the expression  fitness=base**(-x) where
-        x=x=((value-target)/(target+0.01))**2
+    :param base: the base in the expression  :math: 'fitness=base**(-x)' where
+        :math: 'x=x=((value-target)/(target+0.01))**2'
         
     :return: fitness value from 0 to 1
     

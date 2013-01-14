@@ -432,11 +432,14 @@ def alpha_normalised_cost_function(value,target,base=10):
     agreement 1 is complete value-target match and 0 is 0 match.
     A mirrored exponential function is used.
 
-     .. math:
+    .. math:
+      fitness=base**(-x)\\
+      x=((value-target)/(target+0.01))**2
+      
     :param value: value measured
     :param t: target
-    :param base: the base in the expression  :math:'fitness=base**(-x)' where
-        :math:'x=x=((value-target)/(target+0.01))**2'
+    :param base: the base in the above mathematical expression 
+
         
     :return: fitness value from 0 to 1
     

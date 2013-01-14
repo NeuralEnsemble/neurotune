@@ -125,10 +125,10 @@ class __CondorContext(object):
     """manager for dealing with a condor-based grid"""
 
     def __init__(self,
-		 host,
-		 username,
-		 password,
-		 port):
+                 host,
+                 username,
+                 password,
+                 port):
 
         self.messagehost=ssh_utils.host(host,username,
                                         password,port)

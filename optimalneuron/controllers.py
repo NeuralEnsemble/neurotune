@@ -1,31 +1,24 @@
 """
-The controllers module provides controller classes.
+The controllers module provides different controller classes,
+applicable to different simulations.
 
-Each controller class must provide a run method.
+A controller object's job is to control simulations-
+At a high level a controller objects  accepts a list of
+parameters and chromosomes and (usually) returns
+corresponding simulation data.
+This is implemented polymporphically in subclasses.
+Each controller class must therefore provide a run method, which is used by
+the evaluator to run a simulation.
 
-Now there is some very complicated technical stuff to
-deal with here because my evaluators are not currently
-decoupled from the implementation. I think what needs to
-be done is that the controller object needs to accept a
-list of params and chromosomes rather than just the one.
-then whether it's parallel or not depends on the controller
-rather than the evaluator, the evaluator can then just
-logically become IClamp,VClamp etc... and all the
-logic to do with whether it's implemented on a grid or not
-goes down to the controller level.
+A controller must be able to accept simulation parameters (chromosomes)
+from the evaluator.
 
-To summarize my thoughts on this - the controller's job
-is to control simulations. Unless it can accept lists of
-parameters and chromosomes there is no way of parallelizing
-the operation of a controller and parallelization will have
-to fall to the Evaluator. The evaluator however should only
-be concerned with assigining fitness to chromosomes (lower-
-level stuff is, as stated, the controller's job) and as
-such the controller needs to be able to accept lists of
-chromosomes and parameters. This will allow much nicer
-modularization, as long as the client can provide a controller
-which will reutrn sample and time vectors for chromosome and parameter
-lists any evaluator will be able to talk to it.
+The evaluator is therefore only concerned with assigining fitness to chromosomes.
+
+On the whole this allows for deep modularization -
+as long as the user can provide a controller which will (for instance)
+reutrn sample and time arrays for arbitrary chromosome and parameter
+lists a range of evaluators would be able to utilise it.
 """
 
 import os
@@ -58,7 +51,7 @@ class CLIController(__Controller):
 	    parameters,
 	    fitness_filename='evaluations'):
 
-	"run simulation"
+	"Run simulation"
 
         for chromosome in candidates:
             self.chromosome=chromosome
@@ -104,7 +97,7 @@ class NrnProject(__Controller):
 	    candidates,
 	    parameters):
 
-	"""Run simulations."""
+	"""Run simulations"""
 	
         import sqldbutils
         exp_data_array=[]
@@ -122,7 +115,7 @@ class NrnProject(__Controller):
         return exp_data_array
 
 class __CondorContext(object):
-    """manager for dealing with a condor-based grid"""
+    """Context for Condor-based grid"""
 
     def __init__(self,
                  host,

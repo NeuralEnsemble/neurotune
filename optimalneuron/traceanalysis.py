@@ -441,7 +441,7 @@ def alpha_normalised_cost_function(value,target,base=10):
 
     .. math::
       x = \frac{(value-target)}{(target + 0.01)^2}
-
+      
     :param value: value measured
     :param t: target
     :param base: the value 'base' in the above mathematical expression for x
@@ -449,6 +449,7 @@ def alpha_normalised_cost_function(value,target,base=10):
     :return: fitness - a real number from 0 to 1
     
     """
+
     value = float(value)
     target = float(target)
     

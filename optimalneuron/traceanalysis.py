@@ -433,6 +433,8 @@ def alpha_normalised_cost_function(value,target,base=10):
     A mirrored exponential function is used.
     The fitness is given by the expression :math:`fitness = base^{-x}`
 
+    where:
+
     .. math::
           x = {\dfrac{(value-target)}{(target + 0.01)^2}}
       
@@ -454,13 +456,13 @@ def alpha_normalised_cost_function(value,target,base=10):
 def normalised_cost_function(value,target,Q=None):
     """ Returns fitness of a value-target pair from 0 to 1 
     
-        For any value/target pair will give a normalised value for
-        agreement 0 is complete value-target match and 1 is "no" match.
-        
-        If no Q is assigned, it is set such that it satisfies the condition
-        fitness=0.7 when (target-valu)e=10*target. This is essentially 
-        empirical and seems to work. Mathematical derivation is on Mike Vella's 
-        Lab Book 1 p.42 (page dated 15/12/11).
+    For any value/target pair will give a normalised value for
+    agreement 0 is complete value-target match and 1 is "no" match.
+    
+    If no Q is assigned, it is set such that it satisfies the condition
+    fitness=0.7 when (target-valu)e=10*target. This is essentially 
+    empirical and seems to work. Mathematical derivation is on Mike Vella's 
+    Lab Book 1 p.42 (page dated 15/12/11).
              
     :param value: value measured
     :param t: target

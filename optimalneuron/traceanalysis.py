@@ -478,8 +478,7 @@ def normalised_cost_function(value,target,Q=None):
     return fitness    
 
 def load_csv_data(file_path,plot=False):
-    """
-    Return time and voltage data from a csv file
+    """Extracts time and voltage data from a csv file
     
     Data must be in a csv and in two columns, first time and second 
     voltage. Units should be SI (Volts and Seconds).

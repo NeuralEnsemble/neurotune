@@ -8,14 +8,12 @@ Welcome to Optimal Neuron's documentation!
 A tool for automated parameter tuning of neuronal models
 -------------------------------------------------------
 
-Contents:
-
 .. toctree::
    :maxdepth: 4
 	
    installation
    architecture
-   
+   examples
 
 
 Source documentation

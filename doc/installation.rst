@@ -17,6 +17,11 @@ And the following soft dependencies:
 * pyMOOSE
 * pyramidal
    
+Requirements
+---------------------
+Optimal Neuron has so far been tested on Ubuntu 12.04. 
+It should however also work on OS X and Windows.
+
 
 Optimal Neuron installation
 ---------------------
@@ -32,7 +37,7 @@ Then navigate to the "Optimal Neuron" directory and run the command:
 
    python setup.py install
 
-You may need to run the above command with superuser rights. Optimal Neuron will now be installed.
+You may need to run the above command as root. Optimal Neuron should now be installed.
 
 pyMOOSE instllation
 -------------------

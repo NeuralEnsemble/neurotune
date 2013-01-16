@@ -1,7 +1,8 @@
 """
-Controller must provide a run method
-which returns exp_data type with a
-exp_data.samples and exp_data.t attributes.
+The controllers module provides controller classes.
+
+Each controller class must provide a run method.
+
 Now there is some very complicated technical stuff to
 deal with here because my evaluators are not currently
 decoupled from the implementation. I think what needs to
@@ -25,9 +26,6 @@ chromosomes and parameters. This will allow much nicer
 modularization, as long as the client can provide a controller
 which will reutrn sample and time vectors for chromosome and parameter
 lists any evaluator will be able to talk to it.
-
-as a slight modification perhaps it should be provided
-with candidate objects rather than chromosomes
 """
 
 import os
@@ -37,22 +35,31 @@ class __Controller():
     Controller base class
     """
 
-    def run(self,candidates,parameters):
+    def run(self,
+	    candidates,
+	    parameters):
         """
-        needs to accept a list of params and chromosomes
-        and return list of corresponding exp_data objects
+        At a high level - accepts a list of parameters and chromosomes
+        and (usually) returns corresponding simulation data. This is
+	implemented polymporphically in subclasses.
         """
         raise NotImplementedError("Valid controller requires run method!")
 
 class CLIController(__Controller):
     """
-    This is still at a debug stage, documentation to follow
+    Control simulations via command line arguments executed through the Python os module.
     """
 
     def __init__(self,cli_argument):
         self.cli_argument = cli_argument
         
-    def run(self,candidates,parameters,fitness_filename='evaluations'):
+    def run(self,
+	    candidates,
+	    parameters,
+	    fitness_filename='evaluations'):
+
+	"run simulation"
+
         for chromosome in candidates:
             self.chromosome=chromosome
             self.parameters=parameters #actually unneeded
@@ -65,15 +72,10 @@ class CLIController(__Controller):
 
 class NrnProject(__Controller):
     """
-    Run an nrnproject simulation based on optimizer parameters
-    should we implement a singleton pattern?
-    I'm starting to question the sanity of this class, it
-    seems to me that it would make more sense to use a singleton
-    pattern here and do away with all those unecessary
-    calls to self
-    """
+    Run an nrnproject simulation based on optimizer parameters."""
 
-    def __init__(self,nrnproject_path,
+    def __init__(self,
+		 nrnproject_path,
                  db_path,
                  exp_id=None):
         
@@ -98,7 +100,12 @@ class NrnProject(__Controller):
             
         return sim_var_string
     
-    def run(self,candidates,parameters):
+    def run(self,
+	    candidates,
+	    parameters):
+
+	"""Run simulations."""
+	
         import sqldbutils
         exp_data_array=[]
         for chromosome in candidates:
@@ -117,13 +124,19 @@ class NrnProject(__Controller):
 class __CondorContext(object):
     """manager for dealing with a condor-based grid"""
 
-    def __init__(self,host,username,password,port):
+    def __init__(self,
+                 host,
+                 username,
+                 password,
+                 port):
 
         self.messagehost=ssh_utils.host(host,username,
                                         password,port)
 
         
-    def __split_list(self,alist, wanted_parts=1):
+    def __split_list(self,
+		     alist,
+		     wanted_parts=1):
         
         length = len(alist)
         return [ alist[i*length // wanted_parts: (i+1)*length // wanted_parts] 
@@ -183,7 +196,8 @@ class __CondorContext(object):
         run_shell.close()
 
     def __make_submit_file(self):
-        #now we write the submit file
+        """ write the condor submit files"""
+
         filepath = os.path.join(self.tmpdir, 'submitfile.submit')
         submit_file=open(filepath,'w')
         

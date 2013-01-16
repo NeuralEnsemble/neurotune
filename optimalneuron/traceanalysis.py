@@ -12,7 +12,8 @@ import math
 def smooth(x,window_len=11,window='hanning'):
     """Smooth the data using a window with requested size.
     
-    This function is useful for smoothing out experimental data. This method is based on the convolution of a scaled window with the signal.
+    This function is useful for smoothing out experimental data.
+    This method utilises the convolution of a scaled window with the signal.
     The signal is prepared by introducing reflected copies of the signal 
     (with the window size) in both ends so that transient parts are minimized
     in the begining and end part of the output signal.
@@ -430,13 +431,23 @@ def alpha_normalised_cost_function(value,target,base=10):
     For any value/target pair will give a normalised value for
     agreement 1 is complete value-target match and 0 is 0 match.
     A mirrored exponential function is used.
-     
+    The fitness is given by the expression
+
+    .. math::
+
+      fitness=base^{-x}
+
+    where:
+
+    .. math::
+    
+      x = \frac{(value-target)}{(target + 0.01)^2}
+
     :param value: value measured
     :param t: target
-    :param base: the base in the expression  fitness=base**(-x) where
-        x=x=((value-target)/(target+0.01))**2
-        
-    :return: fitness value from 0 to 1
+    :param base: the value 'base' in the above mathematical expression for x
+
+    :return: fitness - a real number from 0 to 1
     
     """
     value = float(value)
@@ -703,19 +714,26 @@ def minima_phases(t,y,delta=0):
         
     phase_list=[minima_times,minima_phases]
     
-    return phase_list 
-              
+    return phase_list
+    
+    
 class TraceAnalysis(object):
     """
     Base class for analysis of electrophysiology data
-    
+
+    Constructor for TraceAnalysis base class takes the following arguments:
+       
+    :param v: time-dependent variable (usually voltage)
+    :param t: time-array (1-to-1 correspondence with v-array)
+    :param start_analysis: time in v,t where analysis is to start
+    :param end_analysis: time in v,t where analysis is to end
     """
     
-    #should put a plotting routine in here
-    
-    def __nearest_index(self,array,target_value):
-        """Finds index of first nearest value to target_value in list"""
-        
+    def __nearest_index(self,
+			array,
+			target_value):
+
+        """Finds index of first nearest value to target_value in array"""
         nparray=np.array(array)
         differences=np.abs(nparray-target_value)
         min_difference=differences.min()
@@ -723,16 +741,7 @@ class TraceAnalysis(object):
         return index
         
     def __init__(self,v,t,start_analysis=0,end_analysis=None):
-        """
-        Constructor for TraceAnalysis base class
-        
-        :param v: time-dependent variable (usually voltage)
-        :param t: time-vector
-        :param start_analysis: time in v,t where analysis is to start
-        :param end_analysis: time in v,t where analysis is to end
-        
-        """
-        #would be done better with times:
+
         self.v=v
         self.t=t
         
@@ -743,7 +752,14 @@ class TraceAnalysis(object):
             self.v=v[start_index:end_index]
             self.t=t[start_index:end_index]
             
-    def plot_trace(self,save_fig=False,trace_name='voltage_trace.png',show_plot=True):
+    def plot_trace(self,
+		   save_fig=False,
+		   trace_name='voltage_trace.png',
+		   show_plot=True):
+	"""
+	Plot the trace and save it if requested by user.
+	"""
+	
         import matplotlib.pyplot as plt
         
         plt.plot(self.t,self.v)
@@ -753,9 +769,19 @@ class TraceAnalysis(object):
         if show_plot:
             plt.show()
                 
-    def evaluate_fitness(self,target_dict,target_weights=None,cost_function=normalised_cost_function):
-    
-        #calculate max fitness value (may be a more pythonic way to do this)
+    def evaluate_fitness(self,
+			 target_dict={},
+			 target_weights=None,
+			 cost_function=normalised_cost_function):
+	"""
+	Return the estimated fitness of the data, based on the cost function being used.
+
+	:param target_dict: key-value pairs for targets
+	:param target_weights: key-value pairs for target weights
+	:param cost_function: cost function (callback) to assign individual targets sub-fitness.
+	"""
+
+        #calculate max fitness value (TODO: there may be a more pythonic way to do this..)
         worst_cumulative_fitness=0
         for target in target_dict.keys():
             if target_weights==None: 
@@ -803,8 +829,13 @@ class IClampAnalysis(TraceAnalysis):
        
     """
         
-    def __init__(self,v,t,analysis_var,start_analysis=0,end_analysis=None,
-		 target_data_path=None,smooth_data=False,
+    def __init__(self,v,
+		 t,
+		 analysis_var,
+		 start_analysis=0,
+		 end_analysis=None,
+		 target_data_path=None,
+		 smooth_data=False,
 		 show_smoothed_data=False,
 		 smoothing_window_len=11):
 

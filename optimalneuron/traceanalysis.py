@@ -433,14 +433,12 @@ def alpha_normalised_cost_function(value,target,base=10):
     A mirrored exponential function is used.
     The fitness is given by the expression
 
-    .. math::
-
-      fitness=base^{-x}
+    :math:'fitness=base^{-x}'
 
     where :math:`\dfrac{x^2-1}{y}`
 
     .. math::
-          x = {\frac{(value-target)}{(target + 0.01)^2}}
+          x = {\dfrac{(value-target)}{(target + 0.01)^2}}
       
     :param value: value measured
     :param t: target

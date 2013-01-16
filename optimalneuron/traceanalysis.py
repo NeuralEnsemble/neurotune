@@ -431,17 +431,9 @@ def alpha_normalised_cost_function(value,target,base=10):
     For any value/target pair will give a normalised value for
     agreement 1 is complete value-target match and 0 is 0 match.
     A mirrored exponential function is used.
-    The fitness is given by the expression
+    The fitness is given by the expression :math:'fitness=base^{-x}'
+    where :math: 'x = {\dfrac{(value-target)}{(target + 0.01)^2}}'
 
-    .. math::
-
-      fitness=base^{-x}
-
-    where :math:`\dfrac{x^2-1}{y}`
-
-    .. math::
-          x = {\frac{(value-target)}{(target + 0.01)^2}}
-      
     :param value: value measured
     :param t: target
     :param base: the value 'base' in the above mathematical expression for x

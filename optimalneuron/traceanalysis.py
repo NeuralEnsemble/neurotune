@@ -437,7 +437,7 @@ def alpha_normalised_cost_function(value,target,base=10):
 
       fitness=base^{-x}
 
-    where :math:`\frac{x^2-1}{y}`
+    where :math:`\dfrac{x^2-1}{y}`
 
     .. math::
           x = {\frac{(value-target)}{(target + 0.01)^2}}

@@ -230,16 +230,19 @@ class IClampEvaluator(__Evaluator):
     def evaluate(self,candidates,args):
         import traceanalysis
         
-        exp_data_array = self.controller.run(candidates,self.parameters)
+        simulations_data = self.controller.run(candidates,self.parameters)
 
         fitness = []
         
-        for exp_data in exp_data_array:
+	for data in simulations_data:
     
             print 'setting up analysis'
 
-            analysis=traceanalysis.IClampAnalysis(exp_data.samples,
-                                                exp_data.t,self.analysis_var,
+	    times = data[0]
+	    samples = data[1]
+
+            analysis=traceanalysis.IClampAnalysis(samples,
+                                                times,self.analysis_var,
                                                 self.analysis_start_time,
                                                 self.analysis_end_time,
 						target_data_path=self.target_data_path)

@@ -188,7 +188,7 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'optimalneuron.tex', u'optimalneuron Documentation',
-   u'Author', 'manual'),
+   u'Mike Vella', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

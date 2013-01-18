@@ -90,13 +90,13 @@ def three_spike_adaptation(t,y):
     :returns: Gradient M for a formula of the type y=C+M*x for first three action potentials
     """
 
-    t=np.array(t)
-    y=np.array(y)
+    t = np.array(t)
+    y = np.array(y)
 
-    t=t[0:3]
-    y=y[0:3]
+    t = t[0:3]
+    y = y[0:3]
     
-    m=linear_fit(t,y)
+    m = linear_fit(t,y)
 
     return m
     
@@ -112,11 +112,12 @@ def exp_fit(t, y):
     
     """
 
-    vals=np.array(y)
-    C=np.min(vals)
-    vals=vals-C+1e-9 #make sure the data is all positive
+    vals = np.array(y)
+    C = np.min(vals)
+    vals = vals-C+1e-9 #make sure the data is all positive
     vals = np.log(vals)
     K, A_log = np.polyfit(t, vals, 1)
+
     return K
 
 
@@ -141,12 +142,12 @@ def max_min(a,t,delta=0,peak_threshold=0):
         
     """
 
-    gradients=np.diff(a)
+    gradients = np.diff(a)
         
-    maxima_info=[]
-    minima_info=[]
+    maxima_info = []
+    minima_info = []
         
-    count=0
+    count = 0
     
     for i in gradients[:-1]:
         count+=1

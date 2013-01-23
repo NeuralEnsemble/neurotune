@@ -127,17 +127,18 @@ because it provides a run method and returns timestamp and value arrays:
         """
     
         def run(self,candidates,parameters):
-    	traces = []
+            traces = []
     
-    	for candidate in candidates:
-    	    sim_var = dict(zip(parameters,candidate))
-    	    t,v = self.run_individual(sim_var)
-    	    traces.append([t,v])
+            for candidate in candidates:
+                sim_var = dict(zip(parameters,candidate))
+                t,v = self.run_individual(sim_var)
+                traces.append([t,v])
     
-    	return traces
-            def set_section_mechanism(self, sec, mech, mech_attribute, mech_value):
-    	for seg in sec:
-    	    setattr(getattr(seg, mech), mech_attribute, mech_value)
+            return traces
+    
+        def set_section_mechanism(self, sec, mech, mech_attribute, mech_value):
+            for seg in sec:
+                setattr(getattr(seg, mech), mech_attribute, mech_value)
         
         def run_individual(self,sim_var):
       
@@ -185,6 +186,7 @@ because it provides a run method and returns timestamp and value arrays:
             sim.show()
         
             return np.array(sim.rec_t), np.array(sim.rec_v)
+
 
 We create some initial variables for our simulation and instantiate a controller:
 

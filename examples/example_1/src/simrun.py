@@ -5,10 +5,10 @@ Simulation of Basket cell
 """
 
 # TO DO:
-# 1. get it to work
+# 1. get it to work - DONE
 # 2. add some modularization to the controller
 # 3. simplify the code
-# 4. write the optimization tools script
+# 4. write the optimization tools script - DONE
 
 __version__ = 0.1
 
@@ -192,13 +192,6 @@ sim_var['soma_gbar_kv']	   = 220.0
 sim_var['soma_gbar_kv3']   = 330.0
 
 cell = BasketCellController()
-#mport numpy as np
-#rint np.array(cell.run(sim_var))
-
-
-
-#######OPTIMIZATION SECTION#################
-
 
 """
 Script to optimize Basket cell current injection response

@@ -18,5 +18,5 @@ manual targets, CLI controller.
 
 Example 4 - CLI controller, multi-threaded
 ------------------------------------------
-As above but multi-threaded
+As above but multi-threaded.
 

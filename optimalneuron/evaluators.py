@@ -1,6 +1,9 @@
 import os
 from threading import Thread
 import multiprocessing
+import traceanalysis
+import numpy
+
 
 class __CandidateData(object):
     """Container for information about a candidate (chromosome)"""
@@ -213,56 +216,53 @@ class IClampEvaluator(__Evaluator):
         self.target_data_path=target_data_path
         self.analysis_var=analysis_var
 
-        if automatic==True:
-            import traceanalysis
-            import numpy
-            t,v_raw=traceanalysis.load_csv_data(target_data_path)
-            v=numpy.array(v_raw)
-            v_smooth=list(traceanalysis.smooth(v))
-            analysis=traceanalysis.IClampAnalysis(
-                v_smooth,t,analysis_var,start_analysis=analysis_start_time,
-                end_analysis=analysis_end_time) 
+        if automatic == True:
+            t , v_raw = traceanalysis.load_csv_data(target_data_path)
+            v = numpy.array(v_raw)
+
+            v_smooth = list(traceanalysis.smooth(v))
+
+            analysis = traceanalysis.IClampAnalysis(v_smooth,
+                                                    t,
+                                                    analysis_var,
+                                                    start_analysis=analysis_start_time,
+                                                    end_analysis=analysis_end_time) 
+
             analysis.analyse()
-            self.targets=analysis.analysis_results
+
+            self.targets = analysis.analysis_results
+
             print('Obtained targets are:')
             print(self.targets)
         
     def evaluate(self,candidates,args):
-        import traceanalysis
         
         simulations_data = self.controller.run(candidates,self.parameters)
 
         fitness = []
         
-	for data in simulations_data:
+        for data in simulations_data:
     
             print 'setting up analysis'
 
-	    times = data[0]
-	    samples = data[1]
+            times = data[0]
+            samples = data[1]
 
             analysis=traceanalysis.IClampAnalysis(samples,
-                                                times,self.analysis_var,
-                                                self.analysis_start_time,
-                                                self.analysis_end_time,
-						target_data_path=self.target_data_path)
+                                                  times,
+                                                  self.analysis_var,
+                                                  start_analysis=self.analysis_start_time,
+                                                  end_analysis=self.analysis_end_time)
             
-            print 'staritng analysis'
-
             analysis.analyse()
             
-            print 'obtaining fitness'
-            
-            exp_fitness=analysis.evaluate_fitness(self.targets,
-                                                  self.weights,cost_function=
-                                                  traceanalysis.normalised_cost_function)
-            fitness.append(exp_fitness)
+            fitness_value = analysis.evaluate_fitness(self.targets,
+                                                      self.weights,
+                                                      cost_function=traceanalysis.normalised_cost_function)
+            fitness.append(fitness_value)
 
         return fitness
 
-#this entire class should now be considered obsolete, the evaluator
-#is just an IClampEvaluator and everything here that is different
-#from that class needs to become its own controller
 class IClampCondorEvaluator(IClampEvaluator):
     """
     Evaluate simulations and return their fitness on a condor grid.
@@ -270,7 +270,11 @@ class IClampCondorEvaluator(IClampEvaluator):
         Tested and known to work on CamGrid 
         (http://www.escience.cam.ac.uk/projects/camgrid/)
       
-    Dont inherit from condor evaluator - it's just a condor context
+        WARNING:
+        this entire class should now be considered obsolete, the evaluator
+        is just an IClampEvaluator and everything here that is different
+        from that class needs to become its own controller
+
     """
 
     def __init__(self,local_analysis=False):
@@ -287,7 +291,9 @@ class IClampCondorEvaluator(IClampEvaluator):
 
     def __condor_evaluate(self,candidates,args):
         """
-        Run simulations on grid and analyse data locally (???I'm quite confused here...there is a mistake somewhere as the name doesn't match the description - which method is which?)
+        Run simulations on grid and analyse data locally
+        WARNING: (???I'm quite confused here...there is a mistake somewhere
+        as the name doesn't match the description - which method is which?)
       
             Once each generation has finished, all data is pulled to local
             workstation in form of sqlite databases (1 database per job)
@@ -296,7 +302,6 @@ class IClampCondorEvaluator(IClampEvaluator):
         """
         
         import time
-        from nrndev import traceanalysis
         import ssh_utils
         
         self.CandidateData_list=[]
@@ -374,7 +379,6 @@ class IClampCondorEvaluator(IClampEvaluator):
 
     def __local_evaluate(self,candidates,args):
         import time
-        from nrndev import traceanalysis
      
         self.CandidateData_list=[]
         analysis_var=self.analysis_var

@@ -105,10 +105,10 @@ def exp_fit(t, y):
     """
     Fits data to an exponential.
         
-    Returns K for a formula of the type y=A*exp(K*x)
+        Returns K for a formula of the type y=A*exp(K*x)
         
-    :param t: time vector
-    :param y: variable which varies with time (such as voltage)
+        :param t: time vector
+        :param y: variable which varies with time (such as voltage)
     
     """
 
@@ -767,44 +767,53 @@ class TraceAnalysis(object):
             plt.show()
                 
     def evaluate_fitness(self,
-			 target_dict={},
-			 target_weights=None,
-			 cost_function=normalised_cost_function):
+                         target_dict={},
+                         target_weights=None,
+                         cost_function=normalised_cost_function):
 	"""
 	Return the estimated fitness of the data, based on the cost function being used.
-
-	:param target_dict: key-value pairs for targets
-	:param target_weights: key-value pairs for target weights
-	:param cost_function: cost function (callback) to assign individual targets sub-fitness.
+    
+	    :param target_dict: key-value pairs for targets
+        :param target_weights: key-value pairs for target weights
+        :param cost_function: cost function (callback) to assign individual targets sub-fitness.
 	"""
 
         #calculate max fitness value (TODO: there may be a more pythonic way to do this..)
         worst_cumulative_fitness=0
         for target in target_dict.keys():
-            if target_weights==None: 
-                target_weight=1
+            print target
+            if target_weights == None: 
+                target_weight = 1
             else:
-                target_weight=target_weights[target]
+                if target in target_weights.keys():
+                    target_weight = target_weights[target]
+                else:
+                    target_weight = 1.0
                 
-            worst_cumulative_fitness+=target_weight
+            worst_cumulative_fitness += target_weight
     
         #if we have 1 or 0 peaks we won't conduct any analysis
-        if self.analysable_data==False:
+        if self.analysable_data == False:
             print 'data is non-analysable'
             return worst_cumulative_fitness
             
         else:
-            fitness=0
+            fitness = 0
         
             for target in target_dict.keys():
             
                 target_value=target_dict[target]
-                print 'examining target '+target
-                if target_weights==None: 
-                    target_weight=1
+
+                print 'examining target ' + target
+
+                if target_weights == None: 
+                    target_weight = 1
                 else:
-                    target_weight=target_weights[target]
-                
+                    if target in target_weights.keys():
+                        target_weight = target_weights[target]
+                    else:
+                        target_weight = 1.0
+            
                 value=self.analysis_results[target]
                 #let function pick Q automatically
                 fitness+=target_weight*cost_function(value,target_value)
@@ -826,39 +835,42 @@ class IClampAnalysis(TraceAnalysis):
        
     """
         
-    def __init__(self,v,
-		 t,
-		 analysis_var,
-		 start_analysis=0,
-		 end_analysis=None,
-		 target_data_path=None,
-		 smooth_data=False,
-		 show_smoothed_data=False,
-		 smoothing_window_len=11):
-
+    def __init__(self,
+                 v,
+                 t,
+                 analysis_var,
+                 start_analysis=0,
+                 end_analysis=None,
+                 target_data_path=None,
+                 smooth_data=False,
+                 show_smoothed_data=False,
+                 smoothing_window_len=11):
+    
         #call the parent constructor to prepare the v,t vectors:
         super(IClampAnalysis,self).__init__(v,t,start_analysis,end_analysis)
 
         if smooth_data == True:
-                self.v=smooth(self.v,window_len=smoothing_window_len)
+            self.v = smooth(self.v,window_len=smoothing_window_len)
 
-	if show_smoothed_data == True:
-	    from matplotlib import pyplot
-	    pyplot.plot(self.t,self.v)
-	    pyplot.show()
+        if show_smoothed_data == True:
+            plt.plot(self.t,self.v)
+            plt.show()
 
-        self.delta=analysis_var['peak_delta']
-        self.baseline=analysis_var['baseline']
-        self.dvdt_threshold=analysis_var['dvdt_threshold']
-
+        self.delta = analysis_var['peak_delta']
+        self.baseline = analysis_var['baseline']
+        self.dvdt_threshold = analysis_var['dvdt_threshold']
+    
         self.target_data_path=target_data_path
-
-	try:
-	    peak_threshold = analysis_var["peak_threshold"]
-	except:
-	    peak_threshold = None
-        self.max_min_dictionary=max_min(self.v,self.t,self.delta,
-					peak_threshold = peak_threshold)
+    
+        if "peak_threshold" in analysis_var.keys():
+    	    peak_threshold = analysis_var["peak_threshold"]
+        else:
+            peak_threshold = None
+    
+        self.max_min_dictionary = max_min(self.v,
+                                          self.t,
+                                          self.delta,
+                                          peak_threshold = peak_threshold)
         
         max_peak_no=self.max_min_dictionary['maxima_number']
         
@@ -866,7 +878,7 @@ class IClampAnalysis(TraceAnalysis):
             self.analysable_data=False
         else:
             self.analysable_data=True
-            
+
     def analyse(self):
         """If data is analysable analyses and puts all results into a dict"""    
         

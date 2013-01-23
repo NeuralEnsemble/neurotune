@@ -187,7 +187,6 @@ because it provides a run method and returns timestamp and value arrays:
         
             return np.array(sim.rec_t), np.array(sim.rec_v)
 
-
 We create some initial variables for our simulation and instantiate a controller:
 
 .. code-block:: python

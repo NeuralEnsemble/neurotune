@@ -135,8 +135,7 @@ because it provides a run method and returns timestamp and value arrays:
     	    traces.append([t,v])
     
     	return traces
-    
-        def set_section_mechanism(self, sec, mech, mech_attribute, mech_value):
+            def set_section_mechanism(self, sec, mech, mech_attribute, mech_value):
     	for seg in sec:
     	    setattr(getattr(seg, mech), mech_attribute, mech_value)
         

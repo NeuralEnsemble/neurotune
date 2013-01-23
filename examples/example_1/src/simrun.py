@@ -122,18 +122,18 @@ class BasketCellController():
     """
 
     def run(self,candidates,parameters):
-	traces = []
+        traces = []
 
-	for candidate in candidates:
-	    sim_var = dict(zip(parameters,candidate))
-	    t,v = self.run_individual(sim_var)
-	    traces.append([t,v])
+        for candidate in candidates:
+            sim_var = dict(zip(parameters,candidate))
+            t,v = self.run_individual(sim_var)
+            traces.append([t,v])
 
-	return traces
+        return traces
 
     def set_section_mechanism(self, sec, mech, mech_attribute, mech_value):
-	for seg in sec:
-	    setattr(getattr(seg, mech), mech_attribute, mech_value)
+        for seg in sec:
+            setattr(getattr(seg, mech), mech_attribute, mech_value)
     
     def run_individual(self,sim_var):
   
@@ -185,10 +185,10 @@ class BasketCellController():
 sim_var={}
 
 sim_var['axon_gbar_na']    = 1000.0
-sim_var['axon_gbar_kv']	   = 2310.0
+sim_var['axon_gbar_kv']    = 2310.0
 sim_var['axon_gbar_kv3']   = 0.0
-sim_var['soma_gbar_na']	   = 30.0
-sim_var['soma_gbar_kv']	   = 220.0
+sim_var['soma_gbar_na']    = 30.0
+sim_var['soma_gbar_kv']    = 220.0
 sim_var['soma_gbar_kv3']   = 330.0
 
 cell = BasketCellController()

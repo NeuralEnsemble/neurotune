@@ -13,7 +13,7 @@ A tool for automated parameter tuning of neuronal models
 	
    installation
    architecture
-   examples
+   some_examples
 
 
 Source documentation

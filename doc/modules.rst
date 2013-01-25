@@ -1,7 +1,7 @@
-demos
-=====
+optimalneuron
+=============
 
 .. toctree::
    :maxdepth: 4
 
-   demos
+   optimalneuron

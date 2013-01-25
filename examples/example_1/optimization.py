@@ -218,24 +218,6 @@ def main():
                   'baseline':0,
                   'dvdt_threshold':2}
     
-
-
-#    targets={'average_minimum': -38.839498793604541,
-#             'spike_frequency_adaptation': 0.019619800882894008,
-#             'trough_phase_adaptation': 0.005225712358530369,
-#             'mean_spike_frequency': 47.353760445682454,
-#             'average_maximum': 29.320249266525668,
-#             'trough_decay_exponent': 0.11282542321257279,
-#             'interspike_time_covar': 0.042610190921388166,
-#             'min_peak_no': 34,
-#             'spike_broadening': 0.81838856772318913,
-#             'spike_width_adaptation': 0.0095057081186080035,
-#             'max_peak_no': 35,
-#             'first_spike_time': 164.0,
-#             'peak_decay_exponent': -0.04596529555434687,
-#             'pptd_error':0}
-
-
     weights={'average_minimum': 1.0,
              'spike_frequency_adaptation': 1.0,
              'trough_phase_adaptation': 1.0,

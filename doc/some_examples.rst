@@ -2,38 +2,53 @@ Examples
 ========
 
 Example 1 - Custom controller class, automatic targets
-----------------------------------------------------------------
-In this this example a model of a CA1 Basket cell will be optimized using
-automatic target extraction.
+------------------------------------------------------
 
-The first thing we do is define a simulation class, this can also be accomplished
+In this this example a model of a CA1 Basket cell will be 
+optimized using automatic target extraction.
+
+.. note::
+   This example is design such that the in-line (code) 
+   documentation should be read as well as the explanation 
+   between the code snippets. 
+
+This means that we will provide our model with a csv file containing time 
+vs voltage data and Optimal Neuron will analyse this file and extract
+features automatically. This convenience makes it a good place to start.
+
+These examples are located in the examples module of Optimal Neuron, you
+should also use some raw data (or the csv file provided) to test out 
+your own model.
+
+For this example we will be writing and optimizing a model written in the Python
+programming language and the NEURON library.
+
+The first thing will do is define a simulation class, this can also be accomplished
 by a simple function, but the class defined here gives us some powerful functionality:
 
 .. note::
-   This example still has some way to go in terms of detail. I plan to add
-   more information about the most important bits, and remove some of the
-   relatively superfluous code.
+   This simulation class is not necessary when writing a 
+   model for optimization, however it is good practice 
+   because it makes our code more modular and easier to understand.
 
 .. code-block:: python
 
     class Simulation(object):
     
         """
-        Simulation class mainly taken from Philipp Rautenberg, this class has been
-        modified slightly by Mike Vella to accept a section rather than a cell as the 
-        object passed to the set_IClamp method of the class.
-        see http://www.paedia.info/neuro/intro_pydesign.html
+        Simulation class - inspired by example of Philipp Rautenberg
     
-        Objects of this class control a current clamp simulation. Example of use:
-        >>> cell = Cell()
-        >>> sim = Simulation(cell)
-        >>> sim.go()
-        >>> sim.show()
+            Objects of this class control a current clamp simulation. Example of use:
+    
+                >>> cell = Cell() #some kind of NEURON section
+                >>> sim = Simulation(cell)
+                >>> sim.go()
+                >>> sim.show()
+    
         """
     
         def __init__(self, recording_section, sim_time=1000, dt=0.05, v_init=-60):
     
-            #h.load_file("stdrun.hoc") # Standard run, which contains init and run
             self.recording_section = recording_section
             self.sim_time = sim_time
             self.dt = dt
@@ -49,31 +64,13 @@ by a simple function, but the class defined here gives us some powerful function
               delay = 5 [ms]
               amp   = 0.1 [nA]
               dur   = 1000 [ms]
+    
             """
             stim = h.IClamp(self.recording_section(0.5))
             stim.delay = delay
             stim.amp = amp
             stim.dur = dur
             self.stim = stim
-    
-        def set_VClamp(self,dur1=100,amp1=0,dur2=0,amp2=0,dur3=0,amp3=0,):
-            """
-            Initializes values for a Voltage clamp.
-    
-            techincally this is an SEClamp in neuron, which is a
-            three-stage current clamp.
-            """
-            stim = neuron.h.SEClamp(self.recording_section(0.5))
-            
-            stim.rs=0.1
-            stim.dur1 = dur1
-            stim.amp1 = amp1
-            stim.dur2 = dur2
-            stim.amp2 = amp2
-            stim.dur3 = dur3
-            stim.amp3 = amp3
-    
-            self.Vstim = stim
     
         def set_recording(self):
             # Record Time
@@ -84,28 +81,32 @@ by a simple function, but the class defined here gives us some powerful function
             self.rec_v.record(self.recording_section(0.5)._ref_v)
     
         def show(self):
+            """
+            Plot the result of the simulation once it's been intialized
+            """
+    
             from matplotlib import pyplot as plt
+    
             if self.go_already:
                 x = np.array(self.rec_t)
                 y = np.array(self.rec_v)
+    
                 plt.plot(x, y)
-                #plt.title("Hello World")
+                plt.title("Simulation voltage vs time")
                 plt.xlabel("Time [ms]")
                 plt.ylabel("Voltage [mV]")
-                #plt.axis(ymin=-120, ymax=-50)
+    
             else:
                 print("""First you have to `go()` the simulation.""")
             plt.show()
         
-        def get_recording(self):
-            time = np.array(self.rec_t)
-            voltage = np.array(self.rec_v)
-            return time, voltage
-    
         def go(self, sim_time=None):
+            """
+            Start the simulation once it's been intialized
+            """
+    
             self.set_recording()
             h.dt = self.dt
-            #h.finitialize(h.E)
             
             h.finitialize(self.v_init)
             neuron.init()
@@ -115,20 +116,39 @@ by a simple function, but the class defined here gives us some powerful function
                 neuron.run(self.sim_time)
             self.go_already = True
 
-The next thing we want to do is define our custom controller, this is a "canonical controller"
-because it provides a run method and returns timestamp and value arrays:
+The next thing we will do is define our custom controller. 
+The controller in Optimal Neuron is what actually runs the simulation.
+Optimal Neuron provides off-the-shelf controllers for common needs,
+however this one is customised to make the purpose of the controller
+more clear. This is a "canonical controller" because it takes as an input an array
+of candidates (candidate solutions - strings of numbers corresponding
+to the parameter set of a solution proposed by the optimizer) and returns
+a corresponding array of voltage traces. It is also considered canonical because
+it provides a run method.
+
 
 .. code-block:: python
 
     class BasketCellController():
     
         """
-        Example of "canonical controler"
+        This is a canonical example of a controller class
+    
+        It provides a run() method, this run method must accept at least two parameters:
+            1. candidates (list of list of numbers)
+            2. The corresponding parameters. 
         """
     
         def run(self,candidates,parameters):
-            traces = []
+            """
+            Run simulation for each candidate
+            
+            This run method will loop through each candidate and run the simulation
+            corresponding to it's parameter values. It will populate an array called
+            traces with the resulting voltage traces for the simulation and return it.
+            """
     
+            traces = []
             for candidate in candidates:
                 sim_var = dict(zip(parameters,candidate))
                 t,v = self.run_individual(sim_var)
@@ -137,11 +157,25 @@ because it provides a run method and returns timestamp and value arrays:
             return traces
     
         def set_section_mechanism(self, sec, mech, mech_attribute, mech_value):
+            """
+            Set the value of an attribute of a NEURON section
+            """
             for seg in sec:
                 setattr(getattr(seg, mech), mech_attribute, mech_value)
         
         def run_individual(self,sim_var):
-      
+            """
+            Run an individual simulation.
+    
+            The candidate data has been flattened into the sim_var dict. The
+            sim_var dict contains parameter:value key value pairs, which are
+            applied to the model before it is simulated.
+    
+            The simulation itself is carried out via the instantiation of a
+            Simulation object (see Simulation class above).
+    
+            """
+    
             #make compartments and connect them
             soma=h.Section()
             axon=h.Section()
@@ -161,8 +195,6 @@ because it provides a run method and returns timestamp and value arrays:
         
             #soma.insert('canrgc')
             #soma.insert('cad2')
-        
-            #nrntools.set_section_mechanism(sec,'kv','gbar',gkv_dend)
         
             self.set_section_mechanism(axon,'na','gbar',sim_var['axon_gbar_na'])
             self.set_section_mechanism(axon,'kv','gbar',sim_var['axon_gbar_kv'])
@@ -186,81 +218,84 @@ because it provides a run method and returns timestamp and value arrays:
             sim.show()
         
             return np.array(sim.rec_t), np.array(sim.rec_v)
-
-We create some initial variables for our simulation and instantiate a controller:
-
-.. code-block:: python
-
-    sim_var={}
     
-    sim_var['axon_gbar_na']    = 1000.0
-    sim_var['axon_gbar_kv']	   = 2310.0
-    sim_var['axon_gbar_kv3']   = 0.0
-    sim_var['soma_gbar_na']	   = 30.0
-    sim_var['soma_gbar_kv']	   = 220.0
-    sim_var['soma_gbar_kv3']   = 330.0
-    
-    cell = BasketCellController()
-
-and finally the optimization script itself:
+The function **main()** is where  the actual optimization takes place - the evaluator,
+controller and optimizer classes are instantiated into objects and the optimizer **optimize()**
+method is invoked:
 
 .. code-block:: python
 
-    """
-    Script to optimize Basket cell current injection response
-    """
+    def main():    
+        """
+        The optimization runs in this main method
+        """
+        
+        #make a controller
+        my_controller= BasketCellController()
+        
+        #parameters to be modified in each simulation
+        parameters = ['axon_gbar_na',
+                      'axon_gbar_kv',
+                      'axon_gbar_kv3',
+                      'soma_gbar_na',
+                      'soma_gbar_kv',
+                      'soma_gbar_kv3']
+        
+        #above parameters will not be modified outside these bounds:
+        min_constraints = [0,0,0,0,0,0]
+        max_constraints = [10000,30,1,300,20,2]
     
-    from optimalneuron import optimizers
-    from optimalneuron import evaluators
-    from optimalneuron import controllers
     
-    #first off we need to make an evaluator,
+        # EXAMPLE - how to set a seed
+        #manual_vals=[50,50,2000,70,70,5,0.1,28.0,49.0,-73.0,23.0] 
     
+        #analysis variables, these default values will do:
+        analysis_var={'peak_delta':0,
+                      'baseline':0,
+                      'dvdt_threshold':2}
+        
+        weights={'average_minimum': 1.0,
+                 'spike_frequency_adaptation': 1.0,
+                 'trough_phase_adaptation': 1.0,
+                 'mean_spike_frequency': 1.0,
+                 'average_maximum': 1.0,
+                 'trough_decay_exponent': 1.0,
+                 'interspike_time_covar': 1.0,
+                 'min_peak_no': 1.0,
+                 'spike_broadening': 1.0,
+                 'spike_width_adaptation': 1.0,
+                 'max_peak_no': 1.0,
+                 'first_spike_time': 1.0,
+                 'peak_decay_exponent': 1.0,
+                 'pptd_error':1.0}
+        
+        
+        
+        #make an evaluator, using automatic target evaluation:
+        my_evaluator=evaluators.IClampEvaluator(controller=my_controller,
+                                                analysis_start_time=1,
+                                                analysis_end_time=500,
+                                                target_data_path='100pA_1.csv',
+                                                parameters=parameters,
+                                                analysis_var=analysis_var,
+                                                weights=weights,
+                                                targets=None, # because we're using automatic
+                                                automatic=True)
     
-    parameters = ['axon_gbar_na','axon_gbar_kv','axon_gbar_kv3','soma_gbar_na','soma_gbar_kv','soma_gbar_kv3']
+        #make an optimizer
+        my_optimizer=optimizers.CustomOptimizerA(max_constraints,min_constraints,my_evaluator,
+                                          population_size=3,
+                                          max_evaluations=100,
+                                          num_selected=3,
+                                          num_offspring=3,
+                                          num_elites=1,
+                                          seeds=None)
     
-    #manual_vals=[50,50,2000,70,70,5,0.1,28.0,49.0,-73.0,23.0] # EXAMPLE - how to set a seed
-    min_constraints = [0,0,0,0,0,0]
-    max_constraints = [10000,30,1,300,20,2]
+        #run the optimizer
+        my_optimizer.optimize()
     
-    analysis_var={'peak_delta':0,'baseline':0,'dvdt_threshold':2}
+    main()
     
-    weights={'average_minimum': 1.0, 'spike_frequency_adaptation': 1.0, 'trough_phase_adaptation': 1.0, 'mean_spike_frequency': 1.0, 'average_maximum': 1.0, 'trough_decay_exponent': 1.0, 'interspike_time_covar': 1.0, 'min_peak_no': 1.0, 'spike_broadening': 1.0, 'spike_width_adaptation': 1.0, 'max_peak_no': 1.0, 'first_spike_time': 1.0, 'peak_decay_exponent': 1.0,'pptd_error':1.0}
-    
-    
-    targets={'average_minimum': -38.839498793604541, 'spike_frequency_adaptation': 0.019619800882894008, 'trough_phase_adaptation': 0.005225712358530369, 'mean_spike_frequency': 47.353760445682454, 'average_maximum': 29.320249266525668, 'trough_decay_exponent': 0.11282542321257279, 'interspike_time_covar': 0.042610190921388166, 'min_peak_no': 34, 'spike_broadening': 0.81838856772318913, 'spike_width_adaptation': 0.0095057081186080035, 'max_peak_no': 35, 'first_spike_time': 164.0, 'peak_decay_exponent': -0.04596529555434687,'pptd_error':0}
-    
-    #using automatic target evaluation:
-    #what we should do next is separate out the controller and pass it as an object to the evaluator-
-    #we really need to think about this deeply, separating the nrnproject logic from the neuronoptimizer
-    #may be quite hard
-    
-    #remember, under my new design ideas evaluator is decoupled from the implementation as this is a job for controller
-    
-    import os
-    project_directory = os.path.pardir
-    database_directory = os.path.join(os.path.pardir,'sims/output.sqlite')
-    
-    my_controller=cell
-    
-    my_evaluator=evaluators.IClampEvaluator(controller=my_controller,
-                                            analysis_start_time=1,
-                                            analysis_end_time=500,
-                                            target_data_path='../experimental_data/100pA_1.csv',
-                                            parameters=parameters,
-                                            analysis_var=analysis_var,
-                                            weights=weights,
-                                            targets=targets,
-                                            automatic=True)
-    
-    my_optimizer=optimizers.CustomOptimizerA(max_constraints,min_constraints,my_evaluator,
-                                      population_size=3,
-                                      max_evaluations=100,
-                                      num_selected=3,
-                                      num_offspring=3,
-                                      num_elites=1,
-                                      seeds=None)
-    my_optimizer.optimize()
 
 Example 2 - Custom controller class, manual targets
 ----------------------------------------------------------------

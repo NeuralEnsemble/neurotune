@@ -355,7 +355,7 @@ Example 3 - CLI controller, single-threaded
 In this example the model of a C. elegans muscle cell will be optimized using
 manual targets, CLI controller. This work is part of the `Open Worm Project`_.
 
-.. _`Open Worm Project`:http://www.openworm.org/
+.. _`Open Worm Project`: http://www.openworm.org/
 
 Example 4 - CLI controller, multi-threaded
 ------------------------------------------

@@ -261,7 +261,7 @@ def main():
                                             parameters=parameters,
                                             analysis_var=analysis_var,
                                             weights=weights,
-                                            targets=targets,
+                                            targets=None, # because we're using automatic
                                             automatic=True)
 
     #make an optimizer

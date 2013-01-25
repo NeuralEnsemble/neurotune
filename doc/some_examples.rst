@@ -301,6 +301,54 @@ Example 2 - Custom controller class, manual targets
 ----------------------------------------------------------------
 In this this example a CA1 basket cell will be optimized using manual targets.
 
+This is actually pretty easy. In the example above when the evaluator is defined,
+there is a line:
+
+.. code-block:: python
+    automatic=true
+
+We now create a targets directory, each target must be one which is
+available to the specific evaluator, see the evaluator's documentation
+to see what analysis it provides.
+
+.. code-block:: python
+
+    manual_targets={'average_minimum': -38.83,
+             'spike_frequency_adaptation': 0.01,
+             'trough_phase_adaptation': 0.005,
+             'mean_spike_frequency': 47.35,
+             'average_maximum': 29.32,
+             'trough_decay_exponent': 0.11,
+             'interspike_time_covar': 0.04,
+             'min_peak_no': 34,
+             'spike_broadening': 0.81,
+             'spike_width_adaptation': 0.00,
+             'max_peak_no': 35,
+             'first_spike_time': 164.0,
+             'peak_decay_exponent': -0.045,
+             'pptd_error':0}
+
+And then define the evaluator such that the **automatic** key is set to
+false and the targets parameter is set to our targets dict:
+
+.. warning::
+
+   PPTD error and other such deviation functions should always be 0.
+   PPTD error also does not work if a target data path is not provided and
+   an error will result.
+
+.. code-block:: python
+
+   my_evaluator=evaluators.IClampEvaluator(controller=my_controller,
+                                           analysis_start_time=1,
+                                           analysis_end_time=500,
+                                           target_data_path='100pA_1.csv',
+                                           parameters=parameters,
+                                           analysis_var=analysis_var,
+                                           weights=weights,
+                                           targets=manual_targets,
+                                           automatic=False)
+
 
 Example 3 - CLI controller, single-threaded
 -------------------------------------------

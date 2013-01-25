@@ -26,7 +26,7 @@ optimalneuron Package
     :show-inheritance:
 
 :mod:`traceanalysis` Module
----------------------------
+----------------------------
 
 .. automodule:: optimalneuron.traceanalysis
     :members:

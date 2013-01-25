@@ -22,7 +22,7 @@ Source documentation
    :maxdepth: 4
 
    optimalneuron
-   demos
+   examples
 
 Indices and tables
 ==================

@@ -257,7 +257,7 @@ def main():
     my_evaluator=evaluators.IClampEvaluator(controller=my_controller,
                                             analysis_start_time=1,
                                             analysis_end_time=500,
-                                            target_data_path='../experimental_data/100pA_1.csv',
+                                            target_data_path='./experimental_data/100pA_1.csv',
                                             parameters=parameters,
                                             analysis_var=analysis_var,
                                             weights=weights,

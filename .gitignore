@@ -7,3 +7,5 @@ examples/basket_cell/src/output
 *.csv
 *~
 *#
+*.#*
+examples/*/src/x86_64

@@ -22,6 +22,7 @@ lists a range of evaluators would be able to utilise it.
 """
 
 import os
+import subprocess
 
 class __Controller():
     """
@@ -61,7 +62,7 @@ class CLIController(__Controller):
             chromosome_str = ''.join(str(e)+' ' for e in chromosome)
             cla = self.cli_argument+' '+fitness_filename+' '+chromosome_str
             print cla
-            os.system(cla)        
+            subprocess.call(cla, shell=True)
 
 class NrnProject(__Controller):
     """

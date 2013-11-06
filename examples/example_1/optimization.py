@@ -8,9 +8,9 @@ __version__ = 0.1
 from neuron import h
 import neuron
 import numpy as np
-from optimalneuron import optimizers
-from optimalneuron import evaluators
-from optimalneuron import controllers
+from neurotune import optimizers
+from neurotune import evaluators
+from neurotune import controllers
 import os
 
 class Simulation(object):

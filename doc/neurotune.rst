@@ -1,10 +1,10 @@
-optimalneuron Package
+neurotune Package
 =====================
 
 :mod:`controllers` Module
 -------------------------
 
-.. automodule:: optimalneuron.controllers
+.. automodule:: neurotune.controllers
     :members:
     :undoc-members:
     :show-inheritance:
@@ -12,7 +12,7 @@ optimalneuron Package
 :mod:`evaluators` Module
 ------------------------
 
-.. automodule:: optimalneuron.evaluators
+.. automodule:: neurotune.evaluators
     :members:
     :undoc-members:
     :show-inheritance:
@@ -20,7 +20,7 @@ optimalneuron Package
 :mod:`optimizers` Module
 ------------------------
 
-.. automodule:: optimalneuron.optimizers
+.. automodule:: neurotune.optimizers
     :members:
     :undoc-members:
     :show-inheritance:
@@ -28,7 +28,7 @@ optimalneuron Package
 :mod:`traceanalysis` Module
 ----------------------------
 
-.. automodule:: optimalneuron.traceanalysis
+.. automodule:: neurotune.traceanalysis
     :members:
     :undoc-members:
     :show-inheritance:

@@ -1,7 +1,7 @@
-optimalneuron
-=============
+neurotune
+=========
 
 .. toctree::
    :maxdepth: 4
 
-   optimalneuron
+   neurotune

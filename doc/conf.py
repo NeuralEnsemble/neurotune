@@ -17,7 +17,7 @@ import sys, os
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('../neurotune'))
-sys.path.insert(0, os.path.abspath('../optimalneuron'))
+sys.path.insert(0, os.path.abspath('../neurotune'))
 sys.path.insert(0, os.path.abspath('../examples'))
 sys.path.insert(0, os.path.abspath('..'))
 
@@ -46,7 +46,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'optimalneuron'
+project = u'neurotune'
 copyright = u'2012, Author'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -170,7 +170,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'optimalneurondoc'
+htmlhelp_basename = 'neurotunedoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -189,7 +189,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'optimalneuron.tex', u'optimalneuron Documentation',
+  ('index', 'neurotune.tex', u'neurotune Documentation',
    u'Mike Vella', 'manual'),
 ]
 
@@ -219,7 +219,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'optimalneuron', u'optimalneuron Documentation',
+    ('index', 'neurotune', u'neurotune Documentation',
      [u'Author'], 1)
 ]
 
@@ -233,8 +233,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'optimalneuron', u'optimalneuron Documentation',
-   u'Author', 'optimalneuron', 'One line description of project.',
+  ('index', 'neurotune', u'neurotune Documentation',
+   u'Author', 'neurotune', 'One line description of project.',
    'Miscellaneous'),
 ]
 
@@ -251,7 +251,7 @@ texinfo_documents = [
 # -- Options for Epub output ---------------------------------------------------
 
 # Bibliographic Dublin Core info.
-epub_title = u'optimalneuron'
+epub_title = u'neurotune'
 epub_author = u'Author'
 epub_publisher = u'Author'
 epub_copyright = u'2012, Author'

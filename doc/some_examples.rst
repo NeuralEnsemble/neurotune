@@ -13,10 +13,10 @@ optimized using automatic target extraction.
    between the code snippets. 
 
 This means that we will provide our model with a csv file containing time 
-vs voltage data and Optimal Neuron will analyse this file and extract
+vs voltage data and Neurotune will analyse this file and extract
 features automatically. This convenience makes it a good place to start.
 
-These examples are located in the examples module of Optimal Neuron, you
+These examples are located in the examples module of Neurotune, you
 should also use some raw data (or the csv file provided) to test out 
 your own model.
 
@@ -117,8 +117,8 @@ by a simple function, but the class defined here gives us some powerful function
             self.go_already = True
 
 The next thing we will do is define our custom controller. 
-The controller in Optimal Neuron is what actually runs the simulation.
-Optimal Neuron provides off-the-shelf controllers for common needs,
+The controller in Neurotune is what actually runs the simulation.
+Neurotune provides off-the-shelf controllers for common needs,
 however this one is customised to make the purpose of the controller
 more clear. This is a "canonical controller" because it takes as an input an array
 of candidates (candidate solutions - strings of numbers corresponding

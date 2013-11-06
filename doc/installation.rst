@@ -29,7 +29,7 @@ Install `git`_ and type:
 
 ::
 
-    git clone https://github.com/vellamike/Optimal-Neuron.git
+    git clone https://github.com/vellamike/neurotune.git
 
 Then navigate to the "Neurotune" directory and run the command:
 

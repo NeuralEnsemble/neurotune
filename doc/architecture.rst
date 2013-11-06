@@ -1,7 +1,7 @@
-Optimal Neuron Architecture
+Neurotune Architecture
 ===========================
 
-Optimal Neuron provides three important classes: Optimizers, Evaluators
+Neurotune provides three important classes: Optimizers, Evaluators
 and Controllers. Any optimization of a model must utilise (usually) one
 instance of each of these classes.
 

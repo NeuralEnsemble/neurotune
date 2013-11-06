@@ -3,14 +3,14 @@
 from distutils.core import setup
 
 setup(
-    name = "optimal-neuron",
+    name = "neurotune",
     version = '0.1.1dev',
-    packages = ['optimalneuron'],
+    packages = ['neurotune'],
     author = "Michael Vella",
     author_email = "mv333@cam.ac.uk",
     description = "A Python library for working with NeuroML descriptions of neuronal models",
     license = "BSD",
-    url='https://github.com/vellamike/Optimal-Neuron',
+    url='https://github.com/vellamike/neurotune',
     classifiers = [
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Science/Research',

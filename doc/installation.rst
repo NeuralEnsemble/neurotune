@@ -1,10 +1,10 @@
-Installing Optimal Neuron
+Installing Neurotune
 ========================
 
 Dependencies
 ------------
 
-Optimal Neuron has the following hard dependencies:
+Neurotune has the following hard dependencies:
 
 * Inspyred
 * Numpy
@@ -19,11 +19,11 @@ And the following soft dependencies:
    
 Requirements
 ---------------------
-Optimal Neuron has so far been tested on Ubuntu 12.04. 
+Neurotune has so far been tested on Ubuntu 12.04. 
 It should however also work on OS X and Windows.
 
 
-Optimal Neuron installation
+Neurotune installation
 ---------------------
 Install `git`_ and type:
 
@@ -31,13 +31,13 @@ Install `git`_ and type:
 
     git clone https://github.com/vellamike/Optimal-Neuron.git
 
-Then navigate to the "Optimal Neuron" directory and run the command:
+Then navigate to the "Neurotune" directory and run the command:
 
 ::
 
    python setup.py install
 
-You may need to run the above command as root. Optimal Neuron should now be installed.
+You may need to run the above command as root. Neurotune should now be installed.
 
 pyMOOSE instllation
 -------------------

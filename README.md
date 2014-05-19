@@ -2,7 +2,7 @@
 
 This package provides neurotune a package for optimizing electical models of excitable cells.
 
-Full documentation can be found (here)[http://optimal-neuron.readthedocs.org/en/latest/installation.html]
+Full documentation can be found [here](http://optimal-neuron.readthedocs.org/en/latest/installation.html)
 
 ## Installation
 

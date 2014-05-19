@@ -1,4 +1,5 @@
 This package provides neurotune, for optimizing electical models of excitable cells.
+===================================================================================
 
 See examples for testing.
 

@@ -1,12 +1,12 @@
-This package provides neurotune, for optimizing electical models of excitable cells.
-===================================================================================
+#Neurotune README
 
-See examples for testing.
+This package provides neurotune a package for optimizing electical models of excitable cells.
 
-####################
-#   Dependencies   #
-####################
+Full documentation can be found (here)[http://optimal-neuron.readthedocs.org/en/latest/installation.html]
 
+## Installation
+
+### Dependencies
 There the following (python libraries) which
 can be installed using pip or easy_install:
 
@@ -18,4 +18,12 @@ Hard dependencies:
 Soft dependencies:
 1.neuronpy
 
-Full documentation located at https://optimal-neuron.readthedocs.org/en/latest/
+Full documentation located at https://optimal-neuron.readthedocs.org/en/lates/t
+
+### Using distutils
+
+Install with the following command:
+
+```
+python setup.py --install
+```

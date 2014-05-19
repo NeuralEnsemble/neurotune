@@ -276,7 +276,6 @@ epub_copyright = u'2012, Author'
 
 # Allow duplicate toc entries.
 #epub_tocdup = True
-import sys
 
 class Mock(object):
     def __init__(self, *args, **kwargs):

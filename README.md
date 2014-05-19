@@ -18,8 +18,6 @@ Hard dependencies:
 Soft dependencies:
   1. neuronpy
 
-Full documentation located at https://optimal-neuron.readthedocs.org/en/lates/t
-
 ### Using distutils
 
 Install with the following command:

@@ -1,5 +1,8 @@
 Installing Neurotune
 ========================
+.. code-block:: bash
+
+    python setup.py --install
 
 Dependencies
 ------------
@@ -18,4 +21,4 @@ And the following soft dependencies:
 Requirements
 ---------------------
 Neurotune has so far been tested on Ubuntu 12.04. 
-It should however also work on OS X and Windows.
+It should however also work on OSX and Windows.

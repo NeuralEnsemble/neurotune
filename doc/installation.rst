@@ -14,8 +14,6 @@ And the following soft dependencies:
 * Scipy
 * neuronpy
 * NEURON
-* pyMOOSE
-* pyramidal
    
 Requirements
 ---------------------

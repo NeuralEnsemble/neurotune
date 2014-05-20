@@ -361,7 +361,7 @@ class NrnProjectCondor(NrnProject):
     ###ignore this for now###
     def __local_evaluate(self,candidates,args):
         import time
-        traceanalysis
+        analysis
      
         self.CandidateData_list=[]
         analysis_var=self.analysis_var
@@ -397,8 +397,8 @@ class NrnProjectCondor(NrnProject):
             dbpath=self.datadir+dbname
             exp_id=CandidateData.exp_id
             exp_data=sqldbutils.sim_data(dbpath,exp_id)
-            analysis=traceanalysis.IClampAnalysis(exp_data.samples,exp_data.t,analysis_var,5000,10000)
-            exp_fitness=analysis.evaluate_fitness(self.targets,self.weights,cost_function=traceanalysis.normalised_cost_function)
+            analysis=analysis.IClampAnalysis(exp_data.samples,exp_data.t,analysis_var,5000,10000)
+            exp_fitness=analysis.evaluate_fitness(self.targets,self.weights,cost_function=analysis.normalised_cost_function)
             fitness.append(exp_fitness)
 
         for job_num in range(self.num_jobs):

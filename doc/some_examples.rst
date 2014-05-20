@@ -1,6 +1,8 @@
 Examples
 ========
 
+Full code for these examples are located [here](
+
 Example 1 - Custom controller class, automatic targets
 ------------------------------------------------------
 
@@ -299,7 +301,8 @@ method is invoked:
 
 Example 2 - Custom controller class, manual targets
 ----------------------------------------------------------------
-In this this example a CA1 basket cell will be optimized using manual targets.
+This example is very similar to the one above, but the optimization
+is done with manual targets.
 
 This is actually pretty easy. In the example above when the evaluator is defined,
 there is a line:
@@ -307,7 +310,7 @@ there is a line:
 .. code-block:: python
     automatic=true
 
-We now create a targets directory, each target must be one which is
+We now create a targets dictionary, each target must be one which is
 available to the specific evaluator, see the evaluator's documentation
 to see what analysis it provides.
 
@@ -333,7 +336,7 @@ false and the targets parameter is set to our targets dict:
 
 .. warning::
 
-   PPTD error and other such deviation functions should always be 0.
+   PPTD error and other such deviation functions should always be 0.0.
    PPTD error also does not work if a target data path is not provided and
    an error will result.
 

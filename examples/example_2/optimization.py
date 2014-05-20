@@ -246,7 +246,7 @@ def main():
                     'max_peak_no': 35,
                     'first_spike_time': 164.0,
                     'peak_decay_exponent': -0.045,
-                    'pptd_error':0}
+                    'pptd_error':0.0}
     
     #make an evaluator, using automatic target evaluation:
     my_evaluator=evaluators.IClampEvaluator(controller=my_controller,
@@ -257,7 +257,7 @@ def main():
                                             analysis_var=analysis_var,
                                             weights=weights,
                                             targets=manual_targets,
-                                            automatic=True)
+                                            automatic=False)
 
     #make an optimizer
     my_optimizer=optimizers.CustomOptimizerA(max_constraints,min_constraints,my_evaluator,

@@ -211,20 +211,30 @@ class IClampEvaluator(__Evaluator):
     The evaluate routine runs the model and returns its fitness value
       
     """
-    def __init__(self,analysis_start_time,controller,
-                 analysis_end_time,target_data_path,
-                 parameters,analysis_var,weights,
-                 targets=None,automatic=False):
+    def __init__(self,
+                 analysis_start_time,
+                 controller,
+                 analysis_end_time,
+                 target_data_path,
+                 parameters,
+                 analysis_var,
+                 weights,
+                 targets=None,
+                 automatic=False):
 
         super(IClampEvaluator, self).__init__(parameters,
-                                        weights,targets,
-                                        controller)
+                                              weights,
+                                              targets,
+                                              controller)
       
         self.analysis_start_time=analysis_start_time
         self.analysis_end_time=analysis_end_time
         self.target_data_path=target_data_path
         self.analysis_var=analysis_var
 
+        print 'target data path in evaluator:'
+        print target_data_path
+        
         if automatic == True:
             t , v_raw = traceanalysis.load_csv_data(target_data_path)
             v = numpy.array(v_raw)
@@ -261,13 +271,14 @@ class IClampEvaluator(__Evaluator):
                                                   times,
                                                   self.analysis_var,
                                                   start_analysis=self.analysis_start_time,
-                                                  end_analysis=self.analysis_end_time)
+                                                  end_analysis=self.analysis_end_time,
+                                                  target_data_path=self.target_data_path)
             
             analysis.analyse()
             
             fitness_value = analysis.evaluate_fitness(self.targets,
                                                       self.weights,
-                                                      cost_function=traceanalysis.normalised_cost_function)
+                                                      cost_function=traceanalysis.alpha_normalised_cost_function)
             fitness.append(fitness_value)
 
         return fitness

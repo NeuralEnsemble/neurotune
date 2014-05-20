@@ -861,7 +861,11 @@ class IClampAnalysis(TraceAnalysis):
         self.dvdt_threshold = analysis_var['dvdt_threshold']
     
         self.target_data_path=target_data_path
-    
+
+
+        print 'target data path:'
+        print self.target_data_path
+        
         if "peak_threshold" in analysis_var.keys():
     	    peak_threshold = analysis_var["peak_threshold"]
         else:
@@ -906,7 +910,7 @@ class IClampAnalysis(TraceAnalysis):
 
 
             #this line here is because PPTD needs to be compared directly with experimental data:
-            if self.target_data_path!=None:
+            if self.target_data_path != None:
                 t_experimental,v_experimental=load_csv_data(self.target_data_path)
                 try:
                     analysis_results['pptd_error']=pptd_error(self.t,self.v,

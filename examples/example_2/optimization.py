@@ -247,12 +247,16 @@ def main():
                     'first_spike_time': 164.0,
                     'peak_decay_exponent': -0.045,
                     'pptd_error':0.0}
+
+    data = './100pA_1.csv'
+    print 'data location'
+    print data
     
     #make an evaluator, using automatic target evaluation:
     my_evaluator=evaluators.IClampEvaluator(controller=my_controller,
                                             analysis_start_time=1,
                                             analysis_end_time=500,
-                                            target_data_path='100pA_1.csv',
+                                            target_data_path=data,
                                             parameters=parameters,
                                             analysis_var=analysis_var,
                                             weights=weights,

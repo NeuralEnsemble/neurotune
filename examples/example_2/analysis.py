@@ -4,10 +4,16 @@ from matplotlib import pyplot as plt
 
 t,v=io.load_csv_data('./100pA_1.csv')
 
+print t.ndim
+#print shape(v)
+
 analysis_var={'peak_delta':1,'baseline':0,'dvdt_threshold':2}
 
-analysis=analysis.IClampAnalysis(v,t,analysis_var,
-                                 start_analysis=150,end_analysis=900,
+analysis=analysis.IClampAnalysis(v,
+                                 t,
+                                 analysis_var,
+                                 start_analysis=150,
+                                 end_analysis=900,
                                  smooth_data=True,
                                  show_smoothed_data=True)
 

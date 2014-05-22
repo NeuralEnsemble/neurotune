@@ -97,22 +97,25 @@ class CustomOptimizerA(__Optimizer):
         algorithm.variator = [variators.blend_crossover, variators.gaussian_mutation]
 
         final_pop = algorithm.evolve(generator=self.uniform_random_chromosome,
-                 evaluator=self.evaluator.evaluate,
-                 pop_size=self.population_size,
-                 maximize=self.maximize,
-                 bounder=ec.Bounder(lower_bound=self.min_constraints,
-                                    upper_bound=self.max_constraints),
-                 num_selected=self.num_selected,
-                 tourn_size=self.tourn_size,
-                 num_elites=self.num_elites,
-                 num_offspring=self.num_offspring,
-                 max_evaluations=self.max_evaluations,
-                 mutation_rate=self.mutation_rate,
-                 statistics_file=stat_file,
-                 seeds=self.seeds,
-                 individuals_file=ind_file)
+                                     evaluator=self.evaluator.evaluate,
+                                     pop_size=self.population_size,
+                                     maximize=self.maximize,
+                                     bounder=ec.Bounder(lower_bound=self.min_constraints,
+                                                        upper_bound=self.max_constraints),
+                                     num_selected=self.num_selected,
+                                     tourn_size=self.tourn_size,
+                                     num_elites=self.num_elites,
+                                     num_offspring=self.num_offspring,
+                                     max_evaluations=self.max_evaluations,
+                                     mutation_rate=self.mutation_rate,
+                                     statistics_file=stat_file,
+                                     seeds=self.seeds,
+                                     individuals_file=ind_file)
 
         stat_file.close()
         ind_file.close()
 
         self.print_report(final_pop,do_plot,stat_file_name)
+
+        #return the parameter set for the best individual
+        return final_pop[0].candidate

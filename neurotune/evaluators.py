@@ -1,7 +1,7 @@
 import os
 import sys
 from threading import Thread
-import traceanalysis
+from pyelectro import analysis
 import numpy
 
 class __CandidateData(object):
@@ -236,12 +236,12 @@ class IClampEvaluator(__Evaluator):
         print target_data_path
         
         if automatic == True:
-            t , v_raw = traceanalysis.load_csv_data(target_data_path)
+            t , v_raw = analysis.load_csv_data(target_data_path)
             v = numpy.array(v_raw)
 
-            v_smooth = list(traceanalysis.smooth(v))
+            v_smooth = list(analysis.smooth(v))
 
-            analysis = traceanalysis.IClampAnalysis(v_smooth,
+            analysis = analysis.IClampAnalysis(v_smooth,
                                                     t,
                                                     analysis_var,
                                                     start_analysis=analysis_start_time,
@@ -256,7 +256,8 @@ class IClampEvaluator(__Evaluator):
         
     def evaluate(self,candidates,args):
         
-        simulations_data = self.controller.run(candidates,self.parameters)
+        simulations_data = self.controller.run(candidates,
+                                               self.parameters)
 
         fitness = []
         
@@ -267,20 +268,27 @@ class IClampEvaluator(__Evaluator):
             times = data[0]
             samples = data[1]
 
-            analysis=traceanalysis.IClampAnalysis(samples,
+            data_analysis=analysis.IClampAnalysis(samples,
                                                   times,
                                                   self.analysis_var,
                                                   start_analysis=self.analysis_start_time,
                                                   end_analysis=self.analysis_end_time,
                                                   target_data_path=self.target_data_path)
+
             
-            analysis.analyse()
-            
-            fitness_value = analysis.evaluate_fitness(self.targets,
-                                                      self.weights,
-                                                      cost_function=traceanalysis.alpha_normalised_cost_function)
+            try:
+                data_analysis.analyse()
+            except:
+                data_analysis.analysable_data = False
+                
+            fitness_value = data_analysis.evaluate_fitness(self.targets,
+                                                           self.weights,
+                                                           cost_function=analysis.alpha_normalised_cost_function)
             fitness.append(fitness_value)
 
+            print 'Fitness:'
+            print fitness_value
+            
         return fitness
 
 class IClampCondorEvaluator(IClampEvaluator):
@@ -434,8 +442,8 @@ class IClampCondorEvaluator(IClampEvaluator):
             dbpath=self.datadir+dbname
             exp_id=CandidateData.exp_id
             exp_data=sqldbutils.sim_data(dbpath,exp_id)
-            analysis=traceanalysis.IClampAnalysis(exp_data.samples,exp_data.t,analysis_var,5000,10000)
-            exp_fitness=analysis.evaluate_fitness(optimizer_params.targets,optimizer_params.weights,cost_function=traceanalysis.normalised_cost_function)
+            analysis=analysis.IClampAnalysis(exp_data.samples,exp_data.t,analysis_var,5000,10000)
+            exp_fitness=analysis.evaluate_fitness(optimizer_params.targets,optimizer_params.weights,cost_function=analysis.normalised_cost_function)
             fitness.append(exp_fitness)
 
         for job_num in range(self.num_jobs):

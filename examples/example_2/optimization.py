@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 """
 Automated optimization of simulation of Basket cell
@@ -11,6 +12,9 @@ import numpy as np
 from neurotune import optimizers
 from neurotune import evaluators
 from neurotune import controllers
+from matplotlib import pyplot as plt
+from pyelectro import io
+from pyelectro import analysis
 import os
 
 class Simulation(object):
@@ -130,7 +134,7 @@ class BasketCellController():
         for seg in sec:
             setattr(getattr(seg, mech), mech_attribute, mech_value)
     
-    def run_individual(self,sim_var):
+    def run_individual(self,sim_var,show=False):
         """
         Run an individual simulation.
 
@@ -181,15 +185,18 @@ class BasketCellController():
         sim=Simulation(soma,sim_time=1000,v_init=-70.0)
         sim.set_IClamp(150, 0.1, 750)
         sim.go()
-    
-        sim.show()
+
+        if show:
+            sim.show()
     
         return np.array(sim.rec_t), np.array(sim.rec_v)
-    
+  
+def main(targets,
+         population_size=100,
+         max_evaluations=200,
+         num_selected=5,
+         num_offspring=5):
 
-
-
-def main():    
     """
     The optimization runs in this main method
     """
@@ -214,9 +221,7 @@ def main():
     #manual_vals=[50,50,2000,70,70,5,0.1,28.0,49.0,-73.0,23.0] 
 
     #analysis variables, these default values will do:
-    analysis_var={'peak_delta':0,
-                  'baseline':0,
-                  'dvdt_threshold':2}
+    analysis_var={'peak_delta':0.01,'baseline':0,'dvdt_threshold':0.0}
     
     weights={'average_minimum': 1.0,
              'spike_frequency_adaptation': 1.0,
@@ -233,46 +238,102 @@ def main():
              'peak_decay_exponent': 1.0,
              'pptd_error':1.0}
     
-    manual_targets={'average_minimum': -38.83,
-                    'spike_frequency_adaptation': 0.01,
-                    'trough_phase_adaptation': 0.005,
-                    'mean_spike_frequency': 47.35,
-                    'average_maximum': 29.32,
-                    'trough_decay_exponent': 0.11,
-                    'interspike_time_covar': 0.04,
-                    'min_peak_no': 34,
-                    'spike_broadening': 0.81,
-                    'spike_width_adaptation': 0.00,
-                    'max_peak_no': 35,
-                    'first_spike_time': 164.0,
-                    'peak_decay_exponent': -0.045,
-                    'pptd_error':0.0}
-
     data = './100pA_1.csv'
     print 'data location'
     print data
     
     #make an evaluator, using automatic target evaluation:
     my_evaluator=evaluators.IClampEvaluator(controller=my_controller,
-                                            analysis_start_time=1,
-                                            analysis_end_time=500,
+                                            analysis_start_time=0,
+                                            analysis_end_time=900,
                                             target_data_path=data,
                                             parameters=parameters,
                                             analysis_var=analysis_var,
                                             weights=weights,
-                                            targets=manual_targets,
+                                            targets=targets,
                                             automatic=False)
 
     #make an optimizer
-    my_optimizer=optimizers.CustomOptimizerA(max_constraints,min_constraints,my_evaluator,
-                                      population_size=3,
-                                      max_evaluations=100,
-                                      num_selected=3,
-                                      num_offspring=3,
-                                      num_elites=1,
-                                      seeds=None)
+    my_optimizer=optimizers.CustomOptimizerA(max_constraints,
+                                             min_constraints,
+                                             my_evaluator,
+                                             population_size=population_size,
+                                             max_evaluations=max_evaluations,
+                                             num_selected=num_selected,
+                                             num_offspring=num_offspring,
+                                             num_elites=1,
+                                             seeds=None)
 
     #run the optimizer
-    my_optimizer.optimize()
+    best_candidate = my_optimizer.optimize()
 
-main()
+    return best_candidate
+
+
+#Instantiate a simulation controller:
+testcontroller = BasketCellController()
+
+#Run a simulation:
+sim_var = {'axon_gbar_kv3': 0.26,
+           'soma_gbar_kv3': 1.57,
+           'soma_gbar_na': 79.91,
+           'soma_gbar_kv': 0.58,
+           'axon_gbar_na': 3661.79,
+           'axon_gbar_kv': 23.23}
+
+
+surrogate_t,surrogate_v = testcontroller.run_individual(sim_var,show=False)
+
+analysis_var={'peak_delta':0.01,'baseline':0,'dvdt_threshold':0.0}
+
+analysis=analysis.IClampAnalysis(surrogate_v,
+                                 surrogate_t,
+                                 analysis_var,
+                                 start_analysis=0,
+                                 end_analysis=900,
+                                 smooth_data=False,
+                                 show_smoothed_data=False)
+
+targets = analysis.analyse()
+
+print 'targets:'
+print targets
+
+#Now try and get that candidate back, using the obtained targets:
+candidate1 = main(targets,
+                  population_size=60,
+                  max_evaluations=100,
+                  num_selected=5,
+                  num_offspring=5)
+
+
+candidate2 = main(targets,
+                  population_size=1000,
+                  max_evaluations=5000,
+                  num_selected=5,
+                  num_offspring=5)
+
+
+parameters = ['axon_gbar_na',
+              'axon_gbar_kv',
+              'axon_gbar_kv3',
+              'soma_gbar_na',
+              'soma_gbar_kv',
+              'soma_gbar_kv3']
+
+for key,value in zip(parameters,candidate1):
+    sim_var[key]=value
+candidate1_t,candidate1_v = testcontroller.run_individual(sim_var,show=False)
+
+for key,value in zip(parameters,candidate2):
+    sim_var[key]=value
+candidate2_t,candidate2_v = testcontroller.run_individual(sim_var,show=False)
+
+surrogate_plot, = plt.plot(np.array(surrogate_t),np.array(surrogate_v))
+candidate1_plot, = plt.plot(np.array(candidate1_t),np.array(candidate1_v))
+candidate2_plot, = plt.plot(np.array(candidate2_t),np.array(candidate2_v))
+
+plt.legend([surrogate_plot,candidate1_plot,candidate2_plot],
+           ["Surrogate model","100 evaluations candidate","2000 evaluations candidate"])
+
+plt.show()

@@ -50,11 +50,18 @@ class __Optimizer(object):
 
 class CustomOptimizerA(__Optimizer):
 
-    def __init__(self,max_constraints,min_constraints,evaluator,
-                mutation_rate=0.2,max_evaluations=100,
-                population_size=10,num_selected=None,tourn_size=2,
-                num_elites=1,maximize=False,num_offspring=None,
-                seeds=[]):
+    def __init__(self,max_constraints,
+                 min_constraints,
+                 evaluator,
+                 mutation_rate=0.2,
+                 max_evaluations=100,
+                 population_size=10,
+                 num_selected=None,
+                 tourn_size=2,
+                 num_elites=1,
+                 maximize=False,
+                 num_offspring=None,
+                 seeds=[]):
 
         super(CustomOptimizerA, self).__init__(max_constraints,min_constraints,
                                                  evaluator,mutation_rate,

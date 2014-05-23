@@ -265,15 +265,15 @@ def main(targets,
                                              seeds=None)
 
     #run the optimizer
-    best_candidate = my_optimizer.optimize()
+    best_candidate = my_optimizer.optimize(do_plot=False)
 
     return best_candidate
 
 
 #Instantiate a simulation controller:
-testcontroller = BasketCellController()
+controller = BasketCellController()
 
-#Run a simulation:
+#surrogate simulation variables:
 sim_var = {'axon_gbar_kv3': 0.26,
            'soma_gbar_kv3': 1.57,
            'soma_gbar_na': 79.91,
@@ -282,36 +282,33 @@ sim_var = {'axon_gbar_kv3': 0.26,
            'axon_gbar_kv': 23.23}
 
 
-surrogate_t,surrogate_v = testcontroller.run_individual(sim_var,show=False)
+surrogate_t, surrogate_v = controller.run_individual(sim_var,show=False)
 
 analysis_var={'peak_delta':0.01,'baseline':0,'dvdt_threshold':0.0}
 
-analysis=analysis.IClampAnalysis(surrogate_v,
-                                 surrogate_t,
-                                 analysis_var,
-                                 start_analysis=0,
-                                 end_analysis=900,
-                                 smooth_data=False,
-                                 show_smoothed_data=False)
+surrogate_analysis=analysis.IClampAnalysis(surrogate_v,
+                                           surrogate_t,
+                                           analysis_var,
+                                           start_analysis=0,
+                                           end_analysis=900,
+                                           smooth_data=False,
+                                           show_smoothed_data=False)
 
-targets = analysis.analyse()
-
-print 'targets:'
-print targets
+surrogate_targets = surrogate_analysis.analyse()
 
 #Now try and get that candidate back, using the obtained targets:
-candidate1 = main(targets,
+candidate1 = main(surrogate_targets,
                   population_size=60,
-                  max_evaluations=100,
+                  max_evaluations=200,
                   num_selected=5,
                   num_offspring=5)
 
 
-candidate2 = main(targets,
+candidate2 = main(surrogate_targets,
                   population_size=1000,
-                  max_evaluations=5000,
-                  num_selected=5,
-                  num_offspring=5)
+                  max_evaluations=10000,
+                  num_selected=15,
+                  num_offspring=15)
 
 
 parameters = ['axon_gbar_na',
@@ -323,12 +320,42 @@ parameters = ['axon_gbar_na',
 
 for key,value in zip(parameters,candidate1):
     sim_var[key]=value
-candidate1_t,candidate1_v = testcontroller.run_individual(sim_var,show=False)
+candidate1_t,candidate1_v = controller.run_individual(sim_var,show=False)
 
 for key,value in zip(parameters,candidate2):
     sim_var[key]=value
-candidate2_t,candidate2_v = testcontroller.run_individual(sim_var,show=False)
+candidate2_t,candidate2_v = controller.run_individual(sim_var,show=False)
 
+candidate2_analysis = analysis.IClampAnalysis(candidate2_v,
+                                              candidate2_t,
+                                              analysis_var,
+                                              start_analysis=0,
+                                              end_analysis=900,
+                                              smooth_data=False,
+                                              show_smoothed_data=False)
+
+candidate2_analysis_results = candidate2_analysis.analyse()
+
+candidate1_analysis=analysis.IClampAnalysis(candidate1_v,
+                                            candidate1_t,
+                                            analysis_var,
+                                            start_analysis=0,
+                                            end_analysis=900,
+                                            smooth_data=False,
+                                            show_smoothed_data=False)
+
+candidate1_analysis_results = candidate1_analysis.analyse()
+
+print 'Candidate 1 Analysis Results:'
+print candidate1_analysis_results
+
+print 'Candidate 2 Analysis Results:'
+print candidate2_analysis_results
+
+print 'Surrogate Targets:'
+print surrogate_targets
+
+#plotting
 surrogate_plot, = plt.plot(np.array(surrogate_t),np.array(surrogate_v))
 candidate1_plot, = plt.plot(np.array(candidate1_t),np.array(candidate1_v))
 candidate2_plot, = plt.plot(np.array(candidate2_t),np.array(candidate2_v))
@@ -336,4 +363,9 @@ candidate2_plot, = plt.plot(np.array(candidate2_t),np.array(candidate2_v))
 plt.legend([surrogate_plot,candidate1_plot,candidate2_plot],
            ["Surrogate model","100 evaluations candidate","2000 evaluations candidate"])
 
+plt.ylim(-80.0,70.0)
+plt.title("Models optimized from surrogate solutions")
+plt.xlabel("Time (mS)")
+plt.ylabel("Membrane potential(mV)")
+plt.savefig("protocol.pdf",bbox_inches='tight',format='pdf')
 plt.show()

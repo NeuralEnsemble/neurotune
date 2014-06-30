@@ -19,8 +19,14 @@ class __Optimizer(object):
     Base optimization class
     """
 
-    def __init__(self,max_constraints,min_constraints,evaluator,
-                mutation_rate,maximize,seeds,population_size):
+    def __init__(self,
+                 max_constraints,
+                 min_constraints,
+                 evaluator,
+                 mutation_rate,
+                 maximize,
+                 seeds,
+                 population_size):
 
         self.max_constraints=max_constraints
         self.min_constraints=min_constraints

@@ -193,9 +193,10 @@ class BasketCellController():
   
 def main(targets,
          population_size=100,
-         max_evaluations=200,
+         max_evaluations=100,
          num_selected=5,
-         num_offspring=5):
+         num_offspring=5,
+         seeds=None):
 
     """
     The optimization runs in this main method
@@ -221,7 +222,7 @@ def main(targets,
     #manual_vals=[50,50,2000,70,70,5,0.1,28.0,49.0,-73.0,23.0] 
 
     #analysis variables, these default values will do:
-    analysis_var={'peak_delta':0.01,'baseline':0,'dvdt_threshold':0.0}
+    analysis_var={'peak_delta':1e-4,'baseline':0,'dvdt_threshold':0.0}
     
     weights={'average_minimum': 1.0,
              'spike_frequency_adaptation': 1.0,
@@ -262,7 +263,8 @@ def main(targets,
                                              num_selected=num_selected,
                                              num_offspring=num_offspring,
                                              num_elites=1,
-                                             seeds=None)
+                                             mutation_rate=0.5,
+                                             seeds=seeds)
 
     #run the optimizer
     best_candidate = my_optimizer.optimize(do_plot=False)
@@ -270,21 +272,30 @@ def main(targets,
     return best_candidate
 
 
-#Instantiate a simulation controller:
+#Instantiate a simulation controller to run simulations
 controller = BasketCellController()
 
 #surrogate simulation variables:
-sim_var = {'axon_gbar_kv3': 0.26,
-           'soma_gbar_kv3': 1.57,
+sim_var = {'axon_gbar_na': 3661.79,
+           'axon_gbar_kv': 23.23,
+           'axon_gbar_kv3': 0.26,
            'soma_gbar_na': 79.91,
            'soma_gbar_kv': 0.58,
-           'axon_gbar_na': 3661.79,
-           'axon_gbar_kv': 23.23}
+           'soma_gbar_kv3': 1.57}
 
+parameters = ['axon_gbar_na',
+              'axon_gbar_kv',
+              'axon_gbar_kv3',
+              'soma_gbar_na',
+              'soma_gbar_kv',
+              'soma_gbar_kv3']
+
+#This seed should always "win" because it is the solution.
+#dud_seed = [3661.79, 23.23, 0.26, 79.91, 0.58, 1.57]
 
 surrogate_t, surrogate_v = controller.run_individual(sim_var,show=False)
 
-analysis_var={'peak_delta':0.01,'baseline':0,'dvdt_threshold':0.0}
+analysis_var={'peak_delta':1e-4,'baseline':0,'dvdt_threshold':0.0}
 
 surrogate_analysis=analysis.IClampAnalysis(surrogate_v,
                                            surrogate_t,
@@ -294,29 +305,52 @@ surrogate_analysis=analysis.IClampAnalysis(surrogate_v,
                                            smooth_data=False,
                                            show_smoothed_data=False)
 
+# The output of the analysis will serve as the basis for model optimization:
 surrogate_targets = surrogate_analysis.analyse()
+
+assert(surrogate_targets['max_peak_no'] == 13)
+
+weights={'average_minimum': 1.0,
+         'spike_frequency_adaptation': 1.0,
+         'trough_phase_adaptation': 1.0,
+         'mean_spike_frequency': 1.0,
+         'average_maximum': 1.0,
+         'trough_decay_exponent': 1.0,
+         'interspike_time_covar': 1.0,
+         'min_peak_no': 1.0,
+         'spike_broadening': 1.0,
+         'spike_width_adaptation': 1.0,
+         'max_peak_no': 1.0,
+         'first_spike_time': 1.0,
+         'peak_decay_exponent': 1.0,
+         'pptd_error':1.0}
+
+#Sanity check - expected is 0
+fitness_value = surrogate_analysis.evaluate_fitness(surrogate_targets,
+                                    weights,
+                                    cost_function = analysis.normalised_cost_function)
+
+
+assert(fitness_value == 0.0)
+#raw_input()
+
 
 #Now try and get that candidate back, using the obtained targets:
 candidate1 = main(surrogate_targets,
-                  population_size=60,
-                  max_evaluations=200,
+                  population_size=10,
+                  max_evaluations=100,
                   num_selected=5,
-                  num_offspring=5)
+                  num_offspring=10,
+                  seeds=None)
 
 
 candidate2 = main(surrogate_targets,
-                  population_size=1000,
-                  max_evaluations=10000,
-                  num_selected=15,
-                  num_offspring=15)
+                  population_size=300,
+                  max_evaluations=2000,
+                  num_selected=5,
+                  num_offspring=10,
+                  seeds=None)
 
-
-parameters = ['axon_gbar_na',
-              'axon_gbar_kv',
-              'axon_gbar_kv3',
-              'soma_gbar_na',
-              'soma_gbar_kv',
-              'soma_gbar_kv3']
 
 for key,value in zip(parameters,candidate1):
     sim_var[key]=value
@@ -325,16 +359,6 @@ candidate1_t,candidate1_v = controller.run_individual(sim_var,show=False)
 for key,value in zip(parameters,candidate2):
     sim_var[key]=value
 candidate2_t,candidate2_v = controller.run_individual(sim_var,show=False)
-
-candidate2_analysis = analysis.IClampAnalysis(candidate2_v,
-                                              candidate2_t,
-                                              analysis_var,
-                                              start_analysis=0,
-                                              end_analysis=900,
-                                              smooth_data=False,
-                                              show_smoothed_data=False)
-
-candidate2_analysis_results = candidate2_analysis.analyse()
 
 candidate1_analysis=analysis.IClampAnalysis(candidate1_v,
                                             candidate1_t,
@@ -345,6 +369,16 @@ candidate1_analysis=analysis.IClampAnalysis(candidate1_v,
                                             show_smoothed_data=False)
 
 candidate1_analysis_results = candidate1_analysis.analyse()
+
+candidate2_analysis = analysis.IClampAnalysis(candidate2_v,
+                                              candidate2_t,
+                                              analysis_var,
+                                              start_analysis=0,
+                                              end_analysis=900,
+                                              smooth_data=False,
+                                              show_smoothed_data=False)
+
+candidate2_analysis_results = candidate2_analysis.analyse()
 
 print 'Candidate 1 Analysis Results:'
 print candidate1_analysis_results
@@ -361,11 +395,12 @@ candidate1_plot, = plt.plot(np.array(candidate1_t),np.array(candidate1_v))
 candidate2_plot, = plt.plot(np.array(candidate2_t),np.array(candidate2_v))
 
 plt.legend([surrogate_plot,candidate1_plot,candidate2_plot],
-           ["Surrogate model","100 evaluations candidate","2000 evaluations candidate"])
+           ["Surrogate model","Best model - 100 evaluations","Best model - 500 evaluations candidate"])
 
-plt.ylim(-80.0,70.0)
+plt.ylim(-80.0,80.0)
+plt.xlim(0.0,1000.0)
 plt.title("Models optimized from surrogate solutions")
-plt.xlabel("Time (mS)")
+plt.xlabel("Time (ms)")
 plt.ylabel("Membrane potential(mV)")
-plt.savefig("protocol.pdf",bbox_inches='tight',format='pdf')
+plt.savefig("surrogate_vs_candidates.pdf",bbox_inches='tight',format='pdf')
 plt.show()

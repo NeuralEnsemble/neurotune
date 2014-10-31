@@ -1,14 +1,13 @@
-from nrndev import nrnanalysis as nanalysis
+from pyelectro import analysis as pye_analysis
 from matplotlib import pyplot
 
-t,v=nanalysis.load_csv_data('/home/mike/dev/diego/data/100pA_1.csv')
-analysis=nanalysis.IClampAnalysis
+t,v=pye_analysis.load_csv_data('100pA_1.csv')
 
 analysis_var={'peak_delta':1,'baseline':0,'dvdt_threshold':2}
 
-analysis=nanalysis.IClampAnalysis(v,t,analysis_var,start_analysis=150,end_analysis=900)
+analysis=pye_analysis.IClampAnalysis(v,t,analysis_var,start_analysis=150,end_analysis=900)
 
-analysis.analyse()
+res = analysis.analyse()
 
 pyplot.plot(t,v)
 pyplot.show()

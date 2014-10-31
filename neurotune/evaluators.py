@@ -241,15 +241,15 @@ class IClampEvaluator(__Evaluator):
 
             v_smooth = list(analysis.smooth(v))
 
-            analysis = analysis.IClampAnalysis(v_smooth,
+            ic_analysis = analysis.IClampAnalysis(v_smooth,
                                                     t,
                                                     analysis_var,
                                                     start_analysis=analysis_start_time,
                                                     end_analysis=analysis_end_time) 
 
-            analysis.analyse()
+            ic_analysis.analyse()
 
-            self.targets = analysis.analysis_results
+            self.targets = ic_analysis.analysis_results
 
             print('Obtained targets are:')
             print(self.targets)

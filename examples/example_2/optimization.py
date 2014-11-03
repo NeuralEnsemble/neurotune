@@ -264,7 +264,8 @@ def main(targets,
                                              num_offspring=num_offspring,
                                              num_elites=1,
                                              mutation_rate=0.5,
-                                             seeds=seeds)
+                                             seeds=seeds,
+                                             verbose=True)
 
     #run the optimizer
     best_candidate = my_optimizer.optimize(do_plot=False)
@@ -335,18 +336,19 @@ assert(fitness_value == 0.0)
 #raw_input()
 
 
+c1_evals = 100
 #Now try and get that candidate back, using the obtained targets:
 candidate1 = main(surrogate_targets,
                   population_size=10,
-                  max_evaluations=100,
+                  max_evaluations=c1_evals,
                   num_selected=5,
                   num_offspring=10,
                   seeds=None)
 
-
+c2_evals = 500
 candidate2 = main(surrogate_targets,
-                  population_size=300,
-                  max_evaluations=2000,
+                  population_size=30,
+                  max_evaluations=c2_evals,
                   num_selected=5,
                   num_offspring=10,
                   seeds=None)
@@ -382,12 +384,18 @@ candidate2_analysis_results = candidate2_analysis.analyse()
 
 print 'Candidate 1 Analysis Results:'
 print candidate1_analysis_results
+print 'Candidate 1 values:'
+print candidate1
 
 print 'Candidate 2 Analysis Results:'
 print candidate2_analysis_results
+print 'Candidate 2 values:'
+print candidate2
 
 print 'Surrogate Targets:'
 print surrogate_targets
+print 'Surrogate values:'
+print sim_var
 
 #plotting
 surrogate_plot, = plt.plot(np.array(surrogate_t),np.array(surrogate_v))
@@ -395,12 +403,12 @@ candidate1_plot, = plt.plot(np.array(candidate1_t),np.array(candidate1_v))
 candidate2_plot, = plt.plot(np.array(candidate2_t),np.array(candidate2_v))
 
 plt.legend([surrogate_plot,candidate1_plot,candidate2_plot],
-           ["Surrogate model","Best model - 100 evaluations","Best model - 500 evaluations candidate"])
+           ["Surrogate model","Best model - %i evaluations"%c1_evals,"Best model - %i evaluations candidate"%c2_evals])
 
 plt.ylim(-80.0,80.0)
 plt.xlim(0.0,1000.0)
 plt.title("Models optimized from surrogate solutions")
 plt.xlabel("Time (ms)")
 plt.ylabel("Membrane potential(mV)")
-plt.savefig("surrogate_vs_candidates.pdf",bbox_inches='tight',format='pdf')
+plt.savefig("surrogate_vs_candidates.png",bbox_inches='tight',format='png')
 plt.show()

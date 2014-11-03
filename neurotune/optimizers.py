@@ -12,6 +12,7 @@ from inspyred.ec import replacers
 from inspyred.ec import variators
 from random import Random
 from time import time
+import logging
 
 
 class __Optimizer(object):
@@ -67,7 +68,8 @@ class CustomOptimizerA(__Optimizer):
                  num_elites=1,
                  maximize=False,
                  num_offspring=None,
-                 seeds=[]):
+                 seeds=[],
+                 verbose=False):
 
         super(CustomOptimizerA, self).__init__(max_constraints,min_constraints,
                                                  evaluator,mutation_rate,
@@ -77,6 +79,7 @@ class CustomOptimizerA(__Optimizer):
         self.tourn_size=tourn_size
         self.num_elites=num_elites
         self.mutation_rate=mutation_rate
+        self.verbose = verbose
 
         if num_selected==None:
             self.num_selected=population_size
@@ -101,6 +104,16 @@ class CustomOptimizerA(__Optimizer):
         ind_file_name=datadir+'/ga_individuals.csv'
         stat_file = open(stat_file_name, 'w')
         ind_file = open(ind_file_name, 'w')
+        
+        if self.verbose:
+            logger = logging.getLogger('inspyred.ec')
+            logger.setLevel(logging.DEBUG)
+
+            ch = logging.StreamHandler()
+            # ch.setLevel(logging.DEBUG)
+            formatter = logging.Formatter('>>> EC: - %(levelname)s - %(message)s')
+            ch.setFormatter(formatter)
+            logger.addHandler(ch)
 
         algorithm = ec.EvolutionaryComputation(rand)
         algorithm.observer = observers.file_observer

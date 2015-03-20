@@ -262,7 +262,7 @@ class IClampEvaluator(__Evaluator):
         
         for data in simulations_data:
     
-            print('Setting up analysis for: '+self.parameters)
+            print('Setting up analysis for: %s'%self.parameters)
 
             times = data[0]
             samples = data[1]
@@ -366,11 +366,11 @@ class IClampCondorEvaluator(IClampEvaluator):
                 db_exists=jobdbname+'\n' in remote_filelist
                 
                 if (db_exists==False):
-                    print(jobdbname,' has not been generated')
+                    print(jobdbname +' has not been generated')
                     dbs_created=False
 
                 elif db_exists==True and jobdbname not in pulled_dbs:
-                    print(jobdbname,' has been generated')
+                    print(jobdbname +' has been generated')
                     remotefile=optimizer_params.remotedir+jobdbname
                     localpath=os.path.join(self.datadir,str(self.generation)+jobdbname)
                     ssh_utils.get_file(messagehost,remotefile,localpath)

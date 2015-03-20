@@ -280,14 +280,13 @@ class IClampEvaluator(__Evaluator):
             except:
                 data_analysis.analysable_data = False
                 
-            print(analysis.max_min_dictionary)
                 
             fitness_value = data_analysis.evaluate_fitness(self.targets,
                                                            self.weights,
                                                            cost_function=analysis.normalised_cost_function)
             fitness.append(fitness_value)
 
-            print('Fitness: '+fitness_value)
+            print('Fitness: %f'%fitness_value)
             
         return fitness
 
@@ -397,7 +396,7 @@ class IClampCondorEvaluator(IClampEvaluator):
             exp_fitness=exp_fitness.fetchall()
             exp_fitness=exp_fitness[0][0]
             
-            print('fitness: '+exp_fitness)
+            #print('fitness: %s'%exp_fitness)
     
             fitness.append(exp_fitness)
 

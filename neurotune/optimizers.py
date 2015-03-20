@@ -90,10 +90,10 @@ class CustomOptimizerA(__Optimizer):
         else:
             self.num_offspring=num_offspring
 
-    def optimize(self,do_plot=True):
+    def optimize(self,do_plot=True,seed=int(time())):
 
         rand = Random()
-        rand.seed(int(time()))
+        rand.seed(seed)
 
         cwd=os.getcwd()
         datadir=os.path.dirname(cwd)+'/data/'
@@ -104,6 +104,7 @@ class CustomOptimizerA(__Optimizer):
         ind_file_name=datadir+'/ga_individuals.csv'
         stat_file = open(stat_file_name, 'w')
         ind_file = open(ind_file_name, 'w')
+        print("Created files: %s and %s"%(stat_file_name, ind_file_name))
         
         if self.verbose:
             logger = logging.getLogger('inspyred.ec')

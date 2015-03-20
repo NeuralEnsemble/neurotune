@@ -232,8 +232,7 @@ class IClampEvaluator(__Evaluator):
         self.target_data_path=target_data_path
         self.analysis_var=analysis_var
 
-        print 'target data path in evaluator:'
-        print target_data_path
+        print('target data path in evaluator:'+target_data_path)
         
         if automatic == True:
             t , v_raw = analysis.load_csv_data(target_data_path)
@@ -263,7 +262,7 @@ class IClampEvaluator(__Evaluator):
         
         for data in simulations_data:
     
-            print 'setting up analysis'
+            print('Setting up analysis for: '+self.parameters)
 
             times = data[0]
             samples = data[1]
@@ -281,13 +280,14 @@ class IClampEvaluator(__Evaluator):
             except:
                 data_analysis.analysable_data = False
                 
+            print(analysis.max_min_dictionary)
+                
             fitness_value = data_analysis.evaluate_fitness(self.targets,
                                                            self.weights,
                                                            cost_function=analysis.normalised_cost_function)
             fitness.append(fitness_value)
 
-            print 'Fitness:'
-            print fitness_value
+            print('Fitness: '+fitness_value)
             
         return fitness
 
@@ -355,9 +355,9 @@ class IClampCondorEvaluator(IClampEvaluator):
         dbs_created=False
         pulled_dbs=[] # list of databases which have been extracted from remote server
         while (dbs_created==False):
-            print 'waiting..'
+            print('waiting..')
             time.sleep(20)            
-            print 'checking if dbs created:'
+            print('checking if dbs created:')
             command='ls'
             remote_filelist=ssh_utils.issue_command(messagehost, command)
 
@@ -366,11 +366,11 @@ class IClampCondorEvaluator(IClampEvaluator):
                 db_exists=jobdbname+'\n' in remote_filelist
                 
                 if (db_exists==False):
-                    print jobdbname,' has not been generated'
+                    print(jobdbname,' has not been generated')
                     dbs_created=False
 
                 elif db_exists==True and jobdbname not in pulled_dbs:
-                    print jobdbname,' has been generated'
+                    print(jobdbname,' has been generated')
                     remotefile=optimizer_params.remotedir+jobdbname
                     localpath=os.path.join(self.datadir,str(self.generation)+jobdbname)
                     ssh_utils.get_file(messagehost,remotefile,localpath)
@@ -397,8 +397,7 @@ class IClampCondorEvaluator(IClampEvaluator):
             exp_fitness=exp_fitness.fetchall()
             exp_fitness=exp_fitness[0][0]
             
-            print 'fitness:'
-            print exp_fitness
+            print('fitness: '+exp_fitness)
     
             fitness.append(exp_fitness)
 
@@ -422,11 +421,11 @@ class IClampCondorEvaluator(IClampEvaluator):
         #wait till you know file exists:
         dbs_created=False
         while (dbs_created==False):
-            print 'checking if dbs created:'
+            print('checking if dbs created:')
             for job_num in range(self.num_jobs):
                 jobdbname='outputdb'+str(job_num)+'.sqlite'
                 jobdbpath=os.path.join(self.datadir,jobdbname)
-                print jobdbpath
+                print(jobdbpath)
                 db_exists=os.path.exists(jobdbpath)
                 
                 if (db_exists==False):
@@ -449,7 +448,7 @@ class IClampCondorEvaluator(IClampEvaluator):
         for job_num in range(self.num_jobs):
             jobdbname='outputdb'+str(job_num)+'.sqlite'
             jobdbpath=os.path.join(self.datadir,jobdbname)
-            print jobdbpath
+            print(jobdbpath)
             os.remove(jobdbpath)
 
         return fitness

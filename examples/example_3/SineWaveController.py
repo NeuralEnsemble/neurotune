@@ -12,7 +12,7 @@ from neurotune import utils
 
 class SineWaveController():
     
-    def run_individual(self, sim_var, show=False):
+    def run_individual(self, sim_var, gen_plot=False, show_plot=True):
         """
         Run an individual simulation.
 
@@ -33,13 +33,14 @@ class SineWaveController():
             volts.append(v)
             t += dt
             
-        if show:
+        if gen_plot:
             plt.plot(times,volts)
+            
+            info = "Vars: %s"%sim_var
 
-            plt.legend("Vars: %s"%sim_var)
-            plt.title("Vars: %s"%sim_var)
-
-            plt.show()
+            plt.title(info)
+            if show_plot:
+                plt.show()
             
         return np.array(times), np.array(volts)
         
@@ -75,7 +76,7 @@ if __name__ == '__main__':
         
     if len(sys.argv) == 2 and sys.argv[1] == '-sim':
   
-        swc.run_individual(sim_vars, True)
+        swc.run_individual(sim_vars, True, True)
     
     else:
         
@@ -125,7 +126,7 @@ if __name__ == '__main__':
                                                 automatic=False)
 
         population_size =  20
-        max_evaluations =  60
+        max_evaluations =  300
         num_selected =     10
         num_offspring =    6
         mutation_rate =    0.5
@@ -151,7 +152,7 @@ if __name__ == '__main__':
         for i in range(len(best_candidate)):
             sim_vars[keys[i]] = best_candidate[i]
             
-        fit_times, fit_volts = swc.run_individual(sim_vars, True)
+        fit_times, fit_volts = swc.run_individual(sim_vars, True, False)
         
         fit_analysis=analysis.IClampAnalysis(fit_volts,
                                                    fit_times,

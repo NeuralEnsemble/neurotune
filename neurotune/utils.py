@@ -70,6 +70,8 @@ def plot_generation_evolution(sim_var_names):
         pylab.subplot(nrows, ncols, i)
         pylab.title(sim_var_names[i])
         pylab.scatter(generations_offset, vals[i], s=sizes[i], c=colours[i], alpha=0.4)
+        if i==0:
+            pylab.xlabel("Generation (%i individuals, offset slightly; larger circle => fitter)"%(population_total))
 
 
     fig = pylab.figure()

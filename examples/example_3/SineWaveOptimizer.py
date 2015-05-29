@@ -1,16 +1,10 @@
 
-import math
-import numpy as np
-from matplotlib import pyplot as plt
-import sys
-from pyelectro import analysis
-import pprint
-from neurotune import optimizers
-from neurotune import evaluators
-from neurotune import utils
-
-
 from SineWaveController import SineWaveController
+from neurotune import evaluators
+from neurotune import optimizers
+from neurotune import utils
+import pprint
+from pyelectro import analysis
     
     
 if __name__ == '__main__':
@@ -47,7 +41,7 @@ if __name__ == '__main__':
     weights={'average_minimum': 1.0,
          'spike_frequency_adaptation': 0,
          'trough_phase_adaptation': 0,
-         'mean_spike_frequency': 0,
+         'mean_spike_frequency': 1,
          'average_maximum': 1.0,
          'trough_decay_exponent': 0,
          'interspike_time_covar': 0,
@@ -73,7 +67,7 @@ if __name__ == '__main__':
                                             automatic=False)
 
     population_size =  20
-    max_evaluations =  30
+    max_evaluations =  300
     num_selected =     10
     num_offspring =    6
     mutation_rate =    0.5
@@ -93,7 +87,7 @@ if __name__ == '__main__':
                                              verbose=True)
 
     #run the optimizer
-    best_candidate = my_optimizer.optimize(do_plot=False)
+    best_candidate = my_optimizer.optimize(do_plot=False, seed=123456)
 
     keys = sim_vars.keys()
     for i in range(len(best_candidate)):

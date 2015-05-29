@@ -452,3 +452,101 @@ class IClampCondorEvaluator(IClampEvaluator):
             os.remove(jobdbpath)
 
         return fitness
+    
+class PointBasedAnalysis(object):
+
+    def __init__(self, v, t):
+
+        self.v = numpy.array(v)
+        self.t = numpy.array(t)
+        
+    def evaluate_fitness(self,
+                         target_dict={},
+                         target_weights=None,
+                         cost_function=analysis.normalised_cost_function):
+	"""
+	Return the estimated fitness of the data, based on the cost function being used.
+    
+	    :param target_dict: key-value pairs for targets
+        :param target_weights: key-value pairs for target weights
+        :param cost_function: cost function (callback) to assign individual targets sub-fitness.
+	"""
+        fitness = 0
+
+        for target in target_dict.keys():
+
+            target_value=target_dict[target]
+
+            if target_weights == None: 
+                target_weight = 1
+            else:
+                if target in target_weights.keys():
+                    target_weight = target_weights[target]
+                else:
+                    target_weight = 1.0
+            if target_weight > 0:
+                target_time = float(target.split('_')[1])
+                i=0
+                while self.t[i] < target_time:
+                    value = self.v[i]
+                    i+=1
+                
+                #let function pick Q automatically
+                
+                inc = target_weight*cost_function(value,target_value)
+                fitness += inc
+
+                print('Target %s (weight %f): target val: %s, actual: %s, fitness increment: %s'%(target, target_weight, target_value, value, inc))
+
+        self.fitness=fitness
+        return self.fitness
+
+class PointValueEvaluator(__Evaluator):
+    """
+    Locally-evaluates (not using cluster or grid computing) a model.
+    
+    The evaluate routine runs the model and returns its fitness value
+      
+    """
+    def __init__(self,
+                 controller,
+                 parameters,
+                 weights,
+                 targets=None):
+
+        super(PointValueEvaluator, self).__init__(parameters,
+                                              weights,
+                                              targets,
+                                              controller)
+      
+
+        
+    def evaluate(self,candidates,args):
+        
+        print("\n>>>>>  Evaluating: %s"%candidates)
+        
+        simulations_data = self.controller.run(candidates,
+                                               self.parameters)
+
+        fitness = []
+        
+        for data in simulations_data:
+
+            times = data[0]
+            samples = data[1]
+
+            
+            data_analysis = PointBasedAnalysis(samples,
+                                             times)
+
+                
+            fitness_value = data_analysis.evaluate_fitness(self.targets,
+                                                           self.weights)
+                                                           
+                                
+            fitness.append(fitness_value)
+
+            print('Fitness: %s\n'%fitness_value)
+            
+        return fitness
+    

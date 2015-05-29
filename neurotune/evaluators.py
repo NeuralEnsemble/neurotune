@@ -255,14 +255,14 @@ class IClampEvaluator(__Evaluator):
         
     def evaluate(self,candidates,args):
         
+        print("\n>>>>>  Evaluating: %s"%candidates)
+        
         simulations_data = self.controller.run(candidates,
                                                self.parameters)
 
         fitness = []
         
         for data in simulations_data:
-    
-            print('Setting up analysis for: %s'%self.parameters)
 
             times = data[0]
             samples = data[1]
@@ -286,9 +286,10 @@ class IClampEvaluator(__Evaluator):
                                                            cost_function=analysis.normalised_cost_function)
             fitness.append(fitness_value)
 
-            print('Fitness: %f'%fitness_value)
+            print('Fitness: %s\n'%fitness_value)
             
         return fitness
+    
 
 class IClampCondorEvaluator(IClampEvaluator):
     """

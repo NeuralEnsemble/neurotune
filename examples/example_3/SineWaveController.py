@@ -7,6 +7,7 @@ from pyelectro import analysis
 import pprint
 from neurotune import optimizers
 from neurotune import evaluators
+from neurotune import utils
 
 
 class SineWaveController():
@@ -20,7 +21,7 @@ class SineWaveController():
         applied to the model before it is simulated.
 
         """
-        
+        print(">> Running individual: %s"%(sim_var))
         sim_time = 1000
         dt = 0.1
         t = 0
@@ -79,7 +80,6 @@ if __name__ == '__main__':
     else:
         
         times, volts = swc.run_individual(sim_vars, False)
-        
 
         analysis_var={'peak_delta':0,'baseline':0,'dvdt_threshold':0, 'peak_threshold':0}
 
@@ -94,18 +94,7 @@ if __name__ == '__main__':
         # The output of the analysis will serve as the basis for model optimization:
         surrogate_targets = surrogate_analysis.analyse()
         pp = pprint.PrettyPrinter(indent=4)
-    
-        
 
-
-        weights={'average_minimum': 1.0,
-                 'mean_spike_frequency': 1.0,
-                 'average_maximum': 1.0,
-                 'min_peak_no': 1.0,
-                 'max_peak_no': 1.0,
-                 'first_spike_time': 1.0}
-                 
-                 
 
         weights={'average_minimum': 1.0,
              'spike_frequency_adaptation': 0,
@@ -124,7 +113,7 @@ if __name__ == '__main__':
              'peak_linear_gradient':0}
 
 
-        #make an evaluator, using automatic target evaluation:
+        #make an evaluator
         my_evaluator=evaluators.IClampEvaluator(controller=swc,
                                                 analysis_start_time=0,
                                                 analysis_end_time=1000,
@@ -136,7 +125,7 @@ if __name__ == '__main__':
                                                 automatic=False)
 
         population_size =  20
-        max_evaluations =  300
+        max_evaluations =  60
         num_selected =     10
         num_offspring =    6
         mutation_rate =    0.5
@@ -158,7 +147,6 @@ if __name__ == '__main__':
         #run the optimizer
         best_candidate = my_optimizer.optimize(do_plot=False)
         
-        print(best_candidate)
         keys = sim_vars.keys()
         for i in range(len(best_candidate)):
             sim_vars[keys[i]] = best_candidate[i]
@@ -180,3 +168,5 @@ if __name__ == '__main__':
         
         print("Fittest analysis")
         pp.pprint(fit_anal)
+        
+        utils.plot_generation_evolution(sim_vars.keys())

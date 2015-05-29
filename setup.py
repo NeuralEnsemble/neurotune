@@ -4,11 +4,11 @@ from distutils.core import setup
 
 setup(
     name = "neurotune",
-    version = '0.1.1dev',
+    version = '0.2.0dev',
     packages = ['neurotune'],
     author = "Michael Vella",
     author_email = "mv333@cam.ac.uk",
-    description = "A Python library for working with NeuroML descriptions of neuronal models",
+    description = "A Python library for optimising neuronal models",
     license = "BSD",
     url='https://github.com/vellamike/neurotune',
     classifiers = [

@@ -23,18 +23,16 @@ if __name__ == '__main__':
 
     times, volts = swc.run_individual(sim_vars, False)
     
-    data_analysis = evaluators.PointBasedAnalysis(volts, times)
-
-
     weights={'value_200': 1.0,
              'value_400': 1.0,
              'value_812': 1.0}
              
-             
-    targets = {'value_200': -70,
-             'value_400': -47,
-             'value_812': 55}
+    
+    data_analysis = evaluators.PointBasedAnalysis(volts, times)
+    targets =  data_analysis.analyse(weights.keys())
+    
 
+    print("Target data: %s"%targets)
 
     #make an evaluator
     my_evaluator=evaluators.PointValueEvaluator(controller=swc,
@@ -43,7 +41,7 @@ if __name__ == '__main__':
                                             targets=targets)
 
     population_size =  20
-    max_evaluations =  200
+    max_evaluations =  300
     num_selected =     10
     num_offspring =    5
     mutation_rate =    0.5
@@ -63,7 +61,7 @@ if __name__ == '__main__':
                                              verbose=True)
 
     #run the optimizer
-    best_candidate = my_optimizer.optimize(do_plot=False, seed=123456)
+    best_candidate = my_optimizer.optimize(do_plot=False, seed=1234567)
 
     keys = sim_vars.keys()
     for i in range(len(best_candidate)):

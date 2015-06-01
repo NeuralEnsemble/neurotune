@@ -64,7 +64,7 @@ class CLIController(__Controller):
             #into something that can be executed on the shell
             chromosome_str = ''.join(str(e)+' ' for e in chromosome)
             cla = self.cli_argument+' '+fitness_filename+' '+chromosome_str
-            print cla
+            print(cla)
             subprocess.call(cla, shell=True)
 
 class NrnProject(__Controller):
@@ -112,8 +112,8 @@ class NrnProject(__Controller):
             cla=self.__generate_cla()
             os.chdir(self.nrnproject_path+'/src/') #there should be a smarter way
             os.system(cla)
-            print self.db_path
-            print exp_id            
+            print(self.db_path)
+            print(exp_id)
             exp_data=sqldbutils.sim_data(self.db_path,exp_id)
             exp_data_array.append(exp_data)
         return exp_data_array
@@ -312,18 +312,18 @@ class NrnProjectCondor(NrnProject):
         dbs_created=False
         pulled_dbs=[] # list of databases which have been extracted from remote server
         while (dbs_created==False):
-            print 'waiting..'
+            print('waiting..')
             time.sleep(20)            
-            print 'checking if dbs created:'
+            print('checking if dbs created:')
             command='ls'
             remote_filelist=ssh_utils.issue_command(self.messagehost, command)
             for jobdbname in self.jobdbnames:
                 db_exists=jobdbname+'\n' in remote_filelist
                 if (db_exists==False):
-                    print jobdbname,' has not been generated'
+                    print(jobdbname+' has not been generated')
                     dbs_created=False
                 elif db_exists==True and jobdbname not in pulled_dbs:
-                    print jobdbname,' has been generated'
+                    print(jobdbname+' has been generated')
                     remotefile=optimizer_params.remotedir+jobdbname
                     localpath=os.path.join(self.datadir,str(self.generation)+jobdbname)
                     ssh_utils.get_file(self.messagehost,remotefile,localpath)
@@ -350,8 +350,8 @@ class NrnProjectCondor(NrnProject):
             exp_fitness=exp_fitness.fetchall()
             exp_fitness=exp_fitness[0][0]
             
-            print 'fitness:'
-            print exp_fitness
+            print('Fitness:')
+            print(exp_fitness)
     
             fitness.append(exp_fitness)
 
@@ -380,11 +380,11 @@ class NrnProjectCondor(NrnProject):
         #wait till you know file exists:
         dbs_created=False
         while (dbs_created==False):
-            print 'checking if dbs created:'
+            print('checking if dbs created:')
             for job_num in range(self.num_jobs):
                 jobdbname='outputdb'+str(job_num)+'.sqlite'
                 jobdbpath=os.path.join(self.datadir,jobdbname)
-                print jobdbpath
+                print(jobdbpath)
                 db_exists=os.path.exists(jobdbpath)
                 
                 if (db_exists==False):
@@ -407,7 +407,7 @@ class NrnProjectCondor(NrnProject):
         for job_num in range(self.num_jobs):
             jobdbname='outputdb'+str(job_num)+'.sqlite'
             jobdbpath=os.path.join(self.datadir,jobdbname)
-            print jobdbpath
+            print(jobdbpath)
             os.remove(jobdbpath)
 
         return fitness

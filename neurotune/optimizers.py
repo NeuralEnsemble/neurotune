@@ -45,10 +45,9 @@ class __Optimizer(object):
 
     def print_report(self,final_pop,do_plot,stat_file_name):
         print(max(final_pop))
-        #Sort and print the fitest individual, which will be at index 0.
+        #Sort and print the fittest individual, which will be at index 0.
         final_pop.sort(reverse=True)
-        print '\nfitest individual:'
-        print(final_pop[0])
+        print('\n  Fittest individual:\n  %s'%final_pop[0])
 
         if do_plot:
             from inspyred.ec import analysis

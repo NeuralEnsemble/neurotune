@@ -460,6 +460,21 @@ class PointBasedAnalysis(object):
         self.v = numpy.array(v)
         self.t = numpy.array(t)
         
+        
+    def analyse(self, targets):
+        analysis_results = {}
+        
+        for target in targets:
+            target_time = float(target.split('_')[1])
+            i=0
+            while self.t[i] < target_time:
+                value = self.v[i]
+                i+=1
+            analysis_results[target] = value
+            
+        return analysis_results
+        
+        
     def evaluate_fitness(self,
                          target_dict={},
                          target_weights=None,
@@ -472,6 +487,8 @@ class PointBasedAnalysis(object):
         :param cost_function: cost function (callback) to assign individual targets sub-fitness.
 	"""
         fitness = 0
+        
+        analysed = self.analyse(target_dict)
 
         for target in target_dict.keys():
 
@@ -484,19 +501,14 @@ class PointBasedAnalysis(object):
                     target_weight = target_weights[target]
                 else:
                     target_weight = 1.0
+                    
             if target_weight > 0:
-                target_time = float(target.split('_')[1])
-                i=0
-                while self.t[i] < target_time:
-                    value = self.v[i]
-                    i+=1
                 
                 #let function pick Q automatically
-                
-                inc = target_weight*cost_function(value,target_value)
+                inc = target_weight * cost_function(analysed[target], target_value)
                 fitness += inc
 
-                print('Target %s (weight %f): target val: %s, actual: %s, fitness increment: %s'%(target, target_weight, target_value, value, inc))
+                print('Target %s (weight %f): target val: %s, actual: %s, fitness increment: %s'%(target, target_weight, target_value, analysed[target], inc))
 
         self.fitness=fitness
         return self.fitness
@@ -538,12 +550,10 @@ class PointValueEvaluator(__Evaluator):
             
             data_analysis = PointBasedAnalysis(samples,
                                              times)
-
                 
             fitness_value = data_analysis.evaluate_fitness(self.targets,
                                                            self.weights)
                                                            
-                                
             fitness.append(fitness_value)
 
             print('Fitness: %s\n'%fitness_value)

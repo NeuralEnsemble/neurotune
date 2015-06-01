@@ -1,0 +1,21 @@
+language: python
+
+python:
+  - "2.7"
+  #- "3.2"
+
+
+install:
+  # Install conda
+  - sudo pip install conda
+  # install deps
+  - sudo conda init
+  - deps='pip numpy scipy nose'
+  - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
+  - export PATH=$HOME/py/bin:$PATH
+  - python setup.py install
+
+# command to run tests
+script:  
+  - pwd
+

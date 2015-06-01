@@ -11,11 +11,8 @@ import neuron
 import numpy as np
 from neurotune import optimizers
 from neurotune import evaluators
-from neurotune import controllers
 from matplotlib import pyplot as plt
-from pyelectro import io
 from pyelectro import analysis
-import os
 
 class Simulation(object):
 
@@ -240,8 +237,8 @@ def main(targets,
              'pptd_error':1.0}
     
     data = './100pA_1.csv'
-    print 'data location'
-    print data
+    print('data location')
+    print(data)
     
     #make an evaluator, using automatic target evaluation:
     my_evaluator=evaluators.IClampEvaluator(controller=my_controller,
@@ -353,14 +350,17 @@ candidate2 = main(surrogate_targets,
                   num_offspring=10,
                   seeds=None)
 
-
+sim_var1={}
 for key,value in zip(parameters,candidate1):
-    sim_var[key]=value
-candidate1_t,candidate1_v = controller.run_individual(sim_var,show=False)
+    sim_var1[key]=value
+    
+candidate1_t,candidate1_v = controller.run_individual(sim_var1,show=False)
 
+sim_var2={}
 for key,value in zip(parameters,candidate2):
-    sim_var[key]=value
-candidate2_t,candidate2_v = controller.run_individual(sim_var,show=False)
+    sim_var2[key]=value
+    
+candidate2_t,candidate2_v = controller.run_individual(sim_var2,show=False)
 
 candidate1_analysis=analysis.IClampAnalysis(candidate1_v,
                                             candidate1_t,
@@ -382,20 +382,24 @@ candidate2_analysis = analysis.IClampAnalysis(candidate2_v,
 
 candidate2_analysis_results = candidate2_analysis.analyse()
 
-print 'Candidate 1 Analysis Results:'
-print candidate1_analysis_results
-print 'Candidate 1 values:'
-print candidate1
+print('----------------------------------------')
+print('Candidate 1 Analysis Results:')
+print(candidate1_analysis_results)
+print('Candidate 1 values:')
+print(candidate1)
 
-print 'Candidate 2 Analysis Results:'
-print candidate2_analysis_results
-print 'Candidate 2 values:'
-print candidate2
+print('----------------------------------------')
+print('Candidate 2 Analysis Results:')
+print(candidate2_analysis_results)
+print('Candidate 2 values:')
+print(candidate2)
 
-print 'Surrogate Targets:'
-print surrogate_targets
-print 'Surrogate values:'
-print sim_var
+print('----------------------------------------')
+print('Surrogate Targets:')
+print(surrogate_targets)
+print('Surrogate values:')
+print(sim_var)
+print('----------------------------------------')
 
 #plotting
 surrogate_plot, = plt.plot(np.array(surrogate_t),np.array(surrogate_v))

@@ -1,11 +1,12 @@
 
-from SineWaveController import SineWaveController
+
 from neurotune import evaluators
 from neurotune import optimizers
 from neurotune import utils
 import pprint
 from pyelectro import analysis
     
+from neurotune.controllers import SineWaveController
     
 if __name__ == '__main__':
 
@@ -13,10 +14,10 @@ if __name__ == '__main__':
                'period':  250,
                'offset':  -10}
                
-    min_constraints = [60,  150, -20]
-    max_constraints = [100, 300, 10]
+    min_constraints = [60,  150, -50]
+    max_constraints = [100, 300, 50]
     
-    swc = SineWaveController()
+    swc = SineWaveController(1000, 0.1)
         
 
     swc.run_individual(sim_vars, True, False)

@@ -7,7 +7,7 @@
 import matplotlib.pyplot as pylab
 import math
 
-def plot_generation_evolution(sim_var_names):
+def plot_generation_evolution(sim_var_names, target_values = {}):
 
     individuals_file_name = '../data/ga_individuals.csv'
 
@@ -69,6 +69,12 @@ def plot_generation_evolution(sim_var_names):
 
         pylab.subplot(nrows, ncols, i)
         pylab.title(sim_var_names[i])
+        if target_values is not None and target_values.has_key(sim_var_names[i]):
+            value = target_values[sim_var_names[i]]
+            x = [-1,generations_total+1]
+            y = [value,value]
+            pylab.plot(x,y,'--', color='grey')
+            
         pylab.scatter(generations_offset, vals[i], s=sizes[i], c=colours[i], alpha=0.4)
         if i==0:
             pylab.xlabel("Generation (%i individuals, offset slightly; larger circle => fitter)"%(population_total))
@@ -89,6 +95,17 @@ def plot_generation_evolution(sim_var_names):
 
 if __name__ == '__main__':
     
-    sim_var_names = ['amp','period','offset']
+    # example 3
+    target_values = {'amp':     65,
+                    'period':  250,
+                    'offset':  -10}
+                    
+    # example 2
+    target_values = {'axon_gbar_na': 3661.79,
+           'axon_gbar_kv': 23.23,
+           'axon_gbar_kv3': 0.26,
+           'soma_gbar_na': 79.91,
+           'soma_gbar_kv': 0.58,
+           'soma_gbar_kv3': 1.57}
     
-    plot_generation_evolution(sim_var_names)
+    plot_generation_evolution(target_values.keys(), target_values)

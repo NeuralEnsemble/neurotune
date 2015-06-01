@@ -70,4 +70,4 @@ if __name__ == '__main__':
     fit_times, fit_volts = swc.run_individual(sim_vars, True, False)
 
 
-    utils.plot_generation_evolution(sim_vars.keys())
+    utils.plot_generation_evolution(sim_vars.keys(), sim_vars)

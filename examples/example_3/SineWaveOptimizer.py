@@ -112,4 +112,4 @@ if __name__ == '__main__':
     print("Fittest analysis")
     pp.pprint(fit_anal)
 
-    utils.plot_generation_evolution(sim_vars.keys())
+    utils.plot_generation_evolution(sim_vars.keys(), sim_vars)

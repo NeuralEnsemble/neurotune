@@ -107,5 +107,16 @@ if __name__ == '__main__':
            'soma_gbar_na': 79.91,
            'soma_gbar_kv': 0.58,
            'soma_gbar_kv3': 1.57}
+           
+    parameters = ['leak_cond_density',
+                  'k_slow_cond_density',
+	              'k_fast_cond_density',
+                  'ca_boyle_cond_density', 
+                  'specific_capacitance',
+                  'leak_erev',
+                  'k_slow_erev',
+                  'k_fast_erev',
+                  'ca_boyle_erev']
     
-    plot_generation_evolution(target_values.keys(), target_values)
+    #plot_generation_evolution(target_values.keys(), target_values)
+    plot_generation_evolution(parameters)

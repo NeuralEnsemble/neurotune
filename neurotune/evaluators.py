@@ -571,7 +571,7 @@ class PointBasedAnalysis(object):
                 inc = target_weight * cost_function(analysed[target], target_value)
                 fitness += inc
 
-                print('Target %s (weight %f): target val: %s, actual: %s, fitness increment: %s'%(target, target_weight, target_value, analysed[target], inc))
+                print('Target %s (weight %s): target val: %s, actual: %s, fitness increment: %s'%(target, target_weight, target_value, analysed[target], inc))
 
         self.fitness=fitness
         return self.fitness

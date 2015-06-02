@@ -13,7 +13,7 @@ class SineWaveNetworkController():
         self.pop_num = pop_num
         
     
-    def run_individual(self, sim_var, gen_plot=False, show_plot=True):
+    def run_individual(self, sim_var, gen_plot=False, show_plot=True, prefix=''):
         """
         Run an individual simulation.
 
@@ -34,7 +34,8 @@ class SineWaveNetworkController():
         
         while t <= sim_time:
             for i in range(self.pop_num):
-                v = sim_var['offset'] + ( (sim_var['amp']+i*sim_var['amp_increment']) * (math.sin( 2*math.pi * t/(sim_var['period']+i*sim_var['period_increment']))))
+                period = max(sim_var['period']+i*sim_var['period_increment'], 1)
+                v = sim_var['offset'] + ( (sim_var['amp']+i*sim_var['amp_increment']) * (math.sin( 2*math.pi * t/period)))
              
                 volts['%s_%i'%(self.population_id, i)].append(v)
                 
@@ -47,18 +48,19 @@ class SineWaveNetworkController():
             for key in sim_var.keys():
                 info+="%s=%s "%(key, sim_var[key])
             
-            fig = plt.figure()
-            fig.canvas.set_window_title(info)
+            #fig = plt.figure()
+            #fig.canvas.set_window_title(info)
             
             for i in range(self.pop_num):
                 ref = '%s_%i'%(self.population_id, i)
-                plt.plot(times, volts[ref], label=ref)
+                plt.plot(times, volts[ref], label=prefix+ref)
+            
+            plt.legend()
             
             if show_plot:
-                plt.legend()
                 plt.show()
             
-        return np.array(times), np.array(volts)
+        return times, volts
         
     
     def run(self,candidates,parameters):
@@ -88,7 +90,7 @@ if __name__ == '__main__':
                'offset':  -10}
                
     
-    swc = SineWaveNetworkController('sines', 5)
+    swc = SineWaveNetworkController('wave', 5)
         
   
     times, volts = swc.run_individual(sim_vars, True, True)

@@ -1,10 +1,10 @@
 
 from SineWaveController import SineWaveController
 
+import sys
 from neurotune import evaluators
 from neurotune import optimizers
 from neurotune import utils
-import pprint
     
     
 if __name__ == '__main__':
@@ -66,8 +66,11 @@ if __name__ == '__main__':
     keys = sim_vars.keys()
     for i in range(len(best_candidate)):
         sim_vars[keys[i]] = best_candidate[i]
+        
+    showPlots = not (len(sys.argv) == 2 and sys.argv[1] == '-nogui')
+        
 
-    fit_times, fit_volts = swc.run_individual(sim_vars, True, False)
+    fit_times, fit_volts = swc.run_individual(sim_vars, showPlots, False)
 
-
-    utils.plot_generation_evolution(sim_vars.keys(), sim_vars)
+    if showPlots:
+        utils.plot_generation_evolution(sim_vars.keys(), sim_vars)

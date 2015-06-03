@@ -4,10 +4,11 @@
     
 '''
         
-import matplotlib.pyplot as pylab
 import math
 
 def plot_generation_evolution(sim_var_names, target_values = {}):
+    
+    import matplotlib.pyplot as pylab
 
     individuals_file_name = '../data/ga_individuals.csv'
 

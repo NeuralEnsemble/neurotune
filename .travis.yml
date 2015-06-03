@@ -20,5 +20,6 @@ install:
 script:  
   - pwd
   - cd examples/example_4
-  - ls -alt
+  - python SineWavePointOptimizer.py -nogui
+  
 

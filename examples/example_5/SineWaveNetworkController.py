@@ -1,7 +1,6 @@
 
 import math
 
-from matplotlib import pyplot as plt
 import numpy as np
 
 
@@ -44,6 +43,7 @@ class SineWaveNetworkController():
             
         if gen_plot:
             
+            from matplotlib import pyplot as plt
             info = "Variables: "
             for key in sim_var.keys():
                 info+="%s=%s "%(key, sim_var[key])

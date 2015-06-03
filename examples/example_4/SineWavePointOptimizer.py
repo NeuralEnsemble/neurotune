@@ -1,5 +1,5 @@
 
-from SineWaveController import SineWaveController
+from neurotune.controllers import SineWaveController
 
 import sys
 from neurotune import evaluators
@@ -16,7 +16,7 @@ if __name__ == '__main__':
     min_constraints = [60,  150, -20]
     max_constraints = [100, 300, 20]
     
-    swc = SineWaveController()
+    swc = SineWaveController(1000, 0.1)
         
 
     swc.run_individual(sim_vars, True, False)

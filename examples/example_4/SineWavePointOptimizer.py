@@ -5,32 +5,32 @@ import sys
 from neurotune import evaluators
 from neurotune import optimizers
 from neurotune import utils
-    
-    
+
+
 if __name__ == '__main__':
+
+    showPlots = not (len(sys.argv) == 2 and sys.argv[1] == '-nogui')
 
     sim_vars = {'amp':     65,
                'period':  250,
                'offset':  -10}
-               
+
     min_constraints = [60,  150, -20]
     max_constraints = [100, 300, 20]
-    
+
     swc = SineWaveController(1000, 0.1)
-        
 
-    swc.run_individual(sim_vars, True, False)
 
-    times, volts = swc.run_individual(sim_vars, False)
-    
+    times, volts = swc.run_individual(sim_vars, showPlots, False)
+
     weights={'value_200': 1.0,
              'value_400': 1.0,
              'value_812': 1.0}
-             
-    
+
+
     data_analysis = evaluators.PointBasedAnalysis(volts, times)
     targets =  data_analysis.analyse(weights.keys())
-    
+
 
     print("Target data: %s"%targets)
 
@@ -65,10 +65,7 @@ if __name__ == '__main__':
 
     keys = sim_vars.keys()
     for i in range(len(best_candidate)):
-        sim_vars[keys[i]] = best_candidate[i]
-        
-    showPlots = not (len(sys.argv) == 2 and sys.argv[1] == '-nogui')
-        
+        sim_vars[keys[i]] = best_candidate[i]        
 
     fit_times, fit_volts = swc.run_individual(sim_vars, showPlots, False)
 

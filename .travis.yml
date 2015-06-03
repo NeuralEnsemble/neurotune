@@ -14,8 +14,11 @@ install:
   - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
   - export PATH=$HOME/py/bin:$PATH
   - python setup.py install
+  - pip install git+https://github.com/pgleeson/pyelectro.git
 
 # command to run tests
 script:  
   - pwd
+  - cd examples/example_4
+  - ls -alt
 

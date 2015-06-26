@@ -356,7 +356,7 @@ class IClampEvaluator(__Evaluator):
             
         return fitness
     
-    
+
     def evaluate_fitness(self,
                          data_analysis,
                          target_dict={},
@@ -369,7 +369,7 @@ class IClampEvaluator(__Evaluator):
             :param target_weights: key-value pairs for target weights
             :param cost_function: cost function (callback) to assign individual targets sub-fitness.
         """
-
+    
         #calculate max fitness value (TODO: there may be a more pythonic way to do this..)
         worst_cumulative_fitness=0
         for target in target_dict.keys():
@@ -380,7 +380,7 @@ class IClampEvaluator(__Evaluator):
                     target_weight = target_weights[target]
                 else:
                     target_weight = 1.0
-
+    
             worst_cumulative_fitness += target_weight
 
         #if we have 1 or 0 peaks we won't conduct any analysis
@@ -468,7 +468,7 @@ class NetworkEvaluator(__Evaluator):
             fitness_value = self.evaluate_fitness(data_analysis,
                                               self.targets,
                                               self.weights,
-                                              cost_function=analysis.normalised_cost_function)
+                                              cost_function=normalised_cost_function)
             fitness.append(fitness_value)
 
             print('Fitness: %s\n'%fitness_value)
@@ -704,44 +704,6 @@ class PointBasedAnalysis(object):
             
         return analysis_results
         
-        
-    def evaluate_fitness(self,
-                         target_dict={},
-                         target_weights=None,
-                         cost_function=analysis.normalised_cost_function):
-	"""
-	Return the estimated fitness of the data, based on the cost function being used.
-    
-	    :param target_dict: key-value pairs for targets
-        :param target_weights: key-value pairs for target weights
-        :param cost_function: cost function (callback) to assign individual targets sub-fitness.
-	"""
-        fitness = 0
-        
-        analysed = self.analyse(target_dict)
-
-        for target in target_dict.keys():
-
-            target_value=target_dict[target]
-
-            if target_weights == None: 
-                target_weight = 1
-            else:
-                if target in target_weights.keys():
-                    target_weight = target_weights[target]
-                else:
-                    target_weight = 1.0
-                    
-            if target_weight > 0:
-                
-                #let function pick Q automatically
-                inc = target_weight * cost_function(analysed[target], target_value)
-                fitness += inc
-
-                print('Target %s (weight %s): target val: %s, actual: %s, fitness increment: %s'%(target, target_weight, target_value, analysed[target], inc))
-
-        self.fitness=fitness
-        return self.fitness
 
 class PointValueEvaluator(__Evaluator):
     """
@@ -779,14 +741,55 @@ class PointValueEvaluator(__Evaluator):
 
             
             data_analysis = PointBasedAnalysis(samples,
-                                             times)
+                                               times)
                 
-            fitness_value = data_analysis.evaluate_fitness(self.targets,
-                                                           self.weights)
+            fitness_value = self.evaluate_fitness(data_analysis,
+                                                  self.targets,
+                                                  self.weights)
                                                            
             fitness.append(fitness_value)
 
             print('Fitness: %s\n'%fitness_value)
             
+        return fitness
+    
+        
+    def evaluate_fitness(self,
+                         data_analysis,
+                         target_dict={},
+                         target_weights=None,
+                         cost_function=normalised_cost_function):
+	"""
+	Return the estimated fitness of the data, based on the cost function being used.
+    
+        :param data_analysis: PointBasedAnalysis instance
+	    :param target_dict: key-value pairs for targets
+        :param target_weights: key-value pairs for target weights
+        :param cost_function: cost function (callback) to assign individual targets sub-fitness.
+	"""
+        fitness = 0
+        
+        analysed = data_analysis.analyse(target_dict)
+
+        for target in target_dict.keys():
+
+            target_value=target_dict[target]
+
+            if target_weights == None: 
+                target_weight = 1
+            else:
+                if target in target_weights.keys():
+                    target_weight = target_weights[target]
+                else:
+                    target_weight = 1.0
+                    
+            if target_weight > 0:
+                
+                #let function pick Q automatically
+                inc = target_weight * cost_function(analysed[target], target_value)
+                fitness += inc
+
+                print('Target %s (weight %s): target val: %s, actual: %s, fitness increment: %s'%(target, target_weight, target_value, analysed[target], inc))
+
         return fitness
     

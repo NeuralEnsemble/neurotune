@@ -144,4 +144,5 @@ class CustomOptimizerA(__Optimizer):
         self.print_report(final_pop,do_plot,stat_file_name)
 
         #return the parameter set for the best individual
-        return final_pop[0].candidate
+
+        return final_pop[0].candidate, final_pop[0].fitness

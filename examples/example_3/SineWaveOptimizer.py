@@ -75,7 +75,7 @@ if __name__ == '__main__':
     num_elites =       1
 
     #make an optimizer
-    my_optimizer=optimizers.CustomOptimizerA(max_constraints,
+    my_optimizer = optimizers.CustomOptimizerA(max_constraints,
                                              min_constraints,
                                              my_evaluator,
                                              population_size=population_size,
@@ -88,7 +88,7 @@ if __name__ == '__main__':
                                              verbose=True)
 
     #run the optimizer
-    best_candidate = my_optimizer.optimize(do_plot=False, seed=123456)
+    best_candidate, fitness = my_optimizer.optimize(do_plot=False, seed=123456)
 
     keys = sim_vars.keys()
     for i in range(len(best_candidate)):

@@ -61,7 +61,8 @@ if __name__ == '__main__':
                                              verbose=True)
 
     #run the optimizer
-    best_candidate = my_optimizer.optimize(do_plot=False, seed=1234567)
+    best_candidate, fitness = my_optimizer.optimize(do_plot=False, seed=1234567)
+
 
     keys = sim_vars.keys()
     for i in range(len(best_candidate)):

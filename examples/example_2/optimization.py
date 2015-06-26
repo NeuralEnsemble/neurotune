@@ -265,7 +265,7 @@ def main(targets,
                                              verbose=True)
 
     #run the optimizer
-    best_candidate = my_optimizer.optimize(do_plot=False)
+    best_candidate, fitness = my_optimizer.optimize(do_plot=False)
 
     return best_candidate
 

@@ -1,8 +1,8 @@
 #Neurotune
 
-This package provides neurotune, a package for optimizing electical models of excitable cells.
+This package provides Neurotune, a package for optimizing electical models of excitable cells.
 
-**This is a fork by Padraig Gleeson and others to continue development of Neurotune for use in OpenWorm and other projects**
+**This package was originally developed by [Mike Vella](https://github.com/vellamike). This is a fork by [Padraig Gleeson](https://github.com/pgleeson) and others to continue development of [pyelectro](https://github.com/pgleeson/pyelectro) and [Neurotune](https://github.com/pgleeson/neurotune) for use in [OpenWorm](http://www.openworm.org/) and other projects**
 
 [![Build Status](https://travis-ci.org/pgleeson/neurotune.svg?branch=master)](https://travis-ci.org/pgleeson/neurotune)
 
@@ -10,13 +10,13 @@ Full documentation can be found [here](http://optimal-neuron.readthedocs.org/en/
 
 ## Installation
 
-### Dependencies
-The following (python libraries) can be installed using pip or easy_install:
+The following (Python libraries) can be installed using pip, easy_install, or ideally using [Anaconda](http://continuum.io/downloads):
 
-Hard dependencies:
-  1. numpy
-  2. inspyred
-  3. SciPy
+**Hard dependencies**
+
+- numpy
+- inspyred
+- SciPy
   
 The package pyelectro is also required **(if using the pgleeson branch of neurotune, use pgleeson/pyelectro too)**:
 
@@ -25,14 +25,16 @@ The package pyelectro is also required **(if using the pgleeson branch of neurot
     sudo python setup.py install
 
 
-Soft dependencies:
-  1. neuronpy       **(Note: it's best to [install neuron from source](http://www.neuron.yale.edu/neuron/download/compile_linux) 
+**Soft dependencies**
+
+- neuronpy       **(Note: it's best to [install neuron from source](http://www.neuron.yale.edu/neuron/download/compile_linux) 
 & [install for Python](http://www.neuron.yale.edu/neuron/static/new_doc/programming/python.html))**
 
-### Using distutils
 
-Install with the following command:
+Install Neurotune with the following command:
 
 ```
 sudo python setup.py -install
 ```
+
+Note: the [Travic CI script](https://github.com/pgleeson/neurotune/blob/master/.travis.yml) shows the full set of commands for installation & execution of a simple example.

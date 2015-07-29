@@ -89,18 +89,21 @@ class CustomOptimizerA(__Optimizer):
         else:
             self.num_offspring=num_offspring
 
-    def optimize(self,do_plot=True,seed=int(time())):
+    def optimize(self,do_plot=True,seed=int(time()), summary_dir=None):
 
         rand = Random()
         rand.seed(seed)
 
-        cwd=os.getcwd()
-        datadir=os.path.dirname(cwd)+'/data/'
-        if not os.path.exists(datadir):
-            os.mkdir(datadir)
+        if summary_dir is None:
+            cwd=os.getcwd()
+            summary_dir=os.path.dirname(cwd)+'/data/'
+        
+        if not os.path.exists(summary_dir):
+            os.mkdir(summary_dir)
 
-        stat_file_name=datadir+'/ga_statistics.csv'
-        ind_file_name=datadir+'/ga_individuals.csv'
+        stat_file_name=summary_dir+'/ga_statistics.csv'
+        ind_file_name=summary_dir+'/ga_individuals.csv'
+        
         stat_file = open(stat_file_name, 'w')
         ind_file = open(ind_file_name, 'w')
         print("Created files: %s and %s"%(stat_file_name, ind_file_name))

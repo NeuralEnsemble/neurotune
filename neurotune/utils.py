@@ -6,11 +6,9 @@
         
 import math
 
-def plot_generation_evolution(sim_var_names, target_values = {}):
+def plot_generation_evolution(sim_var_names, target_values = {}, individuals_file_name = '../data/ga_individuals.csv'):
     
     import matplotlib.pyplot as pylab
-
-    individuals_file_name = '../data/ga_individuals.csv'
 
     individuals_file = open(individuals_file_name)
 

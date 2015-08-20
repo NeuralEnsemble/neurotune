@@ -4,6 +4,9 @@ from threading import Thread
 from pyelectro import analysis
 import numpy
 
+import pprint
+pp = pprint.PrettyPrinter(indent=4)
+
 def alpha_normalised_cost_function(value,target,base=10):
     """Fitness of a value-target pair from 0 to 1 
 
@@ -320,7 +323,7 @@ class IClampEvaluator(__Evaluator):
         
     def evaluate(self,candidates,args):
         
-        print("\n>>>>>  Evaluating: %s"%candidates)
+        print("\n>>>>>  Evaluating: \n%s"%pp.pformat(candidates))
         
         simulations_data = self.controller.run(candidates,
                                                self.parameters)
@@ -443,7 +446,7 @@ class NetworkEvaluator(__Evaluator):
         
     def evaluate(self,candidates,args):
         
-        print("\n>>>>>  Evaluating: %s"%candidates)
+        print("\n>>>>>  Evaluating: \n%s"%pp.pformat(candidates))
         
         simulations_data = self.controller.run(candidates,
                                                self.parameters)
@@ -727,7 +730,7 @@ class PointValueEvaluator(__Evaluator):
         
     def evaluate(self,candidates,args):
         
-        print("\n>>>>>  Evaluating: %s"%candidates)
+        print("\n>>>>>  Evaluating: \n%s"%pp.pformat(candidates))
         
         simulations_data = self.controller.run(candidates,
                                                self.parameters)

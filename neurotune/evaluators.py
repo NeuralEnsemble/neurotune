@@ -513,7 +513,7 @@ class NetworkEvaluator(__Evaluator):
                     #let function pick Q automatically
                     inc = target_weight*cost_function(value,target_value)
                 else:
-                    value = '<<cannot be calculated!>>'
+                    value = '<<cannot be calculated! (only: %s)>>'%data_analysis.analysis_results.keys()
                 
                 fitness += inc
 

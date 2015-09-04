@@ -64,7 +64,10 @@ def normalised_cost_function(value,target,Q=None):
     target = float(target)
 
     if Q==None:
-        Q=7/(300*(target**2))
+        if target != 0:
+            Q=7/(300*(target**2))
+        else:
+            Q=0.023333 # PG: Gives fitness = 0.023333 when value = 1; fitness = 0.7 when value = 10
 
     fitness=1-1/(Q*(target-value)**2+1)
 

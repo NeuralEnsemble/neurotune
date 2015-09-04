@@ -326,7 +326,8 @@ class IClampEvaluator(__Evaluator):
         
     def evaluate(self,candidates,args):
         
-        print("\n>>>>>  Evaluating: \n%s"%pp.pformat(candidates))
+        print("\n>>>>>  Evaluating: ")
+        for cand in candidates: print("\n>>>>>       %s"%cand)
         
         simulations_data = self.controller.run(candidates,
                                                self.parameters)

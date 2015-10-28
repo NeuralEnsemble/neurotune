@@ -3,6 +3,7 @@ import sys
 from threading import Thread
 from pyelectro import analysis
 import numpy
+import math
 
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
@@ -515,8 +516,12 @@ class NetworkEvaluator(__Evaluator):
                 inc = target_weight # default...
                 if data_analysis.analysis_results.has_key(target):
                     value = data_analysis.analysis_results[target]
-                    #let function pick Q automatically
-                    inc = target_weight*cost_function(value,target_value)
+                    if not math.isnan(value):
+                        #let function pick Q automatically
+                        inc = target_weight*cost_function(value,target_value)
+                    else:
+                        value = '<<infinite value!>>'
+                        inc = target_weight
                 else:
                     value = '<<cannot be calculated! (only: %s)>>'%data_analysis.analysis_results.keys()
                 

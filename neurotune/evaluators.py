@@ -3,6 +3,76 @@ import sys
 from threading import Thread
 from pyelectro import analysis
 import numpy
+import math
+
+import pprint
+pp = pprint.PrettyPrinter(indent=4)
+
+def alpha_normalised_cost_function(value,target,base=10):
+    """Fitness of a value-target pair from 0 to 1 
+
+    .. WARNING:
+        I've found that this cost function is producing some odd behaviour.
+        It is best avoided until this is investigated
+
+    For any value/target pair will give a normalised value for
+    agreement 1 is complete value-target match and 0 is 0 match.
+    A mirrored exponential function is used.
+    The fitness is given by the expression :math:`fitness = base^{-x}`
+
+    where:
+
+    .. math::
+          x = {\dfrac{(value-target)}{(target + 0.01)^2}}
+
+    :param value: value measured
+    :param t: target
+    :param base: the value 'base' in the above mathematical expression for x
+
+    :return: fitness - a real number from 0 to 1
+
+    """
+
+    value = float(value)
+    target = float(target)
+
+    x=((value-target)/(target+0.01))**2 #the 0.01 thing is a bit of a hack at the moment.
+    fitness=base**(-x)
+    return fitness    
+
+def normalised_cost_function(value,target,Q=None):
+    """ Returns fitness of a value-target pair from 0 to 1 
+
+    For any value/target pair will give a normalised value for
+    agreement 0 is complete value-target match and 1 is "no" match.
+
+    If no Q is assigned, it is set such that it satisfies the condition
+    fitness=0.7 when (target-valu)e=10*target. This is essentially 
+    empirical and seems to work. Mathematical derivation is on Mike Vella's 
+    Lab Book 1 p.42 (page dated 15/12/11).
+
+    :param value: value measured
+    :param t: target
+    :param Q: This is the sharpness of the cost function, higher values correspond
+        to a sharper cost function. A high Q-Value may lead an optimizer to a solution
+        quickly once it nears the solution.
+
+    :return: fitness value from 0 to 1
+
+    """
+
+    value = float(value)
+    target = float(target)
+
+    if Q==None:
+        if target != 0:
+            Q=7/(300*(target**2))
+        else:
+            Q=0.023333 # PG: Gives fitness = 0.023333 when value = 1; fitness = 0.7 when value = 10
+
+    fitness=1-1/(Q*(target-value)**2+1)
+
+    return fitness   
 
 class __CandidateData(object):
     """Container for information about a candidate (chromosome)"""
@@ -30,7 +100,9 @@ class __Evaluator(object):
         self.targets=targets
         self.controller=controller
             
-
+'''
+    PG: Disabling these until they're tested again...
+    
 class __CondorContext(object):
     """manager for dealing with a condor-based grid"""
         
@@ -142,7 +214,7 @@ class __CondorContext(object):
             localpath=os.path.join(localdir,file)
             remotepath=os.path.join(remotedir,file)
             ssh_utils.put_file(host,localpath,remotepath)
-
+'''
 
 class DumbEvaluator(__Evaluator):
     """
@@ -232,8 +304,7 @@ class IClampEvaluator(__Evaluator):
         self.target_data_path=target_data_path
         self.analysis_var=analysis_var
 
-        print 'target data path in evaluator:'
-        print target_data_path
+        print('target data path in evaluator:'+target_data_path)
         
         if automatic == True:
             t , v_raw = analysis.load_csv_data(target_data_path)
@@ -241,20 +312,23 @@ class IClampEvaluator(__Evaluator):
 
             v_smooth = list(analysis.smooth(v))
 
-            analysis = analysis.IClampAnalysis(v_smooth,
+            ic_analysis = analysis.IClampAnalysis(v_smooth,
                                                     t,
                                                     analysis_var,
                                                     start_analysis=analysis_start_time,
                                                     end_analysis=analysis_end_time) 
 
-            analysis.analyse()
+            ic_analysis.analyse()
 
-            self.targets = analysis.analysis_results
+            self.targets = ic_analysis.analysis_results
 
             print('Obtained targets are:')
             print(self.targets)
         
     def evaluate(self,candidates,args):
+        
+        print("\n>>>>>  Evaluating: ")
+        for cand in candidates: print(">>>>>       %s"%cand)
         
         simulations_data = self.controller.run(candidates,
                                                self.parameters)
@@ -262,8 +336,6 @@ class IClampEvaluator(__Evaluator):
         fitness = []
         
         for data in simulations_data:
-    
-            print 'setting up analysis'
 
             times = data[0]
             samples = data[1]
@@ -281,16 +353,186 @@ class IClampEvaluator(__Evaluator):
             except:
                 data_analysis.analysable_data = False
                 
-            fitness_value = data_analysis.evaluate_fitness(self.targets,
-                                                           self.weights,
-                                                           cost_function=analysis.normalised_cost_function)
+                
+            fitness_value = self.evaluate_fitness(data_analysis,
+                                             self.targets,
+                                             self.weights,
+                                             cost_function=analysis.normalised_cost_function)
             fitness.append(fitness_value)
 
-            print 'Fitness:'
-            print fitness_value
+            print('Fitness: %s\n'%fitness_value)
             
         return fitness
+    
 
+    def evaluate_fitness(self,
+                         data_analysis,
+                         target_dict={},
+                         target_weights=None,
+                         cost_function=normalised_cost_function):
+        """
+        Return the estimated fitness of the data, based on the cost function being used.
+            :param data_analysis: IClampAnalysis instance
+            :param target_dict: key-value pairs for targets
+            :param target_weights: key-value pairs for target weights
+            :param cost_function: cost function (callback) to assign individual targets sub-fitness.
+        """
+    
+        #calculate max fitness value (TODO: there may be a more pythonic way to do this..)
+        worst_cumulative_fitness=0
+        for target in target_dict.keys():
+            if target_weights == None: 
+                target_weight = 1
+            else:
+                if target in target_weights.keys():
+                    target_weight = target_weights[target]
+                else:
+                    target_weight = 1.0
+    
+            worst_cumulative_fitness += target_weight
+
+        #if we have 1 or 0 peaks we won't conduct any analysis
+        if data_analysis.analysable_data == False:
+            print('Data is non-analysable')
+            return worst_cumulative_fitness
+
+        else:
+            fitness = 0
+
+            for target in target_dict.keys():
+
+                target_value=target_dict[target]
+
+                if target_weights == None: 
+                    target_weight = 1
+                else:
+                    if target in target_weights.keys():
+                        target_weight = target_weights[target]
+                    else:
+                        target_weight = 1.0
+                if target_weight > 0:
+                    value = data_analysis.analysis_results[target]
+                    #let function pick Q automatically
+                    inc = target_weight*cost_function(value,target_value)
+                    fitness += inc
+
+                    print('Target %s (weight %s): target val: %s, actual: %s, fitness increment: %s'%(target, target_weight, target_value, value, inc))
+
+            return fitness
+    
+    
+class NetworkEvaluator(__Evaluator):
+    """
+    Locally-evaluates (not using cluster or grid computing) a model.
+    
+    The evaluate routine runs the model and returns its fitness value
+      
+    """
+    def __init__(self,
+                 analysis_start_time,
+                 controller,
+                 analysis_end_time,
+                 parameters,
+                 analysis_var,
+                 weights,
+                 targets=None):
+
+        super(NetworkEvaluator, self).__init__(parameters,
+                                              weights,
+                                              targets,
+                                              controller)
+      
+        self.analysis_start_time=analysis_start_time
+        self.analysis_end_time=analysis_end_time
+        self.analysis_var=analysis_var
+        self.targets=targets
+
+        
+        
+    def evaluate(self,candidates,args):
+        
+        print("\n>>>>>  Evaluating: ")
+        for cand in candidates: print(">>>>>       %s"%cand)
+        
+        simulations_data = self.controller.run(candidates,
+                                               self.parameters)
+
+        fitness = []
+        
+        for data in simulations_data:
+
+            times = data[0]
+            volts = data[1]
+
+            data_analysis=analysis.NetworkAnalysis(volts,
+                                                  times,
+                                                  self.analysis_var,
+                                                  start_analysis=self.analysis_start_time,
+                                                  end_analysis=self.analysis_end_time)
+
+            
+   
+            data_analysis.analyse(self.targets)
+                
+            fitness_value = self.evaluate_fitness(data_analysis,
+                                              self.targets,
+                                              self.weights,
+                                              cost_function=normalised_cost_function)
+            fitness.append(fitness_value)
+
+            print('Fitness: %s\n'%fitness_value)
+            
+        return fitness
+    
+        
+    def evaluate_fitness(self,
+                         data_analysis,
+                         target_dict={},
+                         target_weights=None,
+                         cost_function=normalised_cost_function):
+        """
+        Return the estimated fitness of the data, based on the cost function being used.
+            :param data_analysis: NetworkAnalysis instance
+            :param target_dict: key-value pairs for targets
+            :param target_weights: key-value pairs for target weights
+            :param cost_function: cost function (callback) to assign individual targets sub-fitness.
+        """
+
+        fitness = 0
+
+        for target in target_dict.keys():
+
+            target_value=target_dict[target]
+
+            if target_weights == None: 
+                target_weight = 1
+            else:
+                if target in target_weights.keys():
+                    target_weight = target_weights[target]
+                else:
+                    target_weight = 0  # If it's not mentioned assunme weight = 0!
+                    
+            if target_weight > 0:
+                inc = target_weight # default...
+                if data_analysis.analysis_results.has_key(target):
+                    value = data_analysis.analysis_results[target]
+                    if not math.isnan(value):
+                        #let function pick Q automatically
+                        inc = target_weight*cost_function(value,target_value)
+                    else:
+                        value = '<<infinite value!>>'
+                        inc = target_weight
+                else:
+                    value = '<<cannot be calculated! (only: %s)>>'%data_analysis.analysis_results.keys()
+                
+                fitness += inc
+
+                print('Target %s (weight %s): target val: %s, actual: %s, fitness increment: %s'%(target, target_weight, target_value, value, inc))
+
+        return fitness
+    
+    
+'''
 class IClampCondorEvaluator(IClampEvaluator):
     """
     Evaluate simulations and return their fitness on a condor grid.
@@ -355,9 +597,9 @@ class IClampCondorEvaluator(IClampEvaluator):
         dbs_created=False
         pulled_dbs=[] # list of databases which have been extracted from remote server
         while (dbs_created==False):
-            print 'waiting..'
+            print('waiting..')
             time.sleep(20)            
-            print 'checking if dbs created:'
+            print('checking if dbs created:')
             command='ls'
             remote_filelist=ssh_utils.issue_command(messagehost, command)
 
@@ -366,11 +608,11 @@ class IClampCondorEvaluator(IClampEvaluator):
                 db_exists=jobdbname+'\n' in remote_filelist
                 
                 if (db_exists==False):
-                    print jobdbname,' has not been generated'
+                    print(jobdbname +' has not been generated')
                     dbs_created=False
 
                 elif db_exists==True and jobdbname not in pulled_dbs:
-                    print jobdbname,' has been generated'
+                    print(jobdbname +' has been generated')
                     remotefile=optimizer_params.remotedir+jobdbname
                     localpath=os.path.join(self.datadir,str(self.generation)+jobdbname)
                     ssh_utils.get_file(messagehost,remotefile,localpath)
@@ -397,8 +639,7 @@ class IClampCondorEvaluator(IClampEvaluator):
             exp_fitness=exp_fitness.fetchall()
             exp_fitness=exp_fitness[0][0]
             
-            print 'fitness:'
-            print exp_fitness
+            #print('fitness: %s'%exp_fitness)
     
             fitness.append(exp_fitness)
 
@@ -422,11 +663,11 @@ class IClampCondorEvaluator(IClampEvaluator):
         #wait till you know file exists:
         dbs_created=False
         while (dbs_created==False):
-            print 'checking if dbs created:'
+            print('checking if dbs created:')
             for job_num in range(self.num_jobs):
                 jobdbname='outputdb'+str(job_num)+'.sqlite'
                 jobdbpath=os.path.join(self.datadir,jobdbname)
-                print jobdbpath
+                print(jobdbpath)
                 db_exists=os.path.exists(jobdbpath)
                 
                 if (db_exists==False):
@@ -449,7 +690,120 @@ class IClampCondorEvaluator(IClampEvaluator):
         for job_num in range(self.num_jobs):
             jobdbname='outputdb'+str(job_num)+'.sqlite'
             jobdbpath=os.path.join(self.datadir,jobdbname)
-            print jobdbpath
+            print(jobdbpath)
             os.remove(jobdbpath)
 
         return fitness
+ '''
+ 
+class PointBasedAnalysis(object):
+
+    def __init__(self, v, t):
+
+        self.v = numpy.array(v)
+        self.t = numpy.array(t)
+        
+        
+    def analyse(self, targets):
+        analysis_results = {}
+        
+        for target in targets:
+            target_time = float(target.split('_')[1])
+            i=0
+            while self.t[i] < target_time:
+                value = self.v[i]
+                i+=1
+            analysis_results[target] = value
+            
+        return analysis_results
+        
+
+class PointValueEvaluator(__Evaluator):
+    """
+    Locally-evaluates (not using cluster or grid computing) a model.
+    
+    The evaluate routine runs the model and returns its fitness value
+      
+    """
+    def __init__(self,
+                 controller,
+                 parameters,
+                 weights,
+                 targets=None):
+
+        super(PointValueEvaluator, self).__init__(parameters,
+                                              weights,
+                                              targets,
+                                              controller)
+      
+
+        
+    def evaluate(self,candidates,args):
+        
+        print("\n>>>>>  Evaluating: ")
+        for cand in candidates: print(">>>>>       %s"%cand)
+        
+        simulations_data = self.controller.run(candidates,
+                                               self.parameters)
+
+        fitness = []
+        
+        for data in simulations_data:
+
+            times = data[0]
+            samples = data[1]
+
+            
+            data_analysis = PointBasedAnalysis(samples,
+                                               times)
+                
+            fitness_value = self.evaluate_fitness(data_analysis,
+                                                  self.targets,
+                                                  self.weights)
+                                                           
+            fitness.append(fitness_value)
+
+            print('Fitness: %s\n'%fitness_value)
+            
+        return fitness
+    
+        
+    def evaluate_fitness(self,
+                         data_analysis,
+                         target_dict={},
+                         target_weights=None,
+                         cost_function=normalised_cost_function):
+	"""
+	Return the estimated fitness of the data, based on the cost function being used.
+    
+        :param data_analysis: PointBasedAnalysis instance
+	    :param target_dict: key-value pairs for targets
+        :param target_weights: key-value pairs for target weights
+        :param cost_function: cost function (callback) to assign individual targets sub-fitness.
+	"""
+        fitness = 0
+        
+        analysed = data_analysis.analyse(target_dict)
+
+        for target in target_dict.keys():
+
+            target_value=target_dict[target]
+
+            if target_weights == None: 
+                target_weight = 1
+            else:
+                if target in target_weights.keys():
+                    target_weight = target_weights[target]
+                else:
+                    target_weight = 1.0
+                    
+            if target_weight > 0:
+                
+                #let function pick Q automatically
+                inc = target_weight * cost_function(analysed[target], target_value)
+                fitness += inc
+
+                print('Target %s (weight %s): target val: %s, actual: %s, fitness increment: %s'%(target, target_weight, target_value, analysed[target], inc))
+
+        return fitness
+    

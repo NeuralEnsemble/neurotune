@@ -12,6 +12,7 @@ from inspyred.ec import replacers
 from inspyred.ec import variators
 from random import Random
 from time import time
+import logging
 
 
 class __Optimizer(object):
@@ -44,10 +45,9 @@ class __Optimizer(object):
 
     def print_report(self,final_pop,do_plot,stat_file_name):
         print(max(final_pop))
-        #Sort and print the fitest individual, which will be at index 0.
+        #Sort and print the fittest individual, which will be at index 0.
         final_pop.sort(reverse=True)
-        print '\nfitest individual:'
-        print(final_pop[0])
+        print('\n  Fittest individual:\n  %s'%final_pop[0])
 
         if do_plot:
             from inspyred.ec import analysis
@@ -67,7 +67,8 @@ class CustomOptimizerA(__Optimizer):
                  num_elites=1,
                  maximize=False,
                  num_offspring=None,
-                 seeds=[]):
+                 seeds=[],
+                 verbose=False):
 
         super(CustomOptimizerA, self).__init__(max_constraints,min_constraints,
                                                  evaluator,mutation_rate,
@@ -77,6 +78,7 @@ class CustomOptimizerA(__Optimizer):
         self.tourn_size=tourn_size
         self.num_elites=num_elites
         self.mutation_rate=mutation_rate
+        self.verbose = verbose
 
         if num_selected==None:
             self.num_selected=population_size
@@ -87,20 +89,34 @@ class CustomOptimizerA(__Optimizer):
         else:
             self.num_offspring=num_offspring
 
-    def optimize(self,do_plot=True):
+    def optimize(self,do_plot=True,seed=int(time()), summary_dir=None):
 
         rand = Random()
-        rand.seed(int(time()))
+        rand.seed(seed)
 
-        cwd=os.getcwd()
-        datadir=os.path.dirname(cwd)+'/data/'
-        if not os.path.exists(datadir):
-            os.mkdir(datadir)
+        if summary_dir is None:
+            cwd=os.getcwd()
+            summary_dir=os.path.dirname(cwd)+'/data/'
+        
+        if not os.path.exists(summary_dir):
+            os.mkdir(summary_dir)
 
-        stat_file_name=datadir+'/ga_statistics.csv'
-        ind_file_name=datadir+'/ga_individuals.csv'
+        stat_file_name=summary_dir+'/ga_statistics.csv'
+        ind_file_name=summary_dir+'/ga_individuals.csv'
+        
         stat_file = open(stat_file_name, 'w')
         ind_file = open(ind_file_name, 'w')
+        print("Created files: %s and %s"%(stat_file_name, ind_file_name))
+        
+        if self.verbose:
+            logger = logging.getLogger('inspyred.ec')
+            logger.setLevel(logging.DEBUG)
+
+            ch = logging.StreamHandler()
+            # ch.setLevel(logging.DEBUG)
+            formatter = logging.Formatter('>>> EC: - %(levelname)s - %(message)s')
+            ch.setFormatter(formatter)
+            logger.addHandler(ch)
 
         algorithm = ec.EvolutionaryComputation(rand)
         algorithm.observer = observers.file_observer
@@ -131,4 +147,5 @@ class CustomOptimizerA(__Optimizer):
         self.print_report(final_pop,do_plot,stat_file_name)
 
         #return the parameter set for the best individual
-        return final_pop[0].candidate
+
+        return final_pop[0].candidate, final_pop[0].fitness

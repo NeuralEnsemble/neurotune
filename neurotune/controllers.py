@@ -24,6 +24,9 @@ lists a range of evaluators would be able to utilise it.
 import os
 import subprocess
 
+import math
+
+
 class __Controller():
     """
     Controller base class
@@ -61,7 +64,7 @@ class CLIController(__Controller):
             #into something that can be executed on the shell
             chromosome_str = ''.join(str(e)+' ' for e in chromosome)
             cla = self.cli_argument+' '+fitness_filename+' '+chromosome_str
-            print cla
+            print(cla)
             subprocess.call(cla, shell=True)
 
 class NrnProject(__Controller):
@@ -109,8 +112,8 @@ class NrnProject(__Controller):
             cla=self.__generate_cla()
             os.chdir(self.nrnproject_path+'/src/') #there should be a smarter way
             os.system(cla)
-            print self.db_path
-            print exp_id            
+            print(self.db_path)
+            print(exp_id)
             exp_data=sqldbutils.sim_data(self.db_path,exp_id)
             exp_data_array.append(exp_data)
         return exp_data_array
@@ -309,18 +312,18 @@ class NrnProjectCondor(NrnProject):
         dbs_created=False
         pulled_dbs=[] # list of databases which have been extracted from remote server
         while (dbs_created==False):
-            print 'waiting..'
+            print('waiting..')
             time.sleep(20)            
-            print 'checking if dbs created:'
+            print('checking if dbs created:')
             command='ls'
             remote_filelist=ssh_utils.issue_command(self.messagehost, command)
             for jobdbname in self.jobdbnames:
                 db_exists=jobdbname+'\n' in remote_filelist
                 if (db_exists==False):
-                    print jobdbname,' has not been generated'
+                    print(jobdbname+' has not been generated')
                     dbs_created=False
                 elif db_exists==True and jobdbname not in pulled_dbs:
-                    print jobdbname,' has been generated'
+                    print(jobdbname+' has been generated')
                     remotefile=optimizer_params.remotedir+jobdbname
                     localpath=os.path.join(self.datadir,str(self.generation)+jobdbname)
                     ssh_utils.get_file(self.messagehost,remotefile,localpath)
@@ -347,8 +350,8 @@ class NrnProjectCondor(NrnProject):
             exp_fitness=exp_fitness.fetchall()
             exp_fitness=exp_fitness[0][0]
             
-            print 'fitness:'
-            print exp_fitness
+            print('Fitness:')
+            print(exp_fitness)
     
             fitness.append(exp_fitness)
 
@@ -377,11 +380,11 @@ class NrnProjectCondor(NrnProject):
         #wait till you know file exists:
         dbs_created=False
         while (dbs_created==False):
-            print 'checking if dbs created:'
+            print('checking if dbs created:')
             for job_num in range(self.num_jobs):
                 jobdbname='outputdb'+str(job_num)+'.sqlite'
                 jobdbpath=os.path.join(self.datadir,jobdbname)
-                print jobdbpath
+                print(jobdbpath)
                 db_exists=os.path.exists(jobdbpath)
                 
                 if (db_exists==False):
@@ -404,7 +407,73 @@ class NrnProjectCondor(NrnProject):
         for job_num in range(self.num_jobs):
             jobdbname='outputdb'+str(job_num)+'.sqlite'
             jobdbpath=os.path.join(self.datadir,jobdbname)
-            print jobdbpath
+            print(jobdbpath)
             os.remove(jobdbpath)
 
         return fitness
+
+
+class SineWaveController(__Controller):
+    """
+        Simple sine wave generator which takes a number of variables ('amp', 'period', 'offset') 
+        and produces an output based on these.
+    """
+    
+    def __init__(self, sim_time, dt):
+        
+        self.sim_time = sim_time
+        self.dt = dt
+    
+    def run_individual(self, sim_var, gen_plot=False, show_plot=True):
+        """
+        Run an individual simulation.
+
+        The candidate data has been flattened into the sim_var dict. The
+        sim_var dict contains parameter:value key value pairs, which are
+        applied to the model before it is simulated.
+
+        """
+        print(">> Running individual: %s"%(sim_var))
+
+        import numpy as np
+        t = 0
+        times = []
+        volts = []
+        
+        while t <= self.sim_time:
+            v = sim_var['offset'] + (sim_var['amp'] * (math.sin( 2*math.pi * t/sim_var['period'])))
+            times.append(t)
+            volts.append(v)
+            t += self.dt
+            
+        if gen_plot:
+            from matplotlib import pyplot as plt
+            
+            info = ""
+            for key in sim_var.keys():
+                info+="%s=%s "%(key, sim_var[key])
+            plt.plot(times,volts, label=info)
+            plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), fancybox=True, shadow=True, ncol=1)
+            
+            if show_plot:
+                plt.show()
+            
+        return np.array(times), np.array(volts)
+        
+    
+    def run(self,candidates,parameters):
+        """
+        Run simulation for each candidate
+        
+        This run method will loop through each candidate and run the simulation
+        corresponding to its parameter values. It will populate an array called
+        traces with the resulting voltage traces for the simulation and return it.
+        """
+
+        traces = []
+        for candidate in candidates:
+            sim_var = dict(zip(parameters,candidate))
+            t,v = self.run_individual(sim_var)
+            traces.append([t,v])
+
+        return traces

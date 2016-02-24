@@ -2,9 +2,10 @@ from pyelectro import io
 from pyelectro import analysis
 from matplotlib import pyplot as plt
 
-t,v=io.load_csv_data('./100pA_1.csv')
+file_name = '100pA_1.csv'
+t,v=io.load_csv_data(file_name)
 
-analysis_var={'peak_delta':1,'baseline':0,'dvdt_threshold':2}
+analysis_var={'peak_delta':0.1,'baseline':0,'dvdt_threshold':2,'peak_threshold':0}
 
 analysis=analysis.IClampAnalysis(v,
                                  t,
@@ -23,5 +24,7 @@ plt.xlabel('Time (ms)')
 plt.ylabel('Membrane potential (mV)')
 plt.grid('on')
 
+plt.suptitle('Data read in from: %s'%file_name)
 plt.plot(t,v)
 plt.show()
+

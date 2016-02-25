@@ -1,21 +1,22 @@
+sudo: false
+
+addons:
+  apt:
+    packages:
+    - python-numpy 
+    - python-scipy 
+    
 language: python
 
-python:
-  - "2.7"
-  #- "3.2"
+python: 2.7
+
+virtualenv:
+    system_site_packages: true
 
 install:
-  # Install conda to facilitate installation of numpy, scipy etc.
-  - sudo pip install conda
-  - sudo conda init
-  
-  # install dependencies
-  - deps='pip numpy scipy'
-  - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
-  - export PATH=$HOME/py/bin:$PATH
   
   # install pyelectro
-  - pip install git+https://github.com/pgleeson/pyelectro.git
+  - pip install git+https://github.com/NeuralEnsemble/pyelectro.git
   
   # install inspyred
   - pip install inspyred

@@ -2,9 +2,9 @@
 
 This package provides Neurotune, a package for optimizing electical models of excitable cells.
 
-**This package was originally developed by [Mike Vella](https://github.com/vellamike). This is a fork by [Padraig Gleeson](https://github.com/pgleeson) and others to continue development of [pyelectro](https://github.com/pgleeson/pyelectro) and [Neurotune](https://github.com/pgleeson/neurotune) for use in [OpenWorm](http://www.openworm.org/) and other projects**
+**This package was originally developed by [Mike Vella](https://github.com/vellamike). This is a fork by [Padraig Gleeson](https://github.com/pgleeson) and others to continue development of [pyelectro](https://github.com/NeuralEnsemble/pyelectro) and [Neurotune](https://github.com/NeuralEnsemble/neurotune) for use in [OpenWorm](http://www.openworm.org/), [Open Source Brain](http://opensourcebrain.org/) and other projects**
 
-[![Build Status](https://travis-ci.org/pgleeson/neurotune.svg?branch=master)](https://travis-ci.org/pgleeson/neurotune)
+[![Build Status](https://travis-ci.org/NeuralEnsemble/neurotune.svg?branch=master)](https://travis-ci.org/NeuralEnsemble/neurotune)
 
 Full documentation can be found [here](http://optimal-neuron.readthedocs.org/en/latest/).
 
@@ -18,9 +18,9 @@ The following (Python libraries) can be installed using pip, easy_install, or id
 - inspyred
 - SciPy
   
-The package pyelectro is also required **(if using the pgleeson branch of neurotune, use pgleeson/pyelectro too)**:
+The package **pyelectro** is also required:
 
-    git clone https://github.com/pgleeson/pyelectro.git
+    git clone https://github.com/NeuralEnsemble/pyelectro.git
     cd pyelectro
     sudo python setup.py install
 
@@ -34,7 +34,7 @@ The package pyelectro is also required **(if using the pgleeson branch of neurot
 Install Neurotune with the following command:
 
 ```
-sudo python setup.py -install
+sudo python setup.py install
 ```
 
-Note: the [Travic CI script](https://github.com/pgleeson/neurotune/blob/master/.travis.yml) shows the full set of commands for installation & execution of a simple example.
+Note: the [Travic CI script](https://github.com/NeuralEnsemble/neurotune/blob/master/.travis.yml) shows the full set of commands for installation & execution of a simple example.

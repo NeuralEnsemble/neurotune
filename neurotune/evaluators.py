@@ -773,14 +773,15 @@ class PointValueEvaluator(__Evaluator):
                          target_dict={},
                          target_weights=None,
                          cost_function=normalised_cost_function):
-	"""
-	Return the estimated fitness of the data, based on the cost function being used.
-    
-        :param data_analysis: PointBasedAnalysis instance
-	    :param target_dict: key-value pairs for targets
-        :param target_weights: key-value pairs for target weights
-        :param cost_function: cost function (callback) to assign individual targets sub-fitness.
-	"""
+        """
+        Return the estimated fitness of the data, based on the cost function being used.
+
+            :param data_analysis: PointBasedAnalysis instance
+            :param target_dict: key-value pairs for targets
+            :param target_weights: key-value pairs for target weights
+            :param cost_function: cost function (callback) to assign individual targets sub-fitness.
+        """
+        
         fitness = 0
         
         analysed = data_analysis.analyse(target_dict)

@@ -55,7 +55,7 @@ class CLIController(__Controller):
 	    parameters,
 	    fitness_filename='evaluations'):
 
-	"Run simulation"
+	#"Run simulation"
 
         for chromosome in candidates:
             self.chromosome=chromosome
@@ -101,7 +101,7 @@ class NrnProject(__Controller):
 	    candidates,
 	    parameters):
 
-	"""Run simulations"""
+	    #"""Run simulations"""
 	
         import sqldbutils
         exp_data_array=[]

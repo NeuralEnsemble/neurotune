@@ -64,7 +64,7 @@ if __name__ == '__main__':
     best_candidate, fitness = my_optimizer.optimize(do_plot=False, seed=1234567)
 
 
-    keys = sim_vars.keys()
+    keys = list(sim_vars.keys())
     for i in range(len(best_candidate)):
         sim_vars[keys[i]] = best_candidate[i]        
 

@@ -2,15 +2,19 @@
 
 from distutils.core import setup
 
+for line in open('neurotune/__init__.py'):
+    if line.startswith("__version__"):
+        version = line.split("=")[1].strip()[1:-1]
+        
 setup(
     name = "neurotune",
-    version = '0.2.0dev',
+    version = version,
     packages = ['neurotune'],
-    author = "Michael Vella",
-    author_email = "mv333@cam.ac.uk",
+    author = "Michael Vella, Padraig Gleeson",
+    author_email = "mv333@cam.ac.uk, p.gleeson@gmail.com",
     description = "A Python library for optimising neuronal models",
     license = "BSD",
-    url='https://github.com/vellamike/neurotune',
+    url='https://github.com/NeuralEnsemble/neurotune',
     classifiers = [
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Science/Research',

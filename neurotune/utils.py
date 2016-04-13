@@ -66,10 +66,9 @@ def plot_generation_evolution(sim_var_names,
             
     fig = pylab.figure()
     fig.canvas.set_window_title("Evolution over %i generations of %s"%(generations_total, sim_var_names))
-
     for i in range(val_num):
 
-        pylab.subplot(nrows, ncols, i)
+        pylab.subplot(nrows, ncols, i+1)
         pylab.title(sim_var_names[i])
         if target_values is not None and target_values.has_key(sim_var_names[i]):
             value = target_values[sim_var_names[i]]

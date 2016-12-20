@@ -70,7 +70,11 @@ def normalised_cost_function(value,target,Q=None):
         else:
             Q=0.023333 # PG: Gives fitness = 0.023333 when value = 1; fitness = 0.7 when value = 10
 
-    fitness=1-1/(Q*(target-value)**2+1)
+    try:    
+        fitness=1-1/(Q*(target-value)**2+1)
+    except:
+        print("Exeption when calculating the fitness function; target: %s; value %s; Q: %s"%(target,value,Q))
+        fitness = 1
 
     return fitness   
 
@@ -523,7 +527,7 @@ class NetworkEvaluator(__Evaluator):
                         value = '<<infinite value!>>'
                         inc = target_weight
                 else:
-                    value = '<<cannot be calculated! (only: %s)>>'%data_analysis.analysis_results.keys()
+                    value = '<<cannot be calculated! (only: %s; peak_threshold: %s)>>'%(data_analysis.analysis_results.keys(),self.analysis_var['peak_threshold'])
                 
                 fitness += inc
 

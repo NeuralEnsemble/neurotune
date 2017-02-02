@@ -13,6 +13,7 @@ from neurotune import optimizers
 from neurotune import evaluators
 from matplotlib import pyplot as plt
 from pyelectro import analysis
+import sys
 
 class Simulation(object):
 
@@ -270,6 +271,9 @@ def main(targets,
     return best_candidate
 
 
+showPlots = not (len(sys.argv) == 2 and sys.argv[1] == '-nogui')
+    
+
 #Instantiate a simulation controller to run simulations
 controller = BasketCellController()
 
@@ -324,10 +328,17 @@ weights={'average_minimum': 1.0,
          'pptd_error':1.0}
 
 #Sanity check - expected is 0
-fitness_value = surrogate_analysis.evaluate_fitness(surrogate_targets,
-                                    weights,
-                                    cost_function = analysis.normalised_cost_function)
-
+evaluator = evaluators.IClampEvaluator(analysis_start_time=0,
+                 controller=controller,
+                 analysis_end_time=900,
+                 target_data_path='.',
+                 parameters=parameters,
+                 analysis_var=analysis_var,
+                 weights=weights)
+                 
+fitness_value = evaluator.evaluate_fitness(surrogate_analysis,  
+                                           target_dict=surrogate_targets,
+                                           target_weights=weights)
 
 assert(fitness_value == 0.0)
 #raw_input()
@@ -401,18 +412,19 @@ print('Surrogate values:')
 print(sim_var)
 print('----------------------------------------')
 
-#plotting
-surrogate_plot, = plt.plot(np.array(surrogate_t),np.array(surrogate_v))
-candidate1_plot, = plt.plot(np.array(candidate1_t),np.array(candidate1_v))
-candidate2_plot, = plt.plot(np.array(candidate2_t),np.array(candidate2_v))
+if showPlots:
+    #plotting
+    surrogate_plot, = plt.plot(np.array(surrogate_t),np.array(surrogate_v))
+    candidate1_plot, = plt.plot(np.array(candidate1_t),np.array(candidate1_v))
+    candidate2_plot, = plt.plot(np.array(candidate2_t),np.array(candidate2_v))
 
-plt.legend([surrogate_plot,candidate1_plot,candidate2_plot],
-           ["Surrogate model","Best model - %i evaluations"%c1_evals,"Best model - %i evaluations candidate"%c2_evals])
+    plt.legend([surrogate_plot,candidate1_plot,candidate2_plot],
+               ["Surrogate model","Best model - %i evaluations"%c1_evals,"Best model - %i evaluations candidate"%c2_evals])
 
-plt.ylim(-80.0,80.0)
-plt.xlim(0.0,1000.0)
-plt.title("Models optimized from surrogate solutions")
-plt.xlabel("Time (ms)")
-plt.ylabel("Membrane potential(mV)")
-plt.savefig("surrogate_vs_candidates.png",bbox_inches='tight',format='png')
-plt.show()
+    plt.ylim(-80.0,80.0)
+    plt.xlim(0.0,1000.0)
+    plt.title("Models optimized from surrogate solutions")
+    plt.xlabel("Time (ms)")
+    plt.ylabel("Membrane potential(mV)")
+    plt.savefig("surrogate_vs_candidates.png",bbox_inches='tight',format='png')
+    plt.show()

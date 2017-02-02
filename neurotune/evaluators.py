@@ -361,7 +361,7 @@ class IClampEvaluator(__Evaluator):
             fitness_value = self.evaluate_fitness(data_analysis,
                                              self.targets,
                                              self.weights,
-                                             cost_function=analysis.normalised_cost_function)
+                                             cost_function=normalised_cost_function)
             fitness.append(fitness_value)
 
             print('Fitness: %s\n'%fitness_value)

@@ -1,8 +1,8 @@
-
-
 from neurotune import evaluators
 from neurotune import optimizers
 from neurotune import utils
+
+import sys
 import pprint
 from pyelectro import analysis
 from collections import OrderedDict
@@ -11,6 +11,8 @@ from SineWaveNetworkController import SineWaveNetworkController
     
 if __name__ == '__main__':
 
+    showPlots = not (len(sys.argv) == 2 and sys.argv[1] == '-nogui')
+    
     sim_vars = OrderedDict([('amp',              15),
                             ('amp_increment',    5),
                             ('period',           125),
@@ -134,6 +136,7 @@ if __name__ == '__main__':
     print("Fittest analysis")
     pp.pprint(fit_anal)
 
-    utils.plot_generation_evolution(sim_vars.keys(), sim_vars)
+    if showPlots:
+        utils.plot_generation_evolution(sim_vars.keys(), sim_vars)
     
     

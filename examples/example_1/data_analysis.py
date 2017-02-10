@@ -1,7 +1,7 @@
 from pyelectro import analysis as pye_analysis
 from matplotlib import pyplot
 
-file_name = '100pA_1.csv'
+file_name = '100pA_1a.csv'
 t,v=pye_analysis.load_csv_data(file_name)
 
 analysis_var={'peak_delta':0.1,'baseline':0,'dvdt_threshold':2,'peak_threshold':0}

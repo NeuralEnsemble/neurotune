@@ -26,12 +26,17 @@ install:
   # install inspyred
   - pip install inspyred
   
+  # Install OMV to facilitate installation of Neuron
+  - pip install git+https://github.com/OpenSourceBrain/osb-model-validation
+
+  # Need to pre install PyNEURON for testing models
+  - omv install PyNEURON
+
   # install neurotune
   - python setup.py install
 
 # command to run tests
 script:  
-  - cd examples/example_4
-  - python SineWavePointOptimizer.py -nogui  # run one of the examples supressing plots etc.
+  - ./test.sh
   
 

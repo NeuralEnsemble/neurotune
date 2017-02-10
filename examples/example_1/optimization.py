@@ -12,6 +12,7 @@ from neurotune import optimizers
 from neurotune import evaluators
 from neurotune import controllers
 import os
+import sys
 
 class Simulation(object):
 
@@ -105,6 +106,9 @@ class BasketCellController():
         1. candidates (list of list of numbers)
         2. The corresponding parameters. 
     """
+    
+    def __init__(self, show_plots):
+        self.show_plots = show_plots
 
     def run(self,candidates,parameters):
         """
@@ -181,8 +185,9 @@ class BasketCellController():
         sim=Simulation(soma,sim_time=1000,v_init=-70.0)
         sim.set_IClamp(150, 0.1, 750)
         sim.go()
-    
-        sim.show()
+     
+        if self.show_plots:
+            sim.show()
     
         return np.array(sim.rec_t), np.array(sim.rec_v)
     
@@ -194,8 +199,10 @@ def main():
     The optimization runs in this main method
     """
     
+    show_plots = not (len(sys.argv) == 2 and sys.argv[1] == '-nogui')
+    
     #make a controller
-    my_controller= BasketCellController()
+    my_controller= BasketCellController(show_plots)
     
     #parameters to be modified in each simulation
     parameters = ['axon_gbar_na',
@@ -239,7 +246,7 @@ def main():
     my_evaluator=evaluators.IClampEvaluator(controller=my_controller,
                                             analysis_start_time=1,
                                             analysis_end_time=500,
-                                            target_data_path='100pA_1.csv',
+                                            target_data_path='100pA_1a.csv',
                                             parameters=parameters,
                                             analysis_var=analysis_var,
                                             weights=weights,
@@ -256,6 +263,6 @@ def main():
                                       seeds=None)
 
     #run the optimizer
-    my_optimizer.optimize()
+    my_optimizer.optimize(do_plot=show_plots)
 
 main()

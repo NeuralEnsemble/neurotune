@@ -31,6 +31,8 @@ install:
 
   # Need to pre install PyNEURON for testing models
   - omv install PyNEURON
+  - export NEURON_HOME=/home/travis/neuron/nrn/x86_64/
+  - export PATH=$PATH:$NEURON_HOME/bin
 
   # install neurotune
   - python setup.py install

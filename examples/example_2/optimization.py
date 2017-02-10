@@ -11,7 +11,6 @@ import neuron
 import numpy as np
 from neurotune import optimizers
 from neurotune import evaluators
-from matplotlib import pyplot as plt
 from pyelectro import analysis
 import sys
 
@@ -414,6 +413,7 @@ print('----------------------------------------')
 
 if showPlots:
     #plotting
+    from matplotlib import pyplot as plt
     surrogate_plot, = plt.plot(np.array(surrogate_t),np.array(surrogate_v))
     candidate1_plot, = plt.plot(np.array(candidate1_t),np.array(candidate1_v))
     candidate2_plot, = plt.plot(np.array(candidate2_t),np.array(candidate2_v))

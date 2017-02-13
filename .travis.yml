@@ -34,7 +34,7 @@ install:
 
 # command to run tests
 script:  
-  - if [[ $TRAVIS_PYTHON_VERSION -ne "2.7" ]]; then exit 0 ; fi  # OMV only works in Python 2 so far...
+  - if [[ $TRAVIS_PYTHON_VERSION == 3* ]]; then exit 0 ; fi  # OMV only works in Python 2 so far...
   
   # Need to pre install PyNEURON for testing models
   - omv install PyNEURON

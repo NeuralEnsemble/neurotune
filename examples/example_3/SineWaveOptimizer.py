@@ -23,7 +23,7 @@ if __name__ == '__main__':
     swc = SineWaveController(1000, 0.1)
         
 
-    swc.run_individual(sim_vars, True, False)
+    swc.run_individual(sim_vars, showPlots, False)
 
     times, volts = swc.run_individual(sim_vars, False)
 
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     for i in range(len(best_candidate)):
         sim_vars[keys[i]] = best_candidate[i]
 
-    fit_times, fit_volts = swc.run_individual(sim_vars, True, False)
+    fit_times, fit_volts = swc.run_individual(sim_vars, showPlots, False)
 
     fit_analysis=analysis.IClampAnalysis(fit_volts,
                                                fit_times,

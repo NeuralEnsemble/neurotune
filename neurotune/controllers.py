@@ -424,7 +424,7 @@ class SineWaveController(__Controller):
         self.sim_time = sim_time
         self.dt = dt
     
-    def run_individual(self, sim_var, gen_plot=False, show_plot=True):
+    def run_individual(self, sim_var, gen_plot=False, show_plot=False):
         """
         Run an individual simulation.
 

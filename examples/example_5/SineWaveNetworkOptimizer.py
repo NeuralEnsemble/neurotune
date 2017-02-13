@@ -28,7 +28,7 @@ if __name__ == '__main__':
     max_constraints = [22, 20,   230, 160,  15]
     
 
-    times, volts = swc.run_individual(sim_vars, True, False, prefix="Orig: ")
+    times, volts = swc.run_individual(sim_vars, showPlots, False, prefix="Orig: ")
     
  
 
@@ -120,7 +120,7 @@ if __name__ == '__main__':
     print(sim_vars)
     print(fittest_sim_vars)
 
-    fit_times, fit_volts = swc.run_individual(fittest_sim_vars, True, False)
+    fit_times, fit_volts = swc.run_individual(fittest_sim_vars, showPlots, False)
 
     fit_analysis=analysis.NetworkAnalysis(fit_volts,
                                           fit_times,

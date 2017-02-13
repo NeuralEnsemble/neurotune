@@ -29,16 +29,18 @@ install:
   # Install OMV to facilitate installation of Neuron
   - pip install git+https://github.com/OpenSourceBrain/osb-model-validation
 
-  # Need to pre install PyNEURON for testing models
-  - omv install PyNEURON
-  - export NEURON_HOME=/home/travis/neuron/nrn/x86_64/
-  - export PATH=$PATH:$NEURON_HOME/bin
-
   # install neurotune
   - python setup.py install
 
 # command to run tests
 script:  
+  - if [[ $TRAVIS_PYTHON_VERSION -ne "2.7" ]]; exit 0 ; fi  # OMV only works in Python 2 so far...
+  
+  # Need to pre install PyNEURON for testing models
+  - omv install PyNEURON
+  - export NEURON_HOME=/home/travis/neuron/nrn/x86_64/
+  - export PATH=$PATH:$NEURON_HOME/bin
+
   - ./test.sh
   
 

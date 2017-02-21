@@ -50,7 +50,12 @@ class __Optimizer(object):
 
         if do_plot:
             from inspyred.ec import analysis
-            analysis.generation_plot(stat_file_name, errorbars=False)
+            try:
+                stat_file = open(stat_file_name, "r")
+                analysis.generation_plot(stat_file, errorbars=False)
+            finally:
+                stat_file.close()
+            
 
 
 class CustomOptimizerA(__Optimizer):

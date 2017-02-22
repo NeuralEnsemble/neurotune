@@ -6,7 +6,7 @@ This package provides Neurotune, a package for optimizing electical models of ex
 
 [![Build Status](https://travis-ci.org/NeuralEnsemble/neurotune.svg?branch=master)](https://travis-ci.org/NeuralEnsemble/neurotune)
 
-Full documentation can be found [here](http://optimal-neuron.readthedocs.org/en/latest/).
+Full documentation can be found [here](http://neurotune.readthedocs.io/en/latest/).
 
 ## Installation
 

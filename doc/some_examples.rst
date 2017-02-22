@@ -1,7 +1,7 @@
 Examples
 ========
 
-Full code for these examples are located [here](
+**The text below refers to a slightly earlier version of Example 1**
 
 Example 1 - Custom controller class, automatic targets
 ------------------------------------------------------
@@ -352,14 +352,3 @@ false and the targets parameter is set to our targets dict:
                                            targets=manual_targets,
                                            automatic=False)
 
-
-Example 3 - CLI controller, single-threaded
--------------------------------------------
-In this example the model of a C. elegans muscle cell will be optimized using
-manual targets, CLI controller. This work is part of the `Open Worm Project`_.
-
-.. _`Open Worm Project`: http://www.openworm.org/
-
-Example 4 - CLI controller, multi-threaded
-------------------------------------------
-As above but multi-threaded.

@@ -25,11 +25,4 @@ neurotune Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`traceanalysis` Module
-----------------------------
-
-.. automodule:: neurotune.traceanalysis
-    :members:
-    :undoc-members:
-    :show-inheritance:
 

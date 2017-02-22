@@ -27,7 +27,7 @@ The package **pyelectro** is also required:
 
 **Soft dependencies**
 
-- neuronpy       **(Note: it's best to [install neuron from source](http://www.neuron.yale.edu/neuron/download/compile_linux) 
+- PyNEURON       **(Note: it's best to [install NEURON from source](http://www.neuron.yale.edu/neuron/download/compile_linux) 
 & [install for Python](http://www.neuron.yale.edu/neuron/static/new_doc/programming/python.html))**
 
 
@@ -37,4 +37,4 @@ Install Neurotune with the following command:
 sudo python setup.py install
 ```
 
-Note: the [Travic CI script](https://github.com/NeuralEnsemble/neurotune/blob/master/.travis.yml) shows the full set of commands for installation & execution of a simple example.
+Note: the [Travic CI script](https://github.com/NeuralEnsemble/neurotune/blob/master/.travis.yml) shows the full set of commands for installation & execution of a number of examples.

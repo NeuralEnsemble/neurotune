@@ -463,8 +463,10 @@ class NetworkEvaluator(__Evaluator):
 
         fitness = []
         
-        for data in simulations_data:
+        for i in range(len(simulations_data)):
 
+            data = simulations_data[i]
+            candidate = candidates[i]
             times = data[0]
             volts = data[1]
 
@@ -475,7 +477,13 @@ class NetworkEvaluator(__Evaluator):
                                                   end_analysis=self.analysis_end_time)
 
             
-   
+            print('- Evaluating %s from %s -> %s (data %s -> %s)' % \
+                    (candidate,
+                    self.analysis_start_time,
+                    self.analysis_end_time,
+                    times[0],
+                    times[-1]))
+                    
             data_analysis.analyse(self.targets)
                 
             fitness_value = self.evaluate_fitness(data_analysis,

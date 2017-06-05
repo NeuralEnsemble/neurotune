@@ -9,7 +9,8 @@ import math
 def plot_generation_evolution(sim_var_names, 
                              target_values = {}, 
                              individuals_file_name = '../data/ga_individuals.csv',
-                             show_plot_already = True):
+                             show_plot_already = True,
+                             save_to_file=False):
     
     import matplotlib.pyplot as pylab
 
@@ -91,6 +92,9 @@ def plot_generation_evolution(sim_var_names,
     ax.set_yscale('log')
     ax.scatter(generations_offset, f, s=sizes[i], c=colours[i], alpha=0.4)
     pylab.xlabel("Generation (%i individuals, offset slightly; larger circle => fitter)"%(population_total))
+
+    if save_to_file:
+        pylab.savefig(save_to_file, bbox_inches='tight')
 
     if show_plot_already:
         pylab.show()

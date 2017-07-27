@@ -406,6 +406,7 @@ class IClampEvaluator(__Evaluator):
             for target in target_dict.keys():
 
                 target_value=target_dict[target]
+                cost = '?'
 
                 if target_weights == None: 
                     target_weight = 1
@@ -417,10 +418,11 @@ class IClampEvaluator(__Evaluator):
                 if target_weight > 0:
                     value = data_analysis.analysis_results[target]
                     #let function pick Q automatically
-                    inc = target_weight*cost_function(value,target_value)
+                    cost = cost_function(value,target_value)
+                    inc = target_weight*cost
                     fitness += inc
 
-                    print('Target %s (weight %s): target val: %s, actual: %s, fitness increment: %s'%(target, target_weight, target_value, value, inc))
+                    print('Target %s (weight %s): target val: %s, actual: %s, cost: %s, fitness inc: %s'%(target, target_weight, target_value, value, cost, inc))
 
             return fitness
     
@@ -526,11 +528,13 @@ class NetworkEvaluator(__Evaluator):
                     
             if target_weight > 0:
                 inc = target_weight # default...
+                cost = '?'
                 if data_analysis.analysis_results.has_key(target):
                     value = data_analysis.analysis_results[target]
                     if not math.isnan(value):
                         #let function pick Q automatically
-                        inc = target_weight*cost_function(value,target_value)
+                        cost = cost_function(value,target_value)
+                        inc = target_weight*cost
                     else:
                         value = '<<infinite value!>>'
                         inc = target_weight
@@ -539,7 +543,7 @@ class NetworkEvaluator(__Evaluator):
                 
                 fitness += inc
 
-                print('Target %s (weight %s): target val: %s, actual: %s, fitness increment: %s'%(target, target_weight, target_value, value, inc))
+                print('Target %s (weight %s): target val: %s, actual: %s, cost: %s, fitness inc: %s'%(target, target_weight, target_value, value, cost, inc))
 
         return fitness
     

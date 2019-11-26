@@ -1,3 +1,5 @@
+
+dist: xenial
 sudo: false
 
 addons:
@@ -5,9 +7,6 @@ addons:
     packages:
     - python-numpy 
     - python-scipy 
-    # Quick fix, requires matrix for addons...
-    - python3-numpy 
-    - python3-scipy 
     
 language: python
 
@@ -16,8 +15,6 @@ python:
   - "3.5"
   # - "3.7"  # Problem with system_site_packages below.
 
-virtualenv:
-    system_site_packages: true
 
 install:
   

@@ -6,7 +6,6 @@ addons:
   apt:
     packages:
     - python-numpy 
-    - python-scipy 
     
 language: python
 
@@ -18,11 +17,15 @@ python:
 
 install:
   
+  # install scipy
+  - pip install scipy>=1.3.3
+  
   # install pyelectro
   - pip install git+https://github.com/NeuralEnsemble/pyelectro.git
   
   # install inspyred
   - pip install inspyred
+  
   
   # Install OMV to facilitate installation of Neuron
   - pip install git+https://github.com/OpenSourceBrain/osb-model-validation

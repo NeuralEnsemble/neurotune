@@ -198,8 +198,10 @@ def main():
     """
     The optimization runs in this main method
     """
+
     
-    show_plots = not (len(sys.argv) == 2 and sys.argv[1] == '-nogui')
+    show_plots = not ('-nogui' in sys.argv)
+    verbose = not ('-silent' in sys.argv)
     
     #make a controller
     my_controller= BasketCellController(show_plots)
@@ -251,7 +253,8 @@ def main():
                                             analysis_var=analysis_var,
                                             weights=weights,
                                             targets=None, # because we're using automatic
-                                            automatic=True)
+                                            automatic=True,
+                                            verbose=verbose)
 
     #make an optimizer
     my_optimizer=optimizers.CustomOptimizerA(max_constraints,min_constraints,my_evaluator,
@@ -260,7 +263,8 @@ def main():
                                       num_selected=3,
                                       num_offspring=3,
                                       num_elites=1,
-                                      seeds=None)
+                                      seeds=None,
+                                      verbose=verbose)
 
     #run the optimizer
     my_optimizer.optimize(do_plot=show_plots)

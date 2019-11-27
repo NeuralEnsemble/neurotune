@@ -296,7 +296,8 @@ class IClampEvaluator(__Evaluator):
                  analysis_var,
                  weights,
                  targets=None,
-                 automatic=False):
+                 automatic=False,
+                 verbose=True):
 
         super(IClampEvaluator, self).__init__(parameters,
                                               weights,
@@ -307,6 +308,7 @@ class IClampEvaluator(__Evaluator):
         self.analysis_end_time=analysis_end_time
         self.target_data_path=target_data_path
         self.analysis_var=analysis_var
+        self.verbose = verbose
 
         print('target data path in evaluator:'+target_data_path)
         
@@ -421,8 +423,8 @@ class IClampEvaluator(__Evaluator):
                     cost = cost_function(value,target_value)
                     inc = target_weight*cost
                     fitness += inc
-
-                    print('Target %s (weight %s): target val: %s, actual: %s, cost: %s, fitness inc: %s'%(target, target_weight, target_value, value, cost, inc))
+                    if self.verbose:
+                        print('Target %s (weight %s): target val: %s, actual: %s, cost: %s, fitness inc: %s'%(target, target_weight, target_value, value, cost, inc))
 
             return fitness
     

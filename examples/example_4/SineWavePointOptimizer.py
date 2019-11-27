@@ -9,7 +9,9 @@ from neurotune import utils
 
 if __name__ == '__main__':
 
-    showPlots = not (len(sys.argv) == 2 and sys.argv[1] == '-nogui')
+    
+    showPlots = not ('-nogui' in sys.argv)
+    verbose = not ('-silent' in sys.argv)
 
     sim_vars = {'amp':     65,
                'period':  250,
@@ -58,7 +60,7 @@ if __name__ == '__main__':
                                              num_elites=num_elites,
                                              mutation_rate=mutation_rate,
                                              seeds=None,
-                                             verbose=True)
+                                             verbose=verbose)
 
     #run the optimizer
     best_candidate, fitness = my_optimizer.optimize(do_plot=False, seed=1234567)

@@ -11,7 +11,8 @@ from SineWaveNetworkController import SineWaveNetworkController
     
 if __name__ == '__main__':
 
-    showPlots = not (len(sys.argv) == 2 and sys.argv[1] == '-nogui')
+    showPlots = not ('-nogui' in sys.argv)
+    verbose = not ('-silent' in sys.argv)
     
     sim_vars = OrderedDict([('amp',              15),
                             ('amp_increment',    5),
@@ -107,7 +108,7 @@ if __name__ == '__main__':
                                              num_elites=num_elites,
                                              mutation_rate=mutation_rate,
                                              seeds=None,
-                                             verbose=True)
+                                             verbose=verbose)
     
     #run the optimizer
     best_candidate, fitness = my_optimizer.optimize(do_plot=False, seed=123456)

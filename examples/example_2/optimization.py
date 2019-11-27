@@ -249,7 +249,8 @@ def main(targets,
                                             analysis_var=analysis_var,
                                             weights=weights,
                                             targets=targets,
-                                            automatic=False)
+                                            automatic=False,
+                                            verbose=verbose)
 
     #make an optimizer
     my_optimizer=optimizers.CustomOptimizerA(max_constraints,
@@ -262,7 +263,7 @@ def main(targets,
                                              num_elites=1,
                                              mutation_rate=0.5,
                                              seeds=seeds,
-                                             verbose=True)
+                                             verbose=verbose)
 
     #run the optimizer
     best_candidate, fitness = my_optimizer.optimize(do_plot=False)
@@ -270,7 +271,8 @@ def main(targets,
     return best_candidate
 
 
-showPlots = not (len(sys.argv) == 2 and sys.argv[1] == '-nogui')
+showPlots = not ('-nogui' in sys.argv)
+verbose = not ('-silent' in sys.argv)
     
 
 #Instantiate a simulation controller to run simulations
@@ -333,7 +335,8 @@ evaluator = evaluators.IClampEvaluator(analysis_start_time=0,
                  target_data_path='.',
                  parameters=parameters,
                  analysis_var=analysis_var,
-                 weights=weights)
+                 weights=weights,
+                 verbose=verbose)
                  
 fitness_value = evaluator.evaluate_fitness(surrogate_analysis,  
                                            target_dict=surrogate_targets,

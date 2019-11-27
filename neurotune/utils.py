@@ -15,6 +15,7 @@ def plot_generation_evolution(sim_var_names,
                              save_to_file_hist=False,
                              title_prefix = ""):
     
+    sim_var_names = list(sim_var_names)
     import matplotlib.pyplot as pylab
 
     individuals_file = open(individuals_file_name)
@@ -98,7 +99,7 @@ def plot_generation_evolution(sim_var_names,
 
         pylab.subplot(nrows, ncols, i+1)
         pylab.title(sim_var_names[i])
-        if target_values is not None and target_values.has_key(sim_var_names[i]):
+        if target_values is not None and sim_var_names[i] in target_values:
             value = target_values[sim_var_names[i]]
             x = [-1,generations_total+1]
             y = [value,value]

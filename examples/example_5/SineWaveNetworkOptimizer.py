@@ -19,7 +19,7 @@ if __name__ == '__main__':
                             ('period_increment', 50),
                             ('offset',           10)])
                
-    print sim_vars.keys()
+    print(sim_vars.keys())
     
     swc = SineWaveNetworkController('wave', 2)
     
@@ -112,7 +112,7 @@ if __name__ == '__main__':
     #run the optimizer
     best_candidate, fitness = my_optimizer.optimize(do_plot=False, seed=123456)
     
-    keys = sim_vars.keys()
+    keys = list(sim_vars.keys())
     fittest_sim_vars = {}
     for i in range(len(best_candidate)):
         fittest_sim_vars[keys[i]] = best_candidate[i]

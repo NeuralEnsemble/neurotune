@@ -529,7 +529,7 @@ class NetworkEvaluator(__Evaluator):
             if target_weight > 0:
                 inc = target_weight # default...
                 cost = '?'
-                if data_analysis.analysis_results.has_key(target):
+                if target in data_analysis.analysis_results:
                     value = data_analysis.analysis_results[target]
                     if not math.isnan(value):
                         #let function pick Q automatically

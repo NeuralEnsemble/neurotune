@@ -1,5 +1,7 @@
 set -e
 
+rm -rf examples/*/x86_64/
+
 #### Requires NEURON
 cd examples/example_1
 nrnivmodl

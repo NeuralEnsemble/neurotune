@@ -14,3 +14,4 @@ examples/*/src/x86_64
 examples/example_*/x86_64/
 
 doc/_build
+/tests.log

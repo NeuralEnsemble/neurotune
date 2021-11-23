@@ -1,35 +1,27 @@
 # Neurotune
 
+[![GH Build](https://github.com/NeuralEnsemble/neurotune/actions/workflows/ci.yml/badge.svg)](https://github.com/NeuralEnsemble/neurotune/actions/workflows/ci.yml)
+[![Documentation Status](https://readthedocs.org/projects/neurotune/badge/?version=latest)](https://neurotune.readthedocs.io/en/latest/?badge=latest)
+[![PyPI](https://img.shields.io/pypi/v/neurotune)](https://pypi.org/project/neurotune/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/neurotune)](https://pypi.org/project/neurotune/)
+[![GitHub](https://img.shields.io/github/license/NeuralEnsemble/neurotune)](https://github.com/NeuralEnsemble/neurotune/blob/master/LICENSE)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/NeuralEnsemble/neurotune)](https://github.com/NeuralEnsemble/neurotune/pulls)
+[![GitHub issues](https://img.shields.io/github/issues/NeuralEnsemble/neurotune)](https://github.com/NeuralEnsemble/neurotune/issues)
+[![GitHub Org's stars](https://img.shields.io/github/stars/NeuralEnsemble?style=social)](https://github.com/NeuralEnsemble)
+
 This package provides **Neurotune**, a package for optimizing electical models of excitable cells.
 
 **This package was originally developed by [Mike Vella](https://github.com/vellamike). This has been updated by [Padraig Gleeson](https://github.com/pgleeson) and others (and moved to [NeuralEnsemble](https://github.com/NeuralEnsemble)) to continue development of [pyelectro](https://github.com/NeuralEnsemble/pyelectro) and [Neurotune](https://github.com/NeuralEnsemble/neurotune) for use in [OpenWorm](http://www.openworm.org/), [Open Source Brain](http://opensourcebrain.org/) and other projects**
-
-[![Build Status](https://travis-ci.org/NeuralEnsemble/neurotune.svg?branch=master)](https://travis-ci.org/NeuralEnsemble/neurotune)
 
 Full documentation can be found [here](http://neurotune.readthedocs.io/en/latest/).
 
 ## Installation
 
-The following (Python libraries) can be installed using pip, easy_install, or ideally using [Anaconda](http://continuum.io/downloads):
+You can install the dependencies using `pip`:
 
-**Hard dependencies**
-
-- numpy
-- inspyred
-- SciPy
-  
-The package **pyelectro** is also required:
-
-    git clone https://github.com/NeuralEnsemble/pyelectro.git
-    cd pyelectro
-    sudo python setup.py install
-
-
-**Soft dependencies**
-
-- PyNEURON       **(Note: it's best to [install NEURON from source](http://www.neuron.yale.edu/neuron/download/compile_linux) 
-& [install for Python](http://www.neuron.yale.edu/neuron/static/new_doc/programming/python.html))**
-
+```
+pip install -r ./requirements-dev.txt
+```
 
 Install Neurotune with the following command:
 
@@ -37,4 +29,4 @@ Install Neurotune with the following command:
 sudo python setup.py install
 ```
 
-Note: the [Travic CI script](https://github.com/NeuralEnsemble/neurotune/blob/master/.travis.yml) shows the full set of commands for installation & execution of a number of examples.
+The [CI script](https://github.com/NeuralEnsemble/neurotune/blob/master/.github/workflows/ci.yml) shows the full set of commands for installation & execution of a number of examples.

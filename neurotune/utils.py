@@ -94,7 +94,7 @@ def plot_generation_evolution(sim_var_names,
             sizes[v].append((population_total-individual)*2)
             
     fig = pylab.figure()
-    fig.canvas.set_window_title(title_prefix+" Evolution over %i generations of %s"%(generations_total, sim_var_names))
+    pylab.get_current_fig_manager().set_window_title(title_prefix+" Evolution over %i generations of %s"%(generations_total, sim_var_names))
     for i in range(val_num):
 
         pylab.subplot(nrows, ncols, i+1)
@@ -111,8 +111,7 @@ def plot_generation_evolution(sim_var_names,
 
 
     fig = pylab.figure()
-    
-    fig.canvas.set_window_title(title_prefix+" Fitness over %i generations from %s"%(generations_total, individuals_file_name))
+    pylab.get_current_fig_manager().set_window_title(title_prefix+" Fitness over %i generations from %s"%(generations_total, individuals_file_name))
     ax = fig.add_subplot(2,1,1)
 
     ax.scatter(generations_offset, f, s=sizes[i], c=colours[i], alpha=0.4)

@@ -124,7 +124,7 @@ def plot_generation_evolution(sim_var_names,
         pylab.savefig(save_to_file, bbox_inches='tight')
         
     fig = pylab.figure()
-    fig.canvas.set_window_title(title_prefix+" Histograms over %i generations of %s"%(generations_total, sim_var_names))
+    pylab.get_current_fig_manager().set_window_title(title_prefix+" Histograms over %i generations of %s"%(generations_total, sim_var_names))
     
     for i in range(val_num):
         

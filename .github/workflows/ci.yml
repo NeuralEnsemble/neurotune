@@ -32,7 +32,7 @@ jobs:
       if: ${{ github.ref == 'refs/heads/development' || github.base_ref == 'development' }}
       run: |
         echo "Using deps from development"
-        sed -i 's/@master/@development/' requirements-dev.txt
+        sed -i 's/pyelectro.git@master/pyelectro.git@development/' requirements-dev.txt
 
     - name: Install deps from experimental
       if: ${{ github.ref == 'refs/heads/experimental' || github.base_ref == 'experimental' }}

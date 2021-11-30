@@ -49,7 +49,7 @@ class SineWaveNetworkController():
                 info+="%s=%s "%(key, sim_var[key])
             
             #fig = plt.figure()
-            #fig.canvas.set_window_title(info)
+            #plt.get_current_fig_manager().set_window_title(info)
             
             for i in range(self.pop_num):
                 ref = '%s_%i'%(self.population_id, i)

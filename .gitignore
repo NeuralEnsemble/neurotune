@@ -16,3 +16,4 @@ examples/example_*/x86_64/
 doc/_build
 /tests.log
 /examples/notebooks/.ipynb_checkpoints
+.mypy_cache/

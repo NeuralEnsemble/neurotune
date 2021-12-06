@@ -14,6 +14,7 @@ setup(
     author_email="mv333@cam.ac.uk, p.gleeson@gmail.com",
     description="A Python library for optimising neuronal models",
     license="BSD",
+    install_requires=["scipy", "inspyred", "pyelectro"],
     url="https://github.com/NeuralEnsemble/neurotune",
     classifiers=[
         "Development Status :: 3 - Alpha",

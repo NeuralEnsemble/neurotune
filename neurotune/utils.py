@@ -6,6 +6,10 @@
 
 import math
 import numpy as np
+try:
+    from typing import List, Dict, Bool, Union
+except ImportError:
+    pass
 
 import logging
 
@@ -18,9 +22,34 @@ def plot_generation_evolution(
     individuals_file_name="../data/ga_individuals.csv",
     show_plot_already=True,
     save_to_file=False,
+    save_to_file_scatter=False,
     save_to_file_hist=False,
+    save_to_file_output=False,
     title_prefix="",
 ):
+    # type: (List, Dict, str, Bool, Union[Bool, str], Union[Bool, str], Union[Bool, str], Union[Bool, str], str) -> None
+    """Plot generation evolution related graphs.
+
+    :param sim_var_names: names of variables
+    :type sim_var_names: list
+    :param target_values: target values provided for fitting
+    :type target_values: dict
+    :param individuals_file_name: name of file storing data from individual generation runs
+    :type individuals_file_name: str
+    :param show_plot_already: whether showing plots should wait until plot() is called
+    :type show_plot_already: bool
+    :param save_to_file: name of file to save fitness plot to, False to not save
+    :type save_to_file: str or bool
+    :param save_to_file_scatter: name of file to save scatter plot to, False to not save
+    :type save_to_file_scatter: str or bool
+    :param save_to_file_hist: name of file to save histogram plot to, False to not save
+    :type save_to_file_hist: str or bool
+    :param save_to_file_output: name of file to save output plot to, False to not save
+    :type save_to_file_output: str or bool
+    :param title_prefix: prefix of plot title
+    :type title_prefix: str
+
+    """
 
     sim_var_names = list(sim_var_names)
     import matplotlib.pyplot as pyplot
@@ -109,6 +138,9 @@ def plot_generation_evolution(
             colours[v].append(individual)
             sizes[v].append((population_total - individual) * 2)
 
+    if save_to_file_output:
+        pyplot.savefig(save_to_file_output, bbox_inches="tight")
+
     fig = pyplot.figure()
     pyplot.get_current_fig_manager().set_window_title(
         title_prefix
@@ -136,6 +168,8 @@ def plot_generation_evolution(
             pyplot.plot(x, y, "--", color="grey")
 
         pyplot.scatter(generations_offset, vals[i], s=sizes[i], c=colours[i], alpha=0.4)
+    if save_to_file_scatter:
+        pyplot.savefig(save_to_file_scatter, bbox_inches="tight")
 
     fig = pyplot.figure()
     pyplot.get_current_fig_manager().set_window_title(

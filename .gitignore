@@ -17,3 +17,6 @@ doc/_build
 /tests.log
 /examples/notebooks/.ipynb_checkpoints
 .mypy_cache/
+
+*.egg-info/
+dist/

@@ -1,11 +1,19 @@
 """
 
     Script to plot evolution of parameters in neurotune
-    
+
 """
 
 import math
 import numpy as np
+try:
+    from typing import List, Dict, Bool, Union
+except ImportError:
+    pass
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def plot_generation_evolution(
@@ -14,12 +22,34 @@ def plot_generation_evolution(
     individuals_file_name="../data/ga_individuals.csv",
     show_plot_already=True,
     save_to_file=False,
+    save_to_file_scatter=False,
     save_to_file_hist=False,
     title_prefix="",
 ):
+    # type: (List, Dict, str, Bool, Union[Bool, str], Union[Bool, str], Union[Bool, str], str) -> None
+    """Plot generation evolution related graphs.
+
+    :param sim_var_names: names of variables
+    :type sim_var_names: list
+    :param target_values: target values provided for fitting
+    :type target_values: dict
+    :param individuals_file_name: name of file storing data from individual generation runs
+    :type individuals_file_name: str
+    :param show_plot_already: whether showing plots should wait until plot() is called
+    :type show_plot_already: bool
+    :param save_to_file: name of file to save fitness plot to, False to not save
+    :type save_to_file: str or bool
+    :param save_to_file_scatter: name of file to save scatter plot to, False to not save
+    :type save_to_file_scatter: str or bool
+    :param save_to_file_hist: name of file to save histogram plot to, False to not save
+    :type save_to_file_hist: str or bool
+    :param title_prefix: prefix of plot title
+    :type title_prefix: str
+
+    """
 
     sim_var_names = list(sim_var_names)
-    import matplotlib.pyplot as pylab
+    import matplotlib.pyplot as pyplot
 
     individuals_file = open(individuals_file_name)
 
@@ -63,7 +93,7 @@ def plot_generation_evolution(
         "Generating plots for %s variables over %s generations with population %s"
         % (val_num, generations_total, population_total)
     )
-    print("Vals shown in %i rows x %i columns" % (nrows, ncols))
+    logger.debug("Vals shown in %i rows x %i columns" % (nrows, ncols))
 
     vals = {}
     colours = {}
@@ -76,7 +106,8 @@ def plot_generation_evolution(
         sizes[i] = []
         ind_vals[i] = {}
 
-    individuals_file = open(individuals_file_name)
+    # Go back to the starting of the file
+    individuals_file.seek(0, 0)
 
     for line in individuals_file:
         main_info = line.split("[")[0]
@@ -86,7 +117,7 @@ def plot_generation_evolution(
         fitness = float(main_info.split(",")[2].strip())
 
         if individual == 0:
-            print("Generation %s..." % generation)
+            logger.debug("Generation %s..." % generation)
             generations.append(generation)
 
         generations_all.append(generation)
@@ -104,58 +135,75 @@ def plot_generation_evolution(
             colours[v].append(individual)
             sizes[v].append((population_total - individual) * 2)
 
-    fig = pylab.figure()
-    pylab.get_current_fig_manager().set_window_title(
+    fig1 = pyplot.figure()
+    pyplot.get_current_fig_manager().set_window_title(
         title_prefix
         + " Evolution over %i generations of %s" % (generations_total, sim_var_names)
     )
+    pyplot.subplots_adjust(hspace=0.4)
+    pyplot.figtext(
+        0.40,
+        0.01,
+        "Generation (%i individuals, offset slightly; larger circle => fitter)"
+        % (population_total)
+    )
     for i in range(val_num):
 
-        pylab.subplot(nrows, ncols, i + 1)
-        pylab.title(sim_var_names[i])
+        var_name = sim_var_names[i]
+
+        pyplot.subplot(nrows, ncols, i + 1, xlabel="Generation",
+                       ylabel="{} ({})".format(var_name.split('/')[-2],
+                                               var_name.split('/')[-1]))
+        pyplot.title(var_name)
         if target_values is not None and sim_var_names[i] in target_values:
             value = target_values[sim_var_names[i]]
             x = [-1, generations_total + 1]
             y = [value, value]
-            pylab.plot(x, y, "--", color="grey")
+            pyplot.plot(x, y, "--", color="grey")
 
-        pylab.scatter(generations_offset, vals[i], s=sizes[i], c=colours[i], alpha=0.4)
-        if i == 0:
-            pylab.xlabel(
-                "Generation (%i individuals, offset slightly; larger circle => fitter)"
-                % (population_total)
-            )
+        pyplot.scatter(generations_offset, vals[i], s=sizes[i], c=colours[i], alpha=0.4)
 
-    fig = pylab.figure()
-    pylab.get_current_fig_manager().set_window_title(
+    if save_to_file_scatter:
+        pyplot.savefig(save_to_file_scatter, dpi=300, bbox_inches='tight')
+
+    fig2 = pyplot.figure()
+    pyplot.get_current_fig_manager().set_window_title(
         title_prefix
         + " Fitness over %i generations from %s"
         % (generations_total, individuals_file_name)
     )
-    ax = fig.add_subplot(2, 1, 1)
 
+    ax = fig2.add_subplot(2, 1, 1, ylabel="Fitness")
     ax.scatter(generations_offset, f, s=sizes[i], c=colours[i], alpha=0.4)
-    ax = fig.add_subplot(2, 1, 2)
+
+    ax = fig2.add_subplot(2, 1, 2, ylabel="Fitness (log)")
     ax.set_yscale("log")
     ax.scatter(generations_offset, f, s=sizes[i], c=colours[i], alpha=0.4)
-    pylab.xlabel(
+    pyplot.figtext(
+        0.40,
+        0.01,
         "Generation (%i individuals, offset slightly; larger circle => fitter)"
         % (population_total)
     )
 
     if save_to_file:
-        pylab.savefig(save_to_file, bbox_inches="tight")
+        pyplot.savefig(save_to_file, dpi=300, bbox_inches='tight')
 
-    fig = pylab.figure()
-    pylab.get_current_fig_manager().set_window_title(
-        title_prefix
-        + " Histograms over %i generations of %s" % (generations_total, sim_var_names)
+    fig3 = pyplot.figure()
+    pyplot.get_current_fig_manager().set_window_title(
+        title_prefix + " Histograms over %i generations of %s" %
+        (generations_total, sim_var_names)
     )
 
+    pyplot.subplots_adjust(hspace=0.4)
     for i in range(val_num):
 
-        ax = pylab.subplot(nrows, ncols, i + 1)
-        pylab.title(sim_var_names[i])
+        var_name = (sim_var_names[i])
+        ax = pyplot.subplot(nrows, ncols, i + 1,
+                            xlabel="{} ({})".format(var_name.split('/')[-2],
+                                                    var_name.split('/')[-1])
+                            )
+        pyplot.title(var_name)
 
         for generation in generations:
             values = ind_vals[i][generation]
@@ -169,10 +217,12 @@ def plot_generation_evolution(
             ax.plot(xs, hist, color=(shade, shade, shade))
 
     if save_to_file_hist:
-        pylab.savefig(save_to_file_hist, bbox_inches="tight")
+        pyplot.savefig(save_to_file_hist, dpi=300, bbox_inches='tight')
 
     if show_plot_already:
-        pylab.show()
+        pyplot.show()
+
+    individuals_file.close()
 
 
 if __name__ == "__main__":

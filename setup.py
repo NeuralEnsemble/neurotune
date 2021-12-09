@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from distutils.core import setup
+from setuptools import setup
 
 for line in open("neurotune/__init__.py"):
     if line.startswith("__version__"):

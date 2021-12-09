@@ -24,10 +24,9 @@ def plot_generation_evolution(
     save_to_file=False,
     save_to_file_scatter=False,
     save_to_file_hist=False,
-    save_to_file_output=False,
     title_prefix="",
 ):
-    # type: (List, Dict, str, Bool, Union[Bool, str], Union[Bool, str], Union[Bool, str], Union[Bool, str], str) -> None
+    # type: (List, Dict, str, Bool, Union[Bool, str], Union[Bool, str], Union[Bool, str], str) -> None
     """Plot generation evolution related graphs.
 
     :param sim_var_names: names of variables
@@ -44,8 +43,6 @@ def plot_generation_evolution(
     :type save_to_file_scatter: str or bool
     :param save_to_file_hist: name of file to save histogram plot to, False to not save
     :type save_to_file_hist: str or bool
-    :param save_to_file_output: name of file to save output plot to, False to not save
-    :type save_to_file_output: str or bool
     :param title_prefix: prefix of plot title
     :type title_prefix: str
 
@@ -138,10 +135,7 @@ def plot_generation_evolution(
             colours[v].append(individual)
             sizes[v].append((population_total - individual) * 2)
 
-    if save_to_file_output:
-        pyplot.savefig(save_to_file_output)
-
-    fig = pyplot.figure()
+    fig1 = pyplot.figure()
     pyplot.get_current_fig_manager().set_window_title(
         title_prefix
         + " Evolution over %i generations of %s" % (generations_total, sim_var_names)
@@ -168,10 +162,11 @@ def plot_generation_evolution(
             pyplot.plot(x, y, "--", color="grey")
 
         pyplot.scatter(generations_offset, vals[i], s=sizes[i], c=colours[i], alpha=0.4)
-    if save_to_file_scatter:
-        pyplot.savefig(save_to_file_scatter)
 
-    fig = pyplot.figure()
+    if save_to_file_scatter:
+        pyplot.savefig(save_to_file_scatter, dpi=300, bbox_inches='tight')
+
+    fig2 = pyplot.figure()
     pyplot.get_current_fig_manager().set_window_title(
         title_prefix
         + " Fitness over %i generations from %s"
@@ -192,9 +187,9 @@ def plot_generation_evolution(
     )
 
     if save_to_file:
-        pyplot.savefig(save_to_file)
+        pyplot.savefig(save_to_file, dpi=300, bbox_inches='tight')
 
-    fig = pyplot.figure()
+    fig3 = pyplot.figure()
     pyplot.get_current_fig_manager().set_window_title(
         title_prefix + " Histograms over %i generations of %s" %
         (generations_total, sim_var_names)
@@ -222,10 +217,10 @@ def plot_generation_evolution(
             ax.plot(xs, hist, color=(shade, shade, shade))
 
     if save_to_file_hist:
-        pyplot.savefig(save_to_file_hist)
+        pyplot.savefig(save_to_file_hist, dpi=300, bbox_inches='tight')
 
     if show_plot_already:
-        pyplot.show(block=True)
+        pyplot.show()
 
     individuals_file.close()
 

@@ -173,10 +173,10 @@ def plot_generation_evolution(
         % (generations_total, individuals_file_name)
     )
 
-    ax = fig.add_subplot(2, 1, 1, ylabel="Fitness")
+    ax = fig2.add_subplot(2, 1, 1, ylabel="Fitness")
     ax.scatter(generations_offset, f, s=sizes[i], c=colours[i], alpha=0.4)
 
-    ax = fig.add_subplot(2, 1, 2, ylabel="Fitness (log)")
+    ax = fig2.add_subplot(2, 1, 2, ylabel="Fitness (log)")
     ax.set_yscale("log")
     ax.scatter(generations_offset, f, s=sizes[i], c=colours[i], alpha=0.4)
     pyplot.figtext(

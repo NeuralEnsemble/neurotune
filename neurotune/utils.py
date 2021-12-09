@@ -1,11 +1,15 @@
 """
 
     Script to plot evolution of parameters in neurotune
-    
+
 """
 
 import math
 import numpy as np
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def plot_generation_evolution(
@@ -63,7 +67,7 @@ def plot_generation_evolution(
         "Generating plots for %s variables over %s generations with population %s"
         % (val_num, generations_total, population_total)
     )
-    print("Vals shown in %i rows x %i columns" % (nrows, ncols))
+    logger.debug("Vals shown in %i rows x %i columns" % (nrows, ncols))
 
     vals = {}
     colours = {}
@@ -87,7 +91,7 @@ def plot_generation_evolution(
         fitness = float(main_info.split(",")[2].strip())
 
         if individual == 0:
-            print("Generation %s..." % generation)
+            logger.debug("Generation %s..." % generation)
             generations.append(generation)
 
         generations_all.append(generation)

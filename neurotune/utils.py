@@ -139,7 +139,7 @@ def plot_generation_evolution(
             sizes[v].append((population_total - individual) * 2)
 
     if save_to_file_output:
-        pyplot.savefig(save_to_file_output, bbox_inches="tight")
+        pyplot.savefig(save_to_file_output)
 
     fig = pyplot.figure()
     pyplot.get_current_fig_manager().set_window_title(
@@ -169,7 +169,7 @@ def plot_generation_evolution(
 
         pyplot.scatter(generations_offset, vals[i], s=sizes[i], c=colours[i], alpha=0.4)
     if save_to_file_scatter:
-        pyplot.savefig(save_to_file_scatter, bbox_inches="tight")
+        pyplot.savefig(save_to_file_scatter)
 
     fig = pyplot.figure()
     pyplot.get_current_fig_manager().set_window_title(
@@ -192,7 +192,7 @@ def plot_generation_evolution(
     )
 
     if save_to_file:
-        pyplot.savefig(save_to_file, bbox_inches="tight")
+        pyplot.savefig(save_to_file)
 
     fig = pyplot.figure()
     pyplot.get_current_fig_manager().set_window_title(
@@ -222,7 +222,7 @@ def plot_generation_evolution(
             ax.plot(xs, hist, color=(shade, shade, shade))
 
     if save_to_file_hist:
-        pyplot.savefig(save_to_file_hist, bbox_inches="tight")
+        pyplot.savefig(save_to_file_hist)
 
     if show_plot_already:
         pyplot.show(block=True)

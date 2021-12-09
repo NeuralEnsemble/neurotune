@@ -76,7 +76,8 @@ def plot_generation_evolution(
         sizes[i] = []
         ind_vals[i] = {}
 
-    individuals_file = open(individuals_file_name)
+    # Go back to the starting of the file
+    individuals_file.seek(0, 0)
 
     for line in individuals_file:
         main_info = line.split("[")[0]
@@ -172,7 +173,9 @@ def plot_generation_evolution(
         pylab.savefig(save_to_file_hist, bbox_inches="tight")
 
     if show_plot_already:
-        pylab.show()
+        pylab.show(block=True)
+
+    individuals_file.close()
 
 
 if __name__ == "__main__":

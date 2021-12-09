@@ -23,7 +23,7 @@ def plot_generation_evolution(
 ):
 
     sim_var_names = list(sim_var_names)
-    import matplotlib.pyplot as pylab
+    import matplotlib.pyplot as pyplot
 
     individuals_file = open(individuals_file_name)
 
@@ -109,58 +109,72 @@ def plot_generation_evolution(
             colours[v].append(individual)
             sizes[v].append((population_total - individual) * 2)
 
-    fig = pylab.figure()
-    pylab.get_current_fig_manager().set_window_title(
+    fig = pyplot.figure()
+    pyplot.get_current_fig_manager().set_window_title(
         title_prefix
         + " Evolution over %i generations of %s" % (generations_total, sim_var_names)
     )
+    pyplot.subplots_adjust(hspace=0.4)
+    pyplot.figtext(
+        0.40,
+        0.01,
+        "Generation (%i individuals, offset slightly; larger circle => fitter)"
+        % (population_total)
+    )
     for i in range(val_num):
 
-        pylab.subplot(nrows, ncols, i + 1)
-        pylab.title(sim_var_names[i])
+        var_name = sim_var_names[i]
+
+        pyplot.subplot(nrows, ncols, i + 1, xlabel="Generation",
+                       ylabel="{} ({})".format(var_name.split('/')[-2],
+                                               var_name.split('/')[-1]))
+        pyplot.title(var_name)
         if target_values is not None and sim_var_names[i] in target_values:
             value = target_values[sim_var_names[i]]
             x = [-1, generations_total + 1]
             y = [value, value]
-            pylab.plot(x, y, "--", color="grey")
+            pyplot.plot(x, y, "--", color="grey")
 
-        pylab.scatter(generations_offset, vals[i], s=sizes[i], c=colours[i], alpha=0.4)
-        if i == 0:
-            pylab.xlabel(
-                "Generation (%i individuals, offset slightly; larger circle => fitter)"
-                % (population_total)
-            )
+        pyplot.scatter(generations_offset, vals[i], s=sizes[i], c=colours[i], alpha=0.4)
 
-    fig = pylab.figure()
-    pylab.get_current_fig_manager().set_window_title(
+    fig = pyplot.figure()
+    pyplot.get_current_fig_manager().set_window_title(
         title_prefix
         + " Fitness over %i generations from %s"
         % (generations_total, individuals_file_name)
     )
-    ax = fig.add_subplot(2, 1, 1)
 
+    ax = fig.add_subplot(2, 1, 1, ylabel="Fitness")
     ax.scatter(generations_offset, f, s=sizes[i], c=colours[i], alpha=0.4)
-    ax = fig.add_subplot(2, 1, 2)
+
+    ax = fig.add_subplot(2, 1, 2, ylabel="Fitness (log)")
     ax.set_yscale("log")
     ax.scatter(generations_offset, f, s=sizes[i], c=colours[i], alpha=0.4)
-    pylab.xlabel(
+    pyplot.figtext(
+        0.40,
+        0.01,
         "Generation (%i individuals, offset slightly; larger circle => fitter)"
         % (population_total)
     )
 
     if save_to_file:
-        pylab.savefig(save_to_file, bbox_inches="tight")
+        pyplot.savefig(save_to_file, bbox_inches="tight")
 
-    fig = pylab.figure()
-    pylab.get_current_fig_manager().set_window_title(
-        title_prefix
-        + " Histograms over %i generations of %s" % (generations_total, sim_var_names)
+    fig = pyplot.figure()
+    pyplot.get_current_fig_manager().set_window_title(
+        title_prefix + " Histograms over %i generations of %s" %
+        (generations_total, sim_var_names)
     )
 
+    pyplot.subplots_adjust(hspace=0.4)
     for i in range(val_num):
 
-        ax = pylab.subplot(nrows, ncols, i + 1)
-        pylab.title(sim_var_names[i])
+        var_name = (sim_var_names[i])
+        ax = pyplot.subplot(nrows, ncols, i + 1,
+                            xlabel="{} ({})".format(var_name.split('/')[-2],
+                                                    var_name.split('/')[-1])
+                            )
+        pyplot.title(var_name)
 
         for generation in generations:
             values = ind_vals[i][generation]
@@ -174,10 +188,10 @@ def plot_generation_evolution(
             ax.plot(xs, hist, color=(shade, shade, shade))
 
     if save_to_file_hist:
-        pylab.savefig(save_to_file_hist, bbox_inches="tight")
+        pyplot.savefig(save_to_file_hist, bbox_inches="tight")
 
     if show_plot_already:
-        pylab.show(block=True)
+        pyplot.show(block=True)
 
     individuals_file.close()
 

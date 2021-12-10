@@ -576,6 +576,18 @@ class NetworkEvaluator(__Evaluator):
                         value = "<<infinite value!>>"
                         inc = target_weight
                 else:
+                    # Check if any targets for the provided entity are included
+                    # in the analysis results. If not, something is wrong.
+                    valid = False
+                    entity = target.split("/")[0].split(":")[0]
+                    for atarget in data_analysis.analysis_results.keys():
+                        if entity in atarget:
+                            valid = True
+                            break
+
+                    if not valid:
+                        raise RuntimeError("No target values for entity {} were found in the analysis results.  Please check your target parameter strings.\nAll target parameters are: {}".format(entity, data_analysis.analysis_results.keys()))
+
                     value = (
                         "<<cannot be calculated! (only: %s; peak_threshold: %s)>>"
                         % (

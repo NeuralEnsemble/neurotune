@@ -69,7 +69,7 @@ def normalised_cost_function(value, target, Q=None):
     value = float(value)
     target = float(target)
 
-    if Q == None:
+    if Q is None:
         if target != 0:
             Q = 7 / (300 * (target ** 2))
         else:
@@ -333,7 +333,7 @@ class IClampEvaluator(__Evaluator):
 
         print("target data path in evaluator:" + target_data_path)
 
-        if automatic == True:
+        if automatic is True:
             t, v_raw = analysis.load_csv_data(target_data_path)
             v = numpy.array(v_raw)
 
@@ -413,7 +413,7 @@ class IClampEvaluator(__Evaluator):
         # calculate max fitness value (TODO: there may be a more pythonic way to do this..)
         worst_cumulative_fitness = 0
         for target in target_dict.keys():
-            if target_weights == None:
+            if target_weights is None:
                 target_weight = 1
             else:
                 if target in target_weights.keys():
@@ -424,7 +424,7 @@ class IClampEvaluator(__Evaluator):
             worst_cumulative_fitness += target_weight
 
         # if we have 1 or 0 peaks we won't conduct any analysis
-        if data_analysis.analysable_data == False:
+        if data_analysis.analysable_data is False:
             print("Data is non-analysable")
             return worst_cumulative_fitness
 
@@ -436,7 +436,7 @@ class IClampEvaluator(__Evaluator):
                 target_value = target_dict[target]
                 cost = "?"
 
-                if target_weights == None:
+                if target_weights is None:
                     target_weight = 1
                 else:
                     if target in target_weights.keys():
@@ -555,7 +555,7 @@ class NetworkEvaluator(__Evaluator):
 
             target_value = target_dict[target]
 
-            if target_weights == None:
+            if target_weights is None:
                 target_weight = 1
             else:
                 if target in target_weights.keys():
@@ -856,7 +856,7 @@ class PointValueEvaluator(__Evaluator):
 
             target_value = target_dict[target]
 
-            if target_weights == None:
+            if target_weights is None:
                 target_weight = 1
             else:
                 if target in target_weights.keys():

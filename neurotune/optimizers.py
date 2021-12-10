@@ -38,6 +38,13 @@ class __Optimizer(object):
         self.mutation_rate = mutation_rate
         self.seeds = seeds
 
+        # check that constraints are of equal lengths
+        assert (len(self.max_constraints) == len(self.min_constraints)), "Min ({}) and max ({}) constraint lists are not of equal size.".format(len(self.min_constraints), len(self.max_constraints))
+
+        # check that min constraints are always less than max constraints
+        for i in range(0, len(self.max_constraints)):
+            assert (self.min_constraints[i] <= self.max_constraints[i]), "Min constraint {} is larger than max constraint {}.".format(self.min_constraints[i], self.max_constraints[i])
+
     def uniform_random_chromosome(self, random, args):
         chromosome = []
         for lo, hi in zip(self.max_constraints, self.min_constraints):

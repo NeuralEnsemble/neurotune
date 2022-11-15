@@ -4,10 +4,12 @@
 
 """
 
+from __future__ import annotations
 import math
 import numpy as np
+
 try:
-    from typing import List, Dict, Bool, Union
+    import typing
 except ImportError:
     pass
 
@@ -17,16 +19,15 @@ logger = logging.getLogger(__name__)
 
 
 def plot_generation_evolution(
-    sim_var_names,
-    target_values={},
-    individuals_file_name="../data/ga_individuals.csv",
-    show_plot_already=True,
-    save_to_file=False,
-    save_to_file_scatter=False,
-    save_to_file_hist=False,
-    title_prefix="",
-):
-    # type: (List, Dict, str, Bool, Union[Bool, str], Union[Bool, str], Union[Bool, str], str) -> None
+    sim_var_names: list,
+    target_values: dict = {},
+    individuals_file_name: str = "../data/ga_individuals.csv",
+    show_plot_already: bool = True,
+    save_to_file: typing.Union[bool, str] = False,
+    save_to_file_scatter: bool = False,
+    save_to_file_hist: bool = False,
+    title_prefix: str = "",
+) -> None:
     """Plot generation evolution related graphs.
 
     :param sim_var_names: names of variables
@@ -145,15 +146,19 @@ def plot_generation_evolution(
         0.40,
         0.01,
         "Generation (%i individuals, offset slightly; larger circle => fitter)"
-        % (population_total)
+        % (population_total),
     )
     for i in range(val_num):
 
         var_name = sim_var_names[i]
 
-        pyplot.subplot(nrows, ncols, i + 1, xlabel="Generation",
-                       ylabel="{} ({})".format(var_name.split('/')[-2],
-                                               var_name.split('/')[-1]))
+        pyplot.subplot(
+            nrows,
+            ncols,
+            i + 1,
+            xlabel="Generation",
+            ylabel="{} ({})".format(var_name.split("/")[-2], var_name.split("/")[-1]),
+        )
         pyplot.title(var_name)
         if target_values is not None and sim_var_names[i] in target_values:
             value = target_values[sim_var_names[i]]
@@ -164,7 +169,7 @@ def plot_generation_evolution(
         pyplot.scatter(generations_offset, vals[i], s=sizes[i], c=colours[i], alpha=0.4)
 
     if save_to_file_scatter:
-        pyplot.savefig(save_to_file_scatter, dpi=300, bbox_inches='tight')
+        pyplot.savefig(save_to_file_scatter, dpi=300, bbox_inches="tight")
 
     fig2 = pyplot.figure()
     pyplot.get_current_fig_manager().set_window_title(
@@ -183,26 +188,28 @@ def plot_generation_evolution(
         0.40,
         0.01,
         "Generation (%i individuals, offset slightly; larger circle => fitter)"
-        % (population_total)
+        % (population_total),
     )
 
     if save_to_file:
-        pyplot.savefig(save_to_file, dpi=300, bbox_inches='tight')
+        pyplot.savefig(save_to_file, dpi=300, bbox_inches="tight")
 
     fig3 = pyplot.figure()
     pyplot.get_current_fig_manager().set_window_title(
-        title_prefix + " Histograms over %i generations of %s" %
-        (generations_total, sim_var_names)
+        title_prefix
+        + " Histograms over %i generations of %s" % (generations_total, sim_var_names)
     )
 
     pyplot.subplots_adjust(hspace=0.4)
     for i in range(val_num):
 
-        var_name = (sim_var_names[i])
-        ax = pyplot.subplot(nrows, ncols, i + 1,
-                            xlabel="{} ({})".format(var_name.split('/')[-2],
-                                                    var_name.split('/')[-1])
-                            )
+        var_name = sim_var_names[i]
+        ax = pyplot.subplot(
+            nrows,
+            ncols,
+            i + 1,
+            xlabel="{} ({})".format(var_name.split("/")[-2], var_name.split("/")[-1]),
+        )
         pyplot.title(var_name)
 
         for generation in generations:
@@ -217,7 +224,7 @@ def plot_generation_evolution(
             ax.plot(xs, hist, color=(shade, shade, shade))
 
     if save_to_file_hist:
-        pyplot.savefig(save_to_file_hist, dpi=300, bbox_inches='tight')
+        pyplot.savefig(save_to_file_hist, dpi=300, bbox_inches="tight")
 
     if show_plot_already:
         pyplot.show()

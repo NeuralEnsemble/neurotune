@@ -1,6 +1,8 @@
 set -e
 
-rm -rf examples/*/x86_64/
+pip install .
+
+rm -rf examples/*/x86_64/ examples/*/arm64
 
 #### Requires NEURON
 cd examples/example_1

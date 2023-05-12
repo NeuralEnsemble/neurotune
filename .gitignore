@@ -20,3 +20,4 @@ doc/_build
 
 *.egg-info/
 dist/
+arm64

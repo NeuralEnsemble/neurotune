@@ -17,16 +17,16 @@ Full documentation can be found [here](http://neurotune.readthedocs.io/en/latest
 
 ## Installation
 
-You can install the dependencies using `pip`:
-
-```
-pip install -r ./requirements-dev.txt
-```
-
 Install Neurotune with the following command:
+```
+sudo pip install .
 
 ```
-sudo python setup.py install
+
+The developer dependencies can be installed using the `dev` extra:
+
+```
+sudo pip install .[dev]
 ```
 
 The [CI script](https://github.com/NeuralEnsemble/neurotune/blob/master/.github/workflows/ci.yml) shows the full set of commands for installation & execution of a number of examples.

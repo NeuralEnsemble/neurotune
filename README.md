@@ -18,6 +18,7 @@ Full documentation can be found [here](http://neurotune.readthedocs.io/en/latest
 ## Installation
 
 Install Neurotune with the following command:
+
 ```
 sudo pip install .
 
@@ -30,6 +31,3 @@ sudo pip install .[dev]
 ```
 
 The [CI script](https://github.com/NeuralEnsemble/neurotune/blob/master/.github/workflows/ci.yml) shows the full set of commands for installation & execution of a number of examples.
-
-
-

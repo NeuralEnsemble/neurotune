@@ -28,23 +28,22 @@ jobs:
         echo "github.ref is: ${{ github.ref }}"
         echo "github.base_ref is: ${{ github.base_ref }}"
 
+    - name: Update pip, install package
+      run: |
+        python -m pip install --upgrade pip
+        pip install .
+
     - name: Install deps from development
       if: ${{ github.ref == 'refs/heads/development' || github.base_ref == 'development' }}
       run: |
         echo "Using deps from development"
-        sed -i 's/pyelectro.git@master/pyelectro.git@development/' requirements-dev.txt
+        pip install .[dev]
 
     - name: Install deps from experimental
       if: ${{ github.ref == 'refs/heads/experimental' || github.base_ref == 'experimental' }}
       run: |
         echo "Using deps from experimental"
-        sed -i 's/@master/@experimental/' requirements-dev.txt
-
-    - name: Install package
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements-dev.txt
-        pip install .
+        pip install .[experimental]
 
     - name: Run tests
       run: |

@@ -1,4 +1,0 @@
-scipy
-git+https://github.com/aarongarrett/inspyred.git@master#egg=inspyred
-git+https://github.com/NeuralEnsemble/pyelectro.git@master#egg=pyelectro
-NEURON

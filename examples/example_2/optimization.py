@@ -89,13 +89,14 @@ class Simulation(object):
 
         self.set_recording()
         h.dt = self.dt
+        h.initnrn()
 
         h.finitialize(self.v_init)
-        neuron.init()
+        h.load_file("stdrun.hoc")
         if sim_time:
-            neuron.run(sim_time)
+            h.continuerun(sim_time)
         else:
-            neuron.run(self.sim_time)
+            h.continuerun(self.sim_time)
         self.go_already = True
 
 

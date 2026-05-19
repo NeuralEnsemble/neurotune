@@ -5,6 +5,8 @@ on:
     branches: [ master, development, experimental ]
   pull_request:
     branches: [ master, development, experimental  ]
+  schedule:
+    - cron '0 4 1,15 * *'  # 4 am on 1st and 15th of each month
 
 jobs:
   build:
@@ -37,7 +39,7 @@ jobs:
     - name: Run tests
       run: |
         ./test.sh
-        
+
     - name: Lint with flake8
       run: |
         pip install flake8
